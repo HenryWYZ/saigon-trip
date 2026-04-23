@@ -4,6 +4,10 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>🇻🇳 胡志明五日行程 | 2026/5/1–5/5</title>
+<meta name="theme-color" content="#001858">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Saigon Trip">
+<link rel="manifest" href="manifest.json">
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body {
@@ -98,6 +102,64 @@
     border-radius: 4px;
   }
   .must-list strong { color: #e8a317; }
+  .progress-wrap {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(254, 246, 228, 0.95);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    padding: 10px 14px;
+    margin-bottom: 15px;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0,24,88,0.12);
+  }
+  .progress-bg {
+    height: 10px;
+    background: #f3d2c1;
+    border-radius: 5px;
+    overflow: hidden;
+  }
+  .progress-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #8bd3dd, #f582ae);
+    width: 0%;
+    transition: width 0.35s ease;
+  }
+  .progress-text {
+    font-size: 12px;
+    color: #001858;
+    margin-top: 6px;
+    text-align: center;
+    font-weight: bold;
+  }
+  .info-box code {
+    background: #fef6e4;
+    padding: 1px 6px;
+    border-radius: 4px;
+    font-family: "SF Mono", Consolas, monospace;
+    font-size: 13px;
+  }
+  @media print {
+    body { background: white; color: black; padding: 0; font-size: 11pt; }
+    .container { max-width: 100%; }
+    header { background: white !important; color: black !important; border: 2px solid #001858; border-radius: 0; padding: 12px; margin-bottom: 10px; }
+    header h1 { font-size: 18pt; }
+    header p { opacity: 1; }
+    .map-btns, .checkbox, .progress-wrap { display: none !important; }
+    details { box-shadow: none; border: 1px solid #888; page-break-inside: avoid; margin-bottom: 6px; border-radius: 0; }
+    summary { background: #eee !important; color: black !important; font-size: 13pt; padding: 8px 12px; list-style: none; }
+    summary::-webkit-details-marker { display: none; }
+    .info-box { box-shadow: none; border: 1px solid #888; border-left-width: 3px; border-radius: 0; page-break-inside: avoid; }
+    .info-box h3 { color: black; }
+    .must-list { background: #f7f7f7 !important; border-left-color: #888; }
+    td { padding: 6px 10px; font-size: 10pt; }
+    td:first-child { color: black; }
+    .highlight { background: #f0f0f0 !important; }
+    .warn, .must { color: black !important; }
+    footer { display: none; }
+    a { color: black; text-decoration: none; }
+  }
   footer {
     text-align: center;
     padding: 20px;
@@ -114,6 +176,11 @@
   <h1>🇻🇳 胡志明五日行程</h1>
   <p>2026/5/1（四）– 5/5（一）｜CI9027 出發・CI9026 回程</p>
 </header>
+
+<div class="progress-wrap" id="progress-wrap">
+  <div class="progress-bg"><div class="progress-bar-fill" id="progress-bar"></div></div>
+  <div class="progress-text" id="progress-text">已完成 0 / 0</div>
+</div>
 
 <div class="info-box">
   <h3>🏨 住宿</h3>
@@ -137,6 +204,33 @@
     <li>AN CUA SAIGON（Day 3）</li>
     <li><strong>CieL Dining（Day 4，最優先，提前 1 週）</strong></li>
     <li>✅ Pizza 4P's Ben Thanh（Day 5 11:00 已訂）</li>
+  </ul>
+</div>
+
+<div class="info-box">
+  <h3>💰 預算 / 匯率參考</h3>
+  <p><strong>匯率（2026/4 參考，實際以當日為準）：</strong>1 USD ≈ 25,000 VND｜1 TWD ≈ 780 VND｜100,000 VND ≈ 128 TWD</p>
+  <ul>
+    <li>早餐（當地小吃）：50,000–120,000 VND / 人</li>
+    <li>午餐（小館/粉店）：150,000–300,000 VND / 人</li>
+    <li>晚餐（海鮮/高級）：400,000–1,500,000 VND / 人</li>
+    <li>Grab 市區短程：30,000–80,000 VND｜機場來回：250,000–350,000 VND</li>
+    <li>Spa 按摩 2 小時：500,000–1,200,000 VND / 人</li>
+    <li>夜市小吃一輪：150,000–300,000 VND / 人</li>
+    <li>小費慣例：Spa/高級餐廳 50,000–100,000 VND；一般餐廳已含服務費</li>
+  </ul>
+</div>
+
+<div class="info-box">
+  <h3>🚨 緊急聯絡</h3>
+  <ul>
+    <li><strong>越南緊急：</strong>警察 <code>113</code>｜火警 <code>114</code>｜救護車 <code>115</code></li>
+    <li><strong>旅外國人急難救助全球免付費：</strong><code>+800-0885-0885</code>（境外直撥）</li>
+    <li><strong>外交部緊急聯絡中心（台灣）：</strong><code>+886-800-085-095</code></li>
+    <li><strong>駐胡志明市台北經濟文化辦事處：</strong>出發前到 <code>roc-taiwan.org</code> 查最新急難電話</li>
+    <li><strong>華航 胡志明市：</strong><code>+84-28-3910-6333</code>｜<strong>華航 台灣：</strong><code>+886-412-9000</code></li>
+    <li><strong>信用卡海外掛失：</strong>（請填入你的發卡行 24h 客服）</li>
+    <li><strong>Liberty Central Hotel：</strong>（入住時記下櫃檯電話）</li>
   </ul>
 </div>
 
@@ -293,5 +387,55 @@
 </footer>
 
 </div>
+
+<script>
+(function () {
+  const STORAGE_KEY = 'saigon-trip-checks-v1';
+  const checkboxes = document.querySelectorAll('input.checkbox');
+  const bar = document.getElementById('progress-bar');
+  const text = document.getElementById('progress-text');
+
+  try {
+    const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+    checkboxes.forEach((cb, i) => { if (saved[i]) cb.checked = true; });
+  } catch (e) {}
+
+  function updateProgress() {
+    const total = checkboxes.length;
+    const done = Array.from(checkboxes).filter((cb) => cb.checked).length;
+    const pct = total ? Math.round((done / total) * 100) : 0;
+    if (bar) bar.style.width = pct + '%';
+    if (text) text.textContent = `已完成 ${done} / ${total}（${pct}%）`;
+  }
+
+  function save() {
+    const state = Array.from(checkboxes).map((c) => c.checked);
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch (e) {}
+  }
+
+  checkboxes.forEach((cb) => {
+    cb.addEventListener('change', () => { save(); updateProgress(); });
+  });
+  updateProgress();
+
+  window.addEventListener('beforeprint', () => {
+    document.querySelectorAll('details').forEach((d) => {
+      d.dataset.wasOpen = d.open ? '1' : '0';
+      d.open = true;
+    });
+  });
+  window.addEventListener('afterprint', () => {
+    document.querySelectorAll('details').forEach((d) => {
+      d.open = d.dataset.wasOpen === '1';
+    });
+  });
+
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('sw.js').catch(() => {});
+    });
+  }
+})();
+</script>
 </body>
 </html>
