@@ -110,29 +110,41 @@
 
   const fxVnd = document.getElementById('fx-vnd');
   const fxTwd = document.getElementById('fx-twd');
-  const fxTwdInput = document.getElementById('fx-twd-input');
-  const fxVndOutput = document.getElementById('fx-vnd-output');
   const fxRate = document.getElementById('fx-rate');
   const FX_KEY = 'fx-vnd-twd-v1';
   let rate = null;
 
   function fmt(n, d) { return n.toLocaleString('en-US', { minimumFractionDigits: d, maximumFractionDigits: d }); }
-  function parseNum(s) { return parseFloat(String(s).replace(/,/g, '')); }
 
-  function updateConversions() {
-    if (fxVnd && fxTwd) {
-      const v = parseNum(fxVnd.value);
-      if (!isNaN(v) && rate != null) {
-        const twd = v * rate;
-        fxTwd.textContent = fmt(twd, twd < 10 ? 2 : twd < 100 ? 1 : 0) + ' TWD';
-      } else { fxTwd.textContent = '—'; }
+  function formatVnd(val) {
+    const digits = String(val).replace(/[^\d]/g, '');
+    return digits ? parseInt(digits).toLocaleString('en-US') : '';
+  }
+  function formatTwd(val) {
+    const v = String(val).replace(/[^\d.]/g, '');
+    const parts = v.split('.');
+    const intPart = parts[0] ? parseInt(parts[0]).toLocaleString('en-US') : '';
+    const decPart = parts.length > 1 ? '.' + parts.slice(1).join('').slice(0, 2) : '';
+    return intPart + decPart;
+  }
+
+  function onVndInput(e) {
+    e.target.value = formatVnd(e.target.value);
+    const v = parseFloat(e.target.value.replace(/,/g, ''));
+    if (!isNaN(v) && rate != null) {
+      const twd = v * rate;
+      fxTwd.value = fmt(twd, twd < 10 ? 2 : twd < 100 ? 1 : 0);
+    } else {
+      fxTwd.value = '';
     }
-    if (fxTwdInput && fxVndOutput) {
-      const t = parseNum(fxTwdInput.value);
-      if (!isNaN(t) && rate != null && rate > 0) {
-        const vnd = t / rate;
-        fxVndOutput.textContent = fmt(Math.round(vnd), 0) + ' VND';
-      } else { fxVndOutput.textContent = '—'; }
+  }
+  function onTwdInput(e) {
+    e.target.value = formatTwd(e.target.value);
+    const t = parseFloat(e.target.value.replace(/,/g, ''));
+    if (!isNaN(t) && rate != null && rate > 0) {
+      fxVnd.value = Math.round(t / rate).toLocaleString('en-US');
+    } else {
+      fxVnd.value = '';
     }
   }
 
@@ -145,7 +157,8 @@
       dateLabel + ' <span class="fx-refresh" id="fx-refresh">↻ 更新</span>';
     const btn = document.getElementById('fx-refresh');
     if (btn) btn.addEventListener('click', fetchRate);
-    updateConversions();
+    if (fxVnd && fxVnd.value) onVndInput({ target: fxVnd });
+    else if (fxTwd && fxTwd.value) onTwdInput({ target: fxTwd });
   }
 
   async function fetchRate() {
@@ -174,23 +187,8 @@
     }
   }
 
-  if (fxVnd) {
-    fxVnd.addEventListener('input', (e) => {
-      const digits = String(e.target.value).replace(/[^\d]/g, '');
-      e.target.value = digits ? parseInt(digits).toLocaleString('en-US') : '';
-      updateConversions();
-    });
-  }
-  if (fxTwdInput) {
-    fxTwdInput.addEventListener('input', (e) => {
-      const v = String(e.target.value).replace(/[^\d.]/g, '');
-      const parts = v.split('.');
-      const intPart = parts[0] ? parseInt(parts[0]).toLocaleString('en-US') : '';
-      const decPart = parts.length > 1 ? '.' + parts.slice(1).join('').slice(0, 2) : '';
-      e.target.value = intPart + decPart;
-      updateConversions();
-    });
-  }
+  if (fxVnd) fxVnd.addEventListener('input', onVndInput);
+  if (fxTwd) fxTwd.addEventListener('input', onTwdInput);
   if (fxRate) fetchRate();
 
   async function loadWeather() {
@@ -248,4 +246,34 @@
     }
   }
   loadWeather();
+
+  // === IG recommendation icons ===
+  // 若你有特定的 IG 貼文 / Reel URL，在此 map 填入 '地點名稱': 'IG_URL' 即可覆蓋
+  const IG_LINKS = {
+    // 'Phở Việt Nam': 'https://www.instagram.com/reel/XXXXXX/',
+    // 'Chài Village': 'https://www.instagram.com/p/XXXXXX/',
+  };
+  function igUrlFor(name) {
+    if (IG_LINKS[name]) return IG_LINKS[name];
+    return 'https://www.instagram.com/explore/search/keyword/?q=' + encodeURIComponent(name);
+  }
+  const igSvg =
+    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+      '<rect x="3" y="3" width="18" height="18" rx="5"/>' +
+      '<circle cx="12" cy="12" r="4"/>' +
+      '<circle cx="17.5" cy="6.5" r="0.9" fill="currentColor" stroke="none"/>' +
+    '</svg>';
+  document.querySelectorAll('a.place').forEach((a) => {
+    const name = a.textContent.trim();
+    if (!name) return;
+    const ig = document.createElement('a');
+    ig.className = 'ig-link';
+    ig.href = igUrlFor(name);
+    ig.target = '_blank';
+    ig.rel = 'noopener';
+    ig.title = 'IG: ' + name;
+    ig.setAttribute('aria-label', 'Instagram: ' + name);
+    ig.innerHTML = igSvg;
+    a.insertAdjacentElement('afterend', ig);
+  });
 })();
