@@ -22,13 +22,81 @@
   header {
     background: #001858;
     color: #fef6e4;
-    padding: 30px;
-    border-radius: 16px;
+    padding: 14px 18px;
+    border-radius: 12px;
     text-align: center;
-    margin-bottom: 20px;
+    margin-bottom: 12px;
   }
-  header h1 { font-size: 28px; margin-bottom: 8px; }
-  header p { opacity: 0.85; font-size: 14px; }
+  header h1 { font-size: 20px; margin-bottom: 2px; }
+  header p { opacity: 0.85; font-size: 12px; }
+  .fx-box {
+    background: white;
+    padding: 12px 14px;
+    border-radius: 8px;
+    margin-bottom: 12px;
+    border-left: 5px solid #8bd3dd;
+    box-shadow: 0 2px 8px rgba(0,24,88,0.08);
+  }
+  .fx-row {
+    display: flex;
+    align-items: flex-end;
+    gap: 8px;
+  }
+  .fx-group { flex: 1; min-width: 0; }
+  .fx-group label {
+    display: block;
+    font-size: 11px;
+    color: #666;
+    margin-bottom: 3px;
+    font-weight: bold;
+  }
+  .fx-group input {
+    width: 100%;
+    padding: 8px 10px;
+    font-size: 16px;
+    border: 2px solid #f3d2c1;
+    border-radius: 6px;
+    background: #fef6e4;
+    color: #001858;
+    font-family: inherit;
+  }
+  .fx-group input:focus { outline: none; border-color: #f582ae; background: white; }
+  .fx-output {
+    padding: 8px 10px;
+    font-size: 16px;
+    background: #f3d2c1;
+    border-radius: 6px;
+    font-weight: bold;
+    color: #001858;
+    min-height: 38px;
+    display: flex;
+    align-items: center;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .fx-arrow {
+    font-size: 18px;
+    color: #f582ae;
+    font-weight: bold;
+    padding-bottom: 8px;
+    flex: 0 0 auto;
+  }
+  .fx-rate {
+    margin-top: 8px;
+    font-size: 11px;
+    color: #666;
+    text-align: center;
+    line-height: 1.4;
+  }
+  .fx-refresh {
+    color: #f582ae;
+    cursor: pointer;
+    user-select: none;
+    margin-left: 4px;
+    font-weight: bold;
+  }
+  .fx-refresh:hover { text-decoration: underline; }
   .info-box {
     background: white;
     padding: 20px;
@@ -176,6 +244,16 @@
   .collapsible-content p:first-child { margin-top: 0; }
   .collapsible-content ul { padding-left: 20px; margin-bottom: 6px; }
   .collapsible-content li { margin-bottom: 4px; line-height: 1.55; }
+  a.place, a.place:link, a.place:visited {
+    color: inherit;
+    text-decoration: underline;
+    text-decoration-color: #f582ae;
+    text-decoration-style: dotted;
+    text-underline-offset: 3px;
+    text-decoration-thickness: 1.5px;
+  }
+  a.place:hover, a.place:active { color: #f582ae; text-decoration-style: solid; }
+  @media print { a.place { text-decoration: none; color: black; } }
   .collapsible-content .note {
     font-size: 12px;
     color: #666;
@@ -222,6 +300,21 @@
   <p>2026/5/1（四）– 5/5（一）｜CI9027 出發・CI9026 回程</p>
 </header>
 
+<div class="fx-box" id="fx-box">
+  <div class="fx-row">
+    <div class="fx-group">
+      <label for="fx-vnd">VND 越南盾</label>
+      <input type="number" id="fx-vnd" inputmode="numeric" placeholder="100000">
+    </div>
+    <div class="fx-arrow">→</div>
+    <div class="fx-group">
+      <label>TWD 台幣</label>
+      <div class="fx-output" id="fx-twd">—</div>
+    </div>
+  </div>
+  <div class="fx-rate" id="fx-rate">匯率載入中…</div>
+</div>
+
 <div class="progress-wrap" id="progress-wrap">
   <div class="progress-bg"><div class="progress-bar-fill" id="progress-bar"></div></div>
   <div class="progress-text" id="progress-text">已完成 0 / 0</div>
@@ -244,7 +337,7 @@
   <h3>📞 必訂位（出發前完成）</h3>
   <ul>
     <li>Sol Kitchen & Bar（Day 1 晚餐）</li>
-    <li>Chài Village（Day 2）</li>
+    <li>✅ Chài Village（Day 2 18:30 已訂）</li>
     <li>Forest Spa（Day 3）</li>
     <li>AN CUA SAIGON（Day 3）</li>
     <li><strong>CieL Dining（Day 4，最優先，提前 1 週）</strong></li>
@@ -312,12 +405,6 @@
       <li>護照遺失：先報當地警察 → 拿報案證明 → 到 TECO 補發入國證明</li>
     </ul>
 
-    <p>🏨 飯店</p>
-    <ul>
-      <li>Signature by M Village Lê Thánh Tôn（5/1）：check-in 時記下櫃檯電話</li>
-      <li>Liberty Central Saigon Riverside（5/2–5/4）：<code>+84-28-3827-1717</code></li>
-    </ul>
-
     <div class="note">⚠️ 出發前建議再次確認以上電話（尤其 TECO 急難專線），以 <code>roc-taiwan.org</code> 與各官網公告為準。建議把重要電話存進手機通訊錄並截圖備份。</div>
   </div>
 </details>
@@ -330,27 +417,27 @@
 <table>
   <tr class="highlight"><td>05:30</td><td><input type="checkbox" class="checkbox">🛂 <strong>小港機場報到</strong>（CI9027，07:30 起飛）</td></tr>
   <tr><td>～11:15</td><td><input type="checkbox" class="checkbox">✈️ 飛行 + 入境 + Grab 到 Signature by M Village Check-in</td></tr>
-  <tr><td>12:00–13:00</td><td><input type="checkbox" class="checkbox">🍜 <strong>Phở Việt Nam</strong> 越式河粉
+  <tr><td>12:00–13:00</td><td><input type="checkbox" class="checkbox">🍜 <strong><a class="place" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=Pho+Viet+Nam+Ho+Chi+Minh">Phở Việt Nam</a></strong> 越式河粉
     <div class="must-list"><strong>必點：</strong>Phở Bò Tái（生牛肉河粉）｜Chả Giò（炸春捲）｜越南冰煉乳咖啡</div>
   </td></tr>
-  <tr><td>13:00–13:45</td><td><input type="checkbox" class="checkbox">💱 Ha Tam Jewelry 換越南盾 + 看金飾</td></tr>
-  <tr><td>13:45–14:15</td><td><input type="checkbox" class="checkbox">🛒 濱城市場白天外圍認環境（不買，D5 再採買）</td></tr>
-  <tr><td>14:15–15:00</td><td><input type="checkbox" class="checkbox">📮 西貢中心郵政局</td></tr>
-  <tr><td>15:00–15:30</td><td><input type="checkbox" class="checkbox">⛪ 西貢聖母聖殿主教座堂（粉紅外觀拍照）</td></tr>
-  <tr><td>15:30–16:00</td><td><input type="checkbox" class="checkbox">📚 Book Street 書街</td></tr>
-  <tr><td>16:00–16:45</td><td><input type="checkbox" class="checkbox">🎭 胡志明市大劇院 + 阮惠步行街</td></tr>
-  <tr><td>16:45–17:45</td><td><input type="checkbox" class="checkbox">☕ <strong>The Cafe Apartment</strong> 咖啡公寓
+  <tr><td>13:00–13:45</td><td><input type="checkbox" class="checkbox">💱 <a class="place" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=Ha+Tam+Jewelry+Ben+Thanh">Ha Tam Jewelry</a> 換越南盾 + 看金飾</td></tr>
+  <tr><td>13:45–14:15</td><td><input type="checkbox" class="checkbox">🛒 <a class="place" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=Ben+Thanh+Market">濱城市場</a>白天外圍認環境（不買，D5 再採買）</td></tr>
+  <tr><td>14:15–15:00</td><td><input type="checkbox" class="checkbox">📮 <a class="place" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=Saigon+Central+Post+Office">西貢中心郵政局</a></td></tr>
+  <tr><td>15:00–15:30</td><td><input type="checkbox" class="checkbox">⛪ <a class="place" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=Notre+Dame+Cathedral+Basilica+of+Saigon">西貢聖母聖殿主教座堂</a>（粉紅外觀拍照）</td></tr>
+  <tr><td>15:30–16:00</td><td><input type="checkbox" class="checkbox">📚 <a class="place" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=Book+Street+Saigon">Book Street 書街</a></td></tr>
+  <tr><td>16:00–16:45</td><td><input type="checkbox" class="checkbox">🎭 <a class="place" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=Saigon+Opera+House">胡志明市大劇院</a> + <a class="place" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=Nguyen+Hue+Walking+Street">阮惠步行街</a></td></tr>
+  <tr><td>16:45–17:45</td><td><input type="checkbox" class="checkbox">☕ <strong><a class="place" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=The+Cafe+Apartment+42+Nguyen+Hue">The Cafe Apartment</a></strong> 咖啡公寓
     <div class="must-list"><strong>推薦樓層：</strong>Thinker & Dreamer Coffee（4F）｜Partea 英式下午茶｜Saigon Ơi Cafe<br><strong>必點：</strong>Cà Phê Sữa Đá（冰煉乳咖啡）｜Bạc Xỉu（白咖啡）｜Cà Phê Trứng（雞蛋咖啡）</div>
   </td></tr>
   <tr><td>17:45–18:30</td><td><input type="checkbox" class="checkbox">🏨 回飯店小休</td></tr>
-  <tr class="highlight"><td>19:00–21:00</td><td><input type="checkbox" class="checkbox">🌮 <strong>Sol Kitchen & Bar</strong> 拉丁美洲料理（4.9⭐）<span class="warn">⚠️ 建議訂位</span>
+  <tr class="highlight"><td>19:00–21:00</td><td><input type="checkbox" class="checkbox">🌮 <strong><a class="place" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=Sol+Kitchen+Bar+Ho+Chi+Minh">Sol Kitchen & Bar</a></strong> 拉丁美洲料理（4.9⭐）<span class="warn">⚠️ 建議訂位</span>
     <div class="must-list"><strong>必點：</strong>Beef Short Rib Tacos（牛肋條塔可）｜Ceviche（秘魯酸漬海鮮）｜Empanadas<br><strong>調酒：</strong>Mojito｜Pisco Sour</div>
   </td></tr>
-  <tr><td>21:00–22:00</td><td><input type="checkbox" class="checkbox">🌃 <strong>濱城夜市 Ben Thanh Night Market</strong>
+  <tr><td>21:00–22:00</td><td><input type="checkbox" class="checkbox">🌃 <strong><a class="place" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=Ben+Thanh+Night+Market">濱城夜市 Ben Thanh Night Market</a></strong>
     <div class="must-list"><strong>必吃：</strong>烤鮮蝦/烤墨魚｜Nem Nướng（越式烤肉串）｜Bánh Tráng Trộn（涼拌米紙）｜榴槤冰淇淋<br><strong>買紀念品：</strong>記得殺價 40–50%</div>
   </td></tr>
-  <tr><td>22:00–23:00</td><td><input type="checkbox" class="checkbox">🌃 Bui Vien 范五老街</td></tr>
-  <tr><td>23:00</td><td><input type="checkbox" class="checkbox">🍨 <strong>Đậu Hủ Bùi Viện</strong> 豆腐甜品
+  <tr><td>22:00–23:00</td><td><input type="checkbox" class="checkbox">🌃 <a class="place" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=Bui+Vien+Walking+Street">Bui Vien 范五老街</a></td></tr>
+  <tr><td>23:00</td><td><input type="checkbox" class="checkbox">🍨 <strong><a class="place" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=Dau+Hu+Bui+Vien">Đậu Hủ Bùi Viện</a></strong> 豆腐甜品
     <div class="must-list"><strong>必點：</strong>Đậu hũ nước cốt dừa（椰奶豆花）｜Đậu hũ đường gừng（薑汁豆花）｜加料：珍珠、花生、芋圓</div>
   </td></tr>
 </table>
@@ -363,21 +450,21 @@
   <a class="map-btn" target="_blank" href="https://www.google.com/maps/dir/War+Remnants+Museum/Independence+Palace+Ho+Chi+Minh/Tan+Dinh+Church+Ho+Chi+Minh/Jade+Emperor+Pagoda/Chai+Village+Ho+Chi+Minh">🚗 下午黛奧司機路線</a>
 </div>
 <table>
-  <tr><td>08:30–09:30</td><td><input type="checkbox" class="checkbox">🥐 <strong>Bò Né Bà Nũi</strong> 越式鐵板牛排早餐
+  <tr><td>08:30–09:30</td><td><input type="checkbox" class="checkbox">🥐 <strong><a class="place" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=Bo+Ne+Ba+Nui">Bò Né Bà Nũi</a></strong> 越式鐵板牛排早餐
     <div class="must-list"><strong>必點：</strong>Bò Né Đặc Biệt（招牌綜合鐵板）｜Bánh Mì Pâté（法國麵包夾肝醬）沾蛋黃</div>
   </td></tr>
   <tr><td>09:30–10:00</td><td><input type="checkbox" class="checkbox">🏨 Signature 退房 → Liberty Central 寄行李</td></tr>
-  <tr><td>10:00–10:30</td><td><input type="checkbox" class="checkbox">👗 CULCAT Lê Thị Riêng（5.0⭐）</td></tr>
-  <tr><td>10:30–11:00</td><td><input type="checkbox" class="checkbox">👗 CULCAT & THRIFT MAMA</td></tr>
-  <tr><td>11:00–11:30</td><td><input type="checkbox" class="checkbox">👗 STRESSMAMA</td></tr>
-  <tr><td>11:30–12:00</td><td><input type="checkbox" class="checkbox">👗 Rue Miche Boutique</td></tr>
-  <tr><td>12:15–13:30</td><td><input type="checkbox" class="checkbox">🍲 <strong>Quán Thuý 94 - Miến Cua</strong> 蟹肉粉絲
+  <tr><td>10:00–10:30</td><td><input type="checkbox" class="checkbox">👗 <a class="place" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=CULCAT+Le+Thi+Rieng">CULCAT Lê Thị Riêng</a>（5.0⭐）</td></tr>
+  <tr><td>10:30–11:00</td><td><input type="checkbox" class="checkbox">👗 <a class="place" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=CULCAT+Thrift+Mama+Ho+Tung+Mau">CULCAT & THRIFT MAMA</a></td></tr>
+  <tr><td>11:00–11:30</td><td><input type="checkbox" class="checkbox">👗 <a class="place" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=STRESSMAMA+Ho+Chi+Minh">STRESSMAMA</a></td></tr>
+  <tr><td>11:30–12:00</td><td><input type="checkbox" class="checkbox">👗 <a class="place" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=Rue+Miche+Boutique">Rue Miche Boutique</a></td></tr>
+  <tr><td>12:15–13:30</td><td><input type="checkbox" class="checkbox">🍲 <strong><a class="place" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=Quan+Thuy+94+Mien+Cua">Quán Thuý 94 - Miến Cua</a></strong> 蟹肉粉絲
     <div class="must-list"><strong>招牌：</strong>Miến Xào Cua（蟹肉炒冬粉）<br><strong>必點：</strong>Súp Cua（蟹肉羹）｜Cua Rang Me（羅望子炒蟹）｜Càng Cua Rang Muối（椒鹽蟹鉗）</div>
   </td></tr>
   <tr><td>13:30–14:00</td><td><input type="checkbox" class="checkbox">回飯店集合等司機</td></tr>
-  <tr class="highlight"><td>14:00–17:00</td><td><input type="checkbox" class="checkbox">🚗 <strong>黛奧司機歷史景點</strong>：戰爭遺跡博物館 → 統一宮 → 粉紅教堂 → 玉皇殿</td></tr>
+  <tr class="highlight"><td>14:00–17:00</td><td><input type="checkbox" class="checkbox">🚗 <strong>黛奧司機歷史景點</strong>：<a class="place" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=War+Remnants+Museum">戰爭遺跡博物館</a> → <a class="place" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=Independence+Palace+Ho+Chi+Minh">統一宮</a> → <a class="place" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=Tan+Dinh+Church+Ho+Chi+Minh">粉紅教堂</a> → <a class="place" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=Jade+Emperor+Pagoda">玉皇殿</a></td></tr>
   <tr><td>17:30–18:00</td><td><input type="checkbox" class="checkbox">🏨 Liberty Central Check-in</td></tr>
-  <tr class="highlight"><td>19:00–21:00</td><td><input type="checkbox" class="checkbox">🦀 <strong>Chài Village</strong> 海鮮餐廳 <span class="warn">⚠️ 必訂位</span>
+  <tr class="highlight"><td>18:30–20:30</td><td><input type="checkbox" class="checkbox">🦀 <strong><a class="place" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=Chai+Village+Ho+Chi+Minh">Chài Village</a></strong> 海鮮餐廳（✅ 已訂位 18:30）
     <div class="must-list"><strong>必點：</strong>Cua Rang Me（羅望子炒蟹）⭐｜Tôm Hùm Nướng Phô Mai（起司焗龍蝦）｜Sò Điệp Nướng Mỡ Hành（蔥油烤扇貝）｜Cơm Cháy Hải Sản（海鮮鍋巴飯）</div>
   </td></tr>
   <tr><td>21:30</td><td><input type="checkbox" class="checkbox">🌆 河畔散步 / 頂樓泳池</td></tr>
@@ -390,22 +477,22 @@
   <a class="map-btn" target="_blank" href="https://www.google.com/maps/dir/Bun+Bo+Hue+Mo+Noi+Co+Nhu/aaavietnam+concept+store/LIDER+Ho+Chi+Minh/Kiem+La+Mot/FRAGILE+CLUB+Ho+Chi+Minh/Banh+Canh+Cua+87/The+New+Playground+Ho+Chi+Minh/Forest+Spa+77+Dinh+Tien+Hoang/Cafe+Mien+Thao+Moc/AN+CUA+SAIGON">🗺️ 開啟 Day 3 完整路線</a>
 </div>
 <table>
-  <tr><td>08:30–09:30</td><td><input type="checkbox" class="checkbox">🍳 <strong>Bún Bò Huế Mỡ Nổi Cô Như</strong>
+  <tr><td>08:30–09:30</td><td><input type="checkbox" class="checkbox">🍳 <strong><a class="place" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=Bun+Bo+Hue+Mo+Noi+Co+Nhu">Bún Bò Huế Mỡ Nổi Cô Như</a></strong>
     <div class="must-list"><strong>必點：</strong>Bún Bò Huế Đặc Biệt（招牌綜合）— 牛肉+牛腱+豬血+豬腳，湯頭特色是浮油辣香</div>
   </td></tr>
-  <tr><td>10:00–10:30</td><td><input type="checkbox" class="checkbox">👗 A Ă Â CONCEPT STORE</td></tr>
-  <tr><td>10:30–11:00</td><td><input type="checkbox" class="checkbox">👗 LIDER</td></tr>
-  <tr><td>11:00–11:30</td><td><input type="checkbox" class="checkbox">👗 Kiếm Là Mốt Kiemlamot</td></tr>
-  <tr><td>11:30–12:00</td><td><input type="checkbox" class="checkbox">👗 FRAGILE CLUB</td></tr>
-  <tr><td>12:15–13:30</td><td><input type="checkbox" class="checkbox">🍜 <strong>Bánh Canh Cua 87</strong> 蟹肉粿條
+  <tr><td>10:00–10:30</td><td><input type="checkbox" class="checkbox">👗 <a class="place" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=aaavietnam+concept+store">A Ă Â CONCEPT STORE</a></td></tr>
+  <tr><td>10:30–11:00</td><td><input type="checkbox" class="checkbox">👗 <a class="place" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=LIDER+Ho+Chi+Minh">LIDER</a></td></tr>
+  <tr><td>11:00–11:30</td><td><input type="checkbox" class="checkbox">👗 <a class="place" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=Kiem+La+Mot">Kiếm Là Mốt Kiemlamot</a></td></tr>
+  <tr><td>11:30–12:00</td><td><input type="checkbox" class="checkbox">👗 <a class="place" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=FRAGILE+CLUB+Ho+Chi+Minh">FRAGILE CLUB</a></td></tr>
+  <tr><td>12:15–13:30</td><td><input type="checkbox" class="checkbox">🍜 <strong><a class="place" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=Banh+Canh+Cua+87">Bánh Canh Cua 87</a></strong> 蟹肉粿條
     <div class="must-list"><strong>必點：</strong>Bánh Canh Cua Đặc Biệt（綜合蟹肉粿條）— 含蟹鉗、蟹肉、鵪鶉蛋、蝦、豬肉｜加點 Giò Heo（豬腳）</div>
   </td></tr>
-  <tr><td>13:30–14:30</td><td><input type="checkbox" class="checkbox">👗 The New Playground + Mozaic + COMPOUND + BEAT UNBEATEN</td></tr>
-  <tr class="highlight"><td>15:00–17:30</td><td><input type="checkbox" class="checkbox">💆 <strong>Forest Spa 森流水療館</strong>（77 Đinh Tiên Hoàng）完整療程</td></tr>
-  <tr><td>18:00–18:45</td><td><input type="checkbox" class="checkbox">☕ <strong>Cafe Mien Thao Moc</strong>
+  <tr><td>13:30–14:30</td><td><input type="checkbox" class="checkbox">👗 <a class="place" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=The+New+Playground+Ho+Chi+Minh">The New Playground</a> + Mozaic + COMPOUND + BEAT UNBEATEN</td></tr>
+  <tr class="highlight"><td>15:00–17:30</td><td><input type="checkbox" class="checkbox">💆 <strong><a class="place" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=Forest+Spa+77+Dinh+Tien+Hoang">Forest Spa 森流水療館</a></strong>（77 Đinh Tiên Hoàng）完整療程</td></tr>
+  <tr><td>18:00–18:45</td><td><input type="checkbox" class="checkbox">☕ <strong><a class="place" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=Cafe+Mien+Thao+Moc">Cafe Mien Thao Moc</a></strong>
     <div class="must-list"><strong>必點：</strong>Trà Đào（蜜桃茶）｜Cà Phê Cốt Dừa（椰奶咖啡）｜Matcha Latte<br><strong>必拍：</strong>樹林造景區</div>
   </td></tr>
-  <tr class="highlight"><td>19:00–21:00</td><td><input type="checkbox" class="checkbox">🦀 <strong>AN CUA SAIGON</strong> 螃蟹海鮮 <span class="warn">⚠️ 必訂位</span>
+  <tr class="highlight"><td>19:00–21:00</td><td><input type="checkbox" class="checkbox">🦀 <strong><a class="place" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=AN+CUA+SAIGON">AN CUA SAIGON</a></strong> 螃蟹海鮮 <span class="warn">⚠️ 必訂位</span>
     <div class="must-list"><strong>必點：</strong>Cua Rang Muối Hong Kong（港式椒鹽蟹）⭐｜Cua Sốt Trứng Muối（鹹蛋黃炒蟹）｜Ghẹ Hấp Bia（啤酒蒸青蟹）｜Cơm Chiên Hải Sản（海鮮炒飯）</div>
   </td></tr>
   <tr><td>21:30</td><td><input type="checkbox" class="checkbox">🏨 回飯店</td></tr>
@@ -418,32 +505,32 @@
   <a class="map-btn" target="_blank" href="https://www.google.com/maps/dir/MZ+Coffee+Ho+Chi+Minh/Mille+Mille+Tran+Cao+Van/vip+barbershop+Ho+Chi+Minh/Ngon+Restaurant+Ho+Chi+Minh/VVIP+Wudi+Spa/72+Tran+Dinh+Xu/Push+Push+Official+Store/ThiBa+Coffee+Bar/CieL+Dining/Ho+Thi+Ky+Food+Street/Ha+Ky+Sweet+Soup+Restaurant">🗺️ 開啟 Day 4 完整路線</a>
 </div>
 <table>
-  <tr><td>08:30–09:30</td><td><input type="checkbox" class="checkbox">☕ <strong>MZ COFFEE</strong>
+  <tr><td>08:30–09:30</td><td><input type="checkbox" class="checkbox">☕ <strong><a class="place" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=MZ+Coffee+Ho+Chi+Minh">MZ COFFEE</a></strong>
     <div class="must-list"><strong>必點：</strong>招牌芒果雪花冰⭐｜越南冰咖啡｜Bánh Mì</div>
   </td></tr>
-  <tr><td>10:00–10:30</td><td><input type="checkbox" class="checkbox">🥧 <strong>Mille Mille Boutique</strong> 法式餅店
+  <tr><td>10:00–10:30</td><td><input type="checkbox" class="checkbox">🥧 <strong><a class="place" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=Mille+Mille+Tran+Cao+Van">Mille Mille Boutique</a></strong> 法式餅店
     <div class="must-list"><strong>必買伴手禮：</strong>椰子酥餅｜越式綠豆糕｜腰果巧克力｜咖啡糖</div>
   </td></tr>
-  <tr><td>10:30–11:30</td><td><input type="checkbox" class="checkbox">✂️ vip barbershop 越式上海理髮（4.9⭐）</td></tr>
-  <tr><td>12:00–13:30</td><td><input type="checkbox" class="checkbox">🍲 <strong>Ngon Restaurant</strong> 越南菜
+  <tr><td>10:30–11:30</td><td><input type="checkbox" class="checkbox">✂️ <a class="place" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=vip+barbershop+Ho+Chi+Minh">vip barbershop</a> 越式上海理髮（4.9⭐）</td></tr>
+  <tr><td>12:00–13:30</td><td><input type="checkbox" class="checkbox">🍲 <strong><a class="place" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=Ngon+Restaurant+Ho+Chi+Minh">Ngon Restaurant</a></strong> 越南菜
     <div class="must-list"><strong>必點：</strong>Gỏi Cuốn（越式生春捲）｜Bún Chả Hà Nội（河內烤肉米線）｜Cá Kho Tộ（砂鍋焦糖魚）｜Bánh Xèo（越式煎餅）｜飯後：Chè Ba Màu（三色冰）</div>
   </td></tr>
-  <tr class="highlight"><td>14:00–15:00</td><td><input type="checkbox" class="checkbox">💆 VVIP Wudi Spa 越式洗頭按摩（5.0⭐）</td></tr>
-  <tr><td>15:30–16:30</td><td><input type="checkbox" class="checkbox">🚶 72 Trần Đình Xu + Push Push + 11 Garmentory</td></tr>
-  <tr><td>16:30–17:30</td><td><input type="checkbox" class="checkbox">☕ <strong>ThiBa Coffee Bar</strong> 或 <strong>福隆奶茶</strong>
+  <tr class="highlight"><td>14:00–15:00</td><td><input type="checkbox" class="checkbox">💆 <a class="place" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=VVIP+Wudi+Spa">VVIP Wudi Spa</a> 越式洗頭按摩（5.0⭐）</td></tr>
+  <tr><td>15:30–16:30</td><td><input type="checkbox" class="checkbox">🚶 <a class="place" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=72+Tran+Dinh+Xu">72 Trần Đình Xu</a> + <a class="place" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=Push+Push+Official+Store">Push Push</a> + 11 Garmentory</td></tr>
+  <tr><td>16:30–17:30</td><td><input type="checkbox" class="checkbox">☕ <strong><a class="place" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=ThiBa+Coffee+Bar">ThiBa Coffee Bar</a></strong> 或 <strong><a class="place" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=Phuc+Long+Coffee+Tea">福隆奶茶</a></strong>
     <div class="must-list"><strong>ThiBa 必點：</strong>Espresso Tonic｜Cold Brew｜Cà Phê Muối（鹹奶油咖啡）⭐<br><strong>福隆必點：</strong>Trà Sữa Phúc Long（招牌奶茶）⭐｜Trà Đào Cam Sả（香茅蜜桃茶）</div>
   </td></tr>
   <tr><td>17:30–18:30</td><td><input type="checkbox" class="checkbox">🏨 回飯店換正裝</td></tr>
-  <tr class="highlight"><td>19:00–21:00</td><td><input type="checkbox" class="checkbox">🌟 <strong>CieL Dining</strong> 最隆重一餐 <span class="warn">⚠️ 最優先訂位</span>
+  <tr class="highlight"><td>19:00–21:00</td><td><input type="checkbox" class="checkbox">🌟 <strong><a class="place" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=CieL+Dining">CieL Dining</a></strong> 最隆重一餐 <span class="warn">⚠️ 最優先訂位</span>
     <div class="must-list"><strong>推薦：</strong>直接點 Tasting Menu（品嚐套餐）<br><strong>單點：</strong>Foie Gras（鵝肝）｜Wagyu Beef｜Seabass<br><strong>酒：</strong>侍酒師 Wine Pairing</div>
   </td></tr>
-  <tr><td>21:30–22:30</td><td><input type="checkbox" class="checkbox">🌃 <strong>Ho Thi Ky Food Street</strong> 花市夜市
+  <tr><td>21:30–22:30</td><td><input type="checkbox" class="checkbox">🌃 <strong><a class="place" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=Ho+Thi+Ky+Food+Street">Ho Thi Ky Food Street</a></strong> 花市夜市
     <div class="must-list"><strong>必吃：</strong>Bánh Tráng Nướng（越式披薩）⭐｜Ốc（各式螺—椰奶蟹/炒蜆/辣炒螺）｜Bánh Canh Ghẹ（螃蟹粿條）｜Chè Khmer（柬埔寨甜湯）｜榴槤冰淇淋</div>
   </td></tr>
-  <tr><td>22:30–23:00</td><td><input type="checkbox" class="checkbox">🍨 <strong>Ha Ky Sweet Soup</strong> 越式糖水
+  <tr><td>22:30–23:00</td><td><input type="checkbox" class="checkbox">🍨 <strong><a class="place" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=Ha+Ky+Sweet+Soup+Restaurant">Ha Ky Sweet Soup</a></strong> 越式糖水
     <div class="must-list"><strong>必點：</strong>Chè Thập Cẩm（什錦甜湯）｜Chè Sâm Bổ Lượng（清補涼）⭐｜Đậu Hũ Hạnh Nhân（杏仁豆花）</div>
   </td></tr>
-  <tr><td>23:30（可選）</td><td><input type="checkbox" class="checkbox">💆 MASSAGE HẠ SPA QUẬN 1 夜間全身按摩</td></tr>
+  <tr><td>23:30（可選）</td><td><input type="checkbox" class="checkbox">💆 <a class="place" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=MASSAGE+HA+SPA+QUAN+1">MASSAGE HẠ SPA QUẬN 1</a> 夜間全身按摩</td></tr>
 </table>
 </details>
 
@@ -453,19 +540,19 @@
   <a class="map-btn" target="_blank" href="https://www.google.com/maps/dir/Dong+Yuan+Chicken+Rice+Ho+Chi+Minh/Ben+Thanh+Market/Pizza+4Ps+Ben+Thanh/Liberty+Central+Saigon+Riverside+Hotel/Tan+Son+Nhat+International+Airport">🗺️ 開啟 Day 5 完整路線</a>
 </div>
 <table>
-  <tr><td>08:30–09:30</td><td><input type="checkbox" class="checkbox">🍳 <strong>東源雞飯</strong> 海南雞飯早餐
+  <tr><td>08:30–09:30</td><td><input type="checkbox" class="checkbox">🍳 <strong><a class="place" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=Dong+Yuan+Chicken+Rice+Ho+Chi+Minh">東源雞飯</a></strong> 海南雞飯早餐
     <div class="must-list"><strong>必點：</strong>Cơm Gà Xối Mỡ（炸雞飯）⭐｜Cơm Gà Hấp（海南蒸雞飯）｜配雞湯、薑蓉醬、辣椒醬</div>
   </td></tr>
-  <tr><td>09:30–10:45</td><td><input type="checkbox" class="checkbox">🛒 <strong>濱城市場採買伴手禮</strong>
+  <tr><td>09:30–10:45</td><td><input type="checkbox" class="checkbox">🛒 <strong><a class="place" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=Ben+Thanh+Market">濱城市場</a>採買伴手禮</strong>
     <div class="must-list"><strong>必買：</strong>Trung Nguyên G7 三合一咖啡｜腰果｜椰子糖｜Kẹo Dừa 椰奶糖｜榴槤餅｜綠豆糕</div>
   </td></tr>
   <tr><td>10:45–11:00</td><td><input type="checkbox" class="checkbox">🚶 散步到 Pizza 4P's</td></tr>
-  <tr class="highlight"><td>11:00–12:30</td><td><input type="checkbox" class="checkbox">🍕 <strong>Pizza 4P's Ben Thanh</strong>（已訂位）
+  <tr class="highlight"><td>11:00–12:30</td><td><input type="checkbox" class="checkbox">🍕 <strong><a class="place" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=Pizza+4Ps+Ben+Thanh">Pizza 4P's Ben Thanh</a></strong>（已訂位）
     <div class="must-list"><strong>必點：</strong>Burrata Parma Ham Pizza⭐（招牌）｜Salmon Teriyaki Pizza｜Four Cheese Pizza<br><strong>前菜：</strong>Burrata Caprese｜<strong>飲料：</strong>自家釀 Kombucha</div>
   </td></tr>
   <tr><td>12:30–13:30</td><td><input type="checkbox" class="checkbox">🏨 回飯店收行李</td></tr>
   <tr><td>13:30–14:00</td><td><input type="checkbox" class="checkbox">🏨 Check-out + Grab 前往新山一機場</td></tr>
-  <tr class="highlight"><td>14:00–15:30</td><td><input type="checkbox" class="checkbox">🛂 <strong>新山一機場報到</strong>（CI9026）+ 出境 + 免稅店</td></tr>
+  <tr class="highlight"><td>14:00–15:30</td><td><input type="checkbox" class="checkbox">🛂 <strong><a class="place" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=Tan+Son+Nhat+International+Airport">新山一機場</a>報到</strong>（CI9026）+ 出境 + 免稅店</td></tr>
   <tr><td>15:30–</td><td><input type="checkbox" class="checkbox">✈️ CI9026 飛回高雄小港</td></tr>
 </table>
 </details>
@@ -522,6 +609,62 @@
     window.addEventListener('load', () => {
       navigator.serviceWorker.register('sw.js').catch(() => {});
     });
+  }
+
+  const fxVnd = document.getElementById('fx-vnd');
+  const fxTwd = document.getElementById('fx-twd');
+  const fxRate = document.getElementById('fx-rate');
+  const FX_KEY = 'fx-vnd-twd-v1';
+  let rate = null;
+
+  function fmt(n, d) { return n.toLocaleString('en-US', { minimumFractionDigits: d, maximumFractionDigits: d }); }
+
+  function updateTwd() {
+    const v = parseFloat(fxVnd.value);
+    if (isNaN(v) || rate == null) { fxTwd.textContent = '—'; return; }
+    const twd = v * rate;
+    fxTwd.textContent = fmt(twd, twd < 10 ? 2 : 1) + ' TWD';
+  }
+
+  function renderRate(r, dateStr, cached) {
+    rate = r;
+    const per100k = (r * 100000);
+    const dateLabel = dateStr ? '（' + dateStr + (cached ? '・快取' : '') + '）' : '';
+    fxRate.innerHTML =
+      '1 VND = ' + r.toFixed(5) + ' TWD｜100,000 VND ≈ ' + fmt(per100k, 0) + ' TWD' +
+      dateLabel + ' <span class="fx-refresh" id="fx-refresh">↻ 更新</span>';
+    const btn = document.getElementById('fx-refresh');
+    if (btn) btn.addEventListener('click', fetchRate);
+    updateTwd();
+  }
+
+  async function fetchRate() {
+    fxRate.textContent = '匯率載入中…';
+    try {
+      const r = await fetch('https://open.er-api.com/v6/latest/VND', { cache: 'no-store' });
+      const data = await r.json();
+      if (data && data.rates && data.rates.TWD) {
+        const fresh = data.rates.TWD;
+        const date = (data.time_last_update_utc || '').split(' ').slice(0, 4).join(' ');
+        try { localStorage.setItem(FX_KEY, JSON.stringify({ rate: fresh, date: date, ts: Date.now() })); } catch (e) {}
+        renderRate(fresh, date, false);
+        return;
+      }
+      throw new Error('no rate');
+    } catch (e) {
+      try {
+        const cached = JSON.parse(localStorage.getItem(FX_KEY) || 'null');
+        if (cached && cached.rate) { renderRate(cached.rate, cached.date || '', true); return; }
+      } catch (err) {}
+      fxRate.innerHTML = '匯率載入失敗 <span class="fx-refresh" id="fx-refresh">↻ 重試</span>';
+      const btn = document.getElementById('fx-refresh');
+      if (btn) btn.addEventListener('click', fetchRate);
+    }
+  }
+
+  if (fxVnd) {
+    fxVnd.addEventListener('input', updateTwd);
+    fetchRate();
   }
 })();
 </script>
