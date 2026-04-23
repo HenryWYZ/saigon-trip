@@ -468,6 +468,40 @@
   body.dark .backup-info > summary { color: #a5b8ff; }
   body.dark .backup-info > summary:hover { background: #1a2040; }
   body.dark .backup-info .note-inline { color: #b8c0d8; }
+  .travel-badge {
+    display: inline-block;
+    font-size: 10px;
+    color: #4a6eff;
+    background: #eef1ff;
+    padding: 2px 7px;
+    border-radius: 10px;
+    margin: 0 6px 0 2px;
+    font-weight: bold;
+    vertical-align: 1px;
+    white-space: nowrap;
+  }
+  .travel-badge small {
+    font-weight: normal;
+    font-size: 9px;
+    color: #888;
+    margin-left: 2px;
+  }
+  body.dark .travel-badge { background: #253354; color: #a5b8ff; }
+  body.dark .travel-badge small { color: #b8c0d8; }
+  body.dark .weather-header { color: #e8edff; }
+  body.dark .weather-day { color: #e8edff; }
+  body.dark .wd-name, body.dark .wd-temp { color: #e8edff; }
+  body.dark .wd-rain { color: #a5b8ff; }
+  body.dark .wd-cached { color: #b8c0d8; }
+  body.dark .fx-group label { color: #b8c0d8; }
+  body.dark .fx-rate { color: #b8c0d8; }
+  body.dark .collapsible-content p { color: #e8edff; }
+  body.dark .collapsible-content li { color: #e8edff; }
+  body.dark .backup-info .note-inline { color: #b8c0d8; }
+  @media print {
+    .travel-badge { background: transparent; border: 1px solid #888; color: black; padding: 1px 4px; }
+    .travel-badge small { color: black; }
+  }
 </style>
 </head>
 <body><button class="theme-toggle" id="theme-toggle" type="button" aria-label="切換深色模式">🌙</button>

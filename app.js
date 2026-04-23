@@ -301,4 +301,94 @@
     ig.innerHTML = igSvg;
     a.insertAdjacentElement('afterend', ig);
   });
+
+  // === Travel time badges between consecutive stops ===
+  // 每個數字 = 距離上一列景點的步行 (walk) / Grab (drive) 分鐘估計
+  // 陣列索引對齊每一天 <table> 的 <tr> 順序；null 表示不顯示
+  const TRAVEL = {
+    'day-1': [
+      null,
+      { drive: 30, note: '機場→飯店' },
+      { walk: 7, drive: 3 },
+      { walk: 4 },
+      { walk: 1 },
+      { walk: 8 },
+      { walk: 1 },
+      { walk: 2 },
+      { walk: 6 },
+      { walk: 3 },
+      { walk: 7 },
+      { walk: 9 },
+    ],
+    'day-2': [
+      { walk: 12, drive: 4 },
+      { drive: 5, note: '攜行李' },
+      { walk: 12, drive: 5 },
+      { walk: 4 },
+      { drive: 6 },
+      { drive: 3 },
+      { drive: 2 },
+      { walk: 3 },
+      null,
+      { drive: 7 },
+      null,
+      { walk: 8 },
+    ],
+    'day-3': [
+      { drive: 8 },
+      { walk: 5 },
+      { drive: 8 },
+      { walk: 3 },
+      { drive: 9 },
+      { drive: 7 },
+      null,
+      { drive: 8, note: '司機送' },
+      { walk: 9 },
+    ],
+    'day-4': [
+      { walk: 7, drive: 3 },
+      { drive: 8 },
+      { drive: 9 },
+      { drive: 5 },
+      { walk: 4 },
+      { walk: 7 },
+      { walk: 12, drive: 4 },
+      { drive: 4 },
+      { drive: 30, note: 'Thảo Điền' },
+    ],
+    'day-5': [
+      { drive: 20 },
+      { drive: 18 },
+      { walk: 3 },
+      null,
+      { walk: 10 },
+      null,
+      { drive: 30 },
+      null,
+    ],
+  };
+
+  Object.keys(TRAVEL).forEach((dayId) => {
+    const day = document.getElementById(dayId);
+    if (!day) return;
+    const rows = day.querySelectorAll('table tr');
+    const travels = TRAVEL[dayId];
+    rows.forEach((tr, i) => {
+      const info = travels[i];
+      if (!info) return;
+      const td = tr.children[1];
+      if (!td) return;
+      const badge = document.createElement('span');
+      badge.className = 'travel-badge';
+      const parts = [];
+      if (info.walk != null) parts.push('🚶' + info.walk + 'm');
+      if (info.drive != null) parts.push('🚕' + info.drive + 'm');
+      let html = parts.join('｜');
+      if (info.note) html += ' <small>' + info.note + '</small>';
+      badge.innerHTML = html;
+      const cb = td.querySelector('input.checkbox');
+      if (cb) cb.insertAdjacentElement('afterend', badge);
+      else td.insertBefore(badge, td.firstChild);
+    });
+  });
 })();
