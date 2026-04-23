@@ -5,6 +5,19 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>🇻🇳 胡志明五日行程 | 2026/5/1–5/5</title>
 <meta name="theme-color" content="#001858">
+<meta name="description" content="2026/5/1–5/5 胡志明市五日行程手冊，含景點、餐廳、交通時間、即時匯率、越南天氣與應對句。">
+<meta name="author" content="HenryWYZ">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self' https://api.open-meteo.com https://open.er-api.com; manifest-src 'self'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'">
+<meta http-equiv="Permissions-Policy" content="geolocation=(), microphone=(), camera=(), payment=()">
+<meta property="og:type" content="website">
+<meta property="og:title" content="🇻🇳 胡志明五日行程">
+<meta property="og:description" content="2026/5/1–5/5 胡志明市五日行程手冊">
+<meta property="og:url" content="https://henrywyz.github.io/saigon-trip/">
+<meta name="twitter:card" content="summary">
+<link rel="canonical" href="https://henrywyz.github.io/saigon-trip/">
+<link rel="preconnect" href="https://api.open-meteo.com" crossorigin>
+<link rel="preconnect" href="https://open.er-api.com" crossorigin>
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Saigon Trip">
 <link rel="icon" type="image/svg+xml" href="favicon.svg">
@@ -107,7 +120,7 @@
     border-radius: 8px;
     box-shadow: 0 2px 8px rgba(0,24,88,0.08);
   }
-  .info-box h3 { color: #f582ae; margin-bottom: 10px; font-size: 16px; }
+  .info-box h2 { color: #f582ae; margin-bottom: 10px; font-size: 16px; font-weight: bold; }
   .info-box p, .info-box li { font-size: 14px; margin-bottom: 4px; }
   .info-box ul { padding-left: 20px; }
   details {
@@ -276,7 +289,7 @@
     summary { background: #eee !important; color: black !important; font-size: 13pt; padding: 8px 12px; list-style: none; }
     summary::-webkit-details-marker { display: none; }
     .info-box { box-shadow: none; border: 1px solid #888; border-left-width: 3px; border-radius: 0; page-break-inside: avoid; }
-    .info-box h3 { color: black; }
+    .info-box h2 { color: black; }
     .must-list { background: #f7f7f7 !important; border-left-color: #888; }
     td { padding: 6px 10px; font-size: 10pt; }
     td:first-child { color: black; }
@@ -409,7 +422,7 @@
   body.dark .weather-box { background: #1e2a4a; color: #e8edff; }
   body.dark .day-jump a { background: #1e2a4a; color: #e8edff; box-shadow: 0 1px 3px rgba(0,0,0,0.3); }
   body.dark .day-jump a.today { background: #3a2a4a; border-color: #f582ae; }
-  body.dark .info-box h3 { color: #f582ae; }
+  body.dark .info-box h2 { color: #f582ae; }
   body.dark .info-box p, body.dark .info-box li { color: #e8edff; }
   body.dark td { border-bottom-color: #3a4670; color: #e8edff; }
   body.dark td:first-child { color: #f582ae; }
@@ -502,10 +515,40 @@
     .travel-badge { background: transparent; border: 1px solid #888; color: black; padding: 1px 4px; }
     .travel-badge small { color: black; }
   }
+  .skip-link {
+    position: absolute;
+    left: -9999px;
+    top: 0;
+    background: #001858;
+    color: #fef6e4;
+    padding: 10px 16px;
+    z-index: 1000;
+    text-decoration: none;
+    font-weight: bold;
+    border-radius: 0 0 6px 0;
+  }
+  .skip-link:focus { left: 0; }
+  *:focus { outline: none; }
+  *:focus-visible {
+    outline: 2px solid #f582ae;
+    outline-offset: 2px;
+    border-radius: 2px;
+  }
+  body.dark *:focus-visible { outline-color: #ffc850; }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
 </style>
 </head>
-<body><button class="theme-toggle" id="theme-toggle" type="button" aria-label="切換深色模式">🌙</button>
-<div class="container">
+<body>
+<a href="#main" class="skip-link">跳至主要內容</a>
+<button class="theme-toggle" id="theme-toggle" type="button" aria-label="切換深色模式">🌙</button>
+<main class="container" id="main">
 
 <header>
   <h1>🇻🇳 胡志明五日行程</h1>
@@ -524,10 +567,10 @@
       <input type="text" id="fx-twd" inputmode="decimal" placeholder="130">
     </div>
   </div>
-  <div class="fx-rate" id="fx-rate">匯率載入中…</div>
+  <div class="fx-rate" id="fx-rate" aria-live="polite">匯率載入中…</div>
 </div>
 
-<nav class="day-jump" id="day-jump">
+<nav class="day-jump" id="day-jump" aria-label="每日行程快速跳轉">
   <a href="#day-1" data-day="1">Day 1<small>5/1 四</small></a>
   <a href="#day-2" data-day="2">Day 2<small>5/2 五</small></a>
   <a href="#day-3" data-day="3">Day 3<small>5/3 六</small></a>
@@ -537,16 +580,16 @@
 
 <div class="weather-box" id="weather-box">
   <div class="weather-header">☁️ 5/1–5/5 胡志明天氣</div>
-  <div class="weather-days" id="weather-days">載入中…</div>
+  <div class="weather-days" id="weather-days" aria-live="polite">載入中…</div>
 </div>
 
 <div class="progress-wrap" id="progress-wrap">
   <div class="progress-bg"><div class="progress-bar-fill" id="progress-bar"></div></div>
-  <div class="progress-text" id="progress-text">已完成 0 / 0</div>
+  <div class="progress-text" id="progress-text" aria-live="polite" aria-atomic="true">已完成 0 / 0</div>
 </div>
 
 <div class="info-box">
-  <h3>🏨 住宿</h3>
+  <h2>🏨 住宿</h2>
   <ul>
     <li>5/1：<a class="place" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=Signature+by+M+Village+24+Le+Thanh+Ton">Signature by M Village Lê Thánh Tôn</a></li>
     <li>5/2–5/4：<a class="place" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=Liberty+Central+Saigon+Riverside+17+Ton+Duc+Thang">Liberty Central Saigon Riverside Hotel</a></li>
@@ -554,12 +597,12 @@
 </div>
 
 <div class="info-box">
-  <h3>💱 換錢</h3>
+  <h2>💱 換錢</h2>
   <p><a class="place" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=Ha+Tam+Jewelry+2+Nguyen+An+Ninh">Ha Tam Jewelry 河潭金行</a>｜2 Đ. Nguyễn An Ninh, Q1（濱城市場北側出口對面）｜帶 USD 100 新鈔匯率最佳</p>
 </div>
 
 <div class="info-box">
-  <h3>📞 必訂位（出發前完成）</h3>
+  <h2>📞 必訂位（出發前完成）</h2>
   <ul>
     <li>Sol Kitchen & Bar（Day 1 晚餐）</li>
     <li>✅ Chài Village（Day 2 18:30 已訂）</li>
@@ -571,7 +614,7 @@
 </div>
 
 <div class="info-box">
-  <h3>💰 預算 / 匯率參考</h3>
+  <h2>💰 預算 / 匯率參考</h2>
   <p><strong>匯率（2026/4 參考，實際以當日為準）：</strong>1 USD ≈ 25,000 VND｜1 TWD ≈ 780 VND｜100,000 VND ≈ 128 TWD</p>
   <ul>
     <li>早餐（當地小吃）：50,000–120,000 VND / 人</li>
@@ -866,7 +909,7 @@
   🇻🇳 胡志明五日行程 ｜ 2026/5/1–5/5 ｜ Chúc chuyến đi vui vẻ!
 </footer>
 
-</div>
+</main>
 
 <script defer src="app.js"></script>
 </body>

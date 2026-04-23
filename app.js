@@ -22,6 +22,13 @@
       try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch (e) {}
       updateProgress();
     });
+    if (!cb.getAttribute('aria-label')) {
+      const td = cb.closest('td');
+      if (td) {
+        const text = td.textContent.replace(/🚶\d+m|🚕\d+m|[｜|]/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 100);
+        if (text) cb.setAttribute('aria-label', text);
+      }
+    }
   });
   updateProgress();
 
