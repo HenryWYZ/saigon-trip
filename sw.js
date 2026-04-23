@@ -1,5 +1,5 @@
-const CACHE = 'saigon-trip-v1';
-const ASSETS = ['./', './index.html', './manifest.json'];
+const CACHE = 'saigon-trip-v2';
+const ASSETS = ['./', './index.html', './manifest.json', './app.js', './favicon.svg'];
 
 self.addEventListener('install', (e) => {
   e.waitUntil(caches.open(CACHE).then((c) => c.addAll(ASSETS)));
