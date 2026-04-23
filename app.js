@@ -267,9 +267,18 @@
       .replace(/[^a-zA-Z0-9]/g, '')
       .toLowerCase();
   }
-  function igUrlFor(name) {
+  function tagFromQuery(href) {
+    if (!href) return '';
+    const m = href.match(/[?&]query=([^&]+)/);
+    if (!m) return '';
+    const decoded = decodeURIComponent(m[1].replace(/\+/g, ' '));
+    const words = decoded.split(/\s+/).filter((w) => /^[a-zA-Z]+$/.test(w));
+    return words.slice(0, 3).join('').toLowerCase();
+  }
+  function igUrlFor(name, href) {
     if (IG_LINKS[name]) return IG_LINKS[name];
-    const tag = toHashtag(name);
+    let tag = toHashtag(name);
+    if (!tag) tag = tagFromQuery(href);
     if (!tag) return 'https://www.instagram.com/';
     return 'https://www.instagram.com/explore/tags/' + tag + '/';
   }
@@ -284,7 +293,7 @@
     if (!name) return;
     const ig = document.createElement('a');
     ig.className = 'ig-link';
-    ig.href = igUrlFor(name);
+    ig.href = igUrlFor(name, a.getAttribute('href'));
     ig.target = '_blank';
     ig.rel = 'noopener';
     ig.title = 'IG: ' + name;
