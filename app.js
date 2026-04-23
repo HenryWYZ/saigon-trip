@@ -249,13 +249,29 @@
 
   // === IG recommendation icons ===
   // 若你有特定的 IG 貼文 / Reel URL，在此 map 填入 '地點名稱': 'IG_URL' 即可覆蓋
+  // 地點名稱必須完全等於頁面上 <a class="place"> 的文字
   const IG_LINKS = {
+    'MZ COFFEE': 'https://www.instagram.com/mzcoffee.hcm/',
+    'VVIP Wudi Spa': 'https://www.instagram.com/vvipwudi/',
+    'STRESSMAMA': 'https://www.instagram.com/stressmamaworldwide/',
+    // 範例：填入你看過的特定 Reel/Post URL
     // 'Phở Việt Nam': 'https://www.instagram.com/reel/XXXXXX/',
     // 'Chài Village': 'https://www.instagram.com/p/XXXXXX/',
   };
+  function toHashtag(name) {
+    return String(name)
+      .normalize('NFD')
+      .replace(/[̀-ͯ]/g, '')
+      .replace(/[đĐ]/g, 'd')
+      .replace(/[^\x00-\x7f]/g, '')
+      .replace(/[^a-zA-Z0-9]/g, '')
+      .toLowerCase();
+  }
   function igUrlFor(name) {
     if (IG_LINKS[name]) return IG_LINKS[name];
-    return 'https://www.google.com/search?q=' + encodeURIComponent(name + ' Ho Chi Minh site:instagram.com');
+    const tag = toHashtag(name);
+    if (!tag) return 'https://www.instagram.com/';
+    return 'https://www.instagram.com/explore/tags/' + tag + '/';
   }
   const igSvg =
     '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
