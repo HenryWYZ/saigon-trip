@@ -376,8 +376,8 @@
     rows.forEach((tr, i) => {
       const info = travels[i];
       if (!info) return;
-      const td = tr.children[1];
-      if (!td) return;
+      const timeTd = tr.children[0];
+      if (!timeTd) return;
       const badge = document.createElement('span');
       badge.className = 'travel-badge';
       const parts = [];
@@ -386,9 +386,8 @@
       let html = parts.join('｜');
       if (info.note) html += ' <small>' + info.note + '</small>';
       badge.innerHTML = html;
-      const cb = td.querySelector('input.checkbox');
-      if (cb) cb.insertAdjacentElement('afterend', badge);
-      else td.insertBefore(badge, td.firstChild);
+      timeTd.appendChild(document.createElement('br'));
+      timeTd.appendChild(badge);
     });
   });
 })();
