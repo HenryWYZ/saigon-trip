@@ -53,7 +53,8 @@
   const themeBtn = document.getElementById('theme-toggle');
   if (themeBtn) {
     const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-    const saved = localStorage.getItem('theme');
+    let saved = null;
+    try { saved = localStorage.getItem('theme'); } catch (e) {}
     const startDark = saved ? saved === 'dark' : prefersDark;
     document.body.classList.toggle('dark', startDark);
     themeBtn.textContent = startDark ? '☀️' : '🌙';

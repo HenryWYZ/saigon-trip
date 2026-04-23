@@ -10,8 +10,8 @@ desktop.ini
 *.swp
 *.swo
 
-# Claude Code
-.claude/
+# Claude Code — user-specific settings only; agents/skills/rules are checked in
+.claude/settings.local.json
 
 # Logs
 *.log
