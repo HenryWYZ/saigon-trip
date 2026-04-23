@@ -133,12 +133,57 @@
     text-align: center;
     font-weight: bold;
   }
-  .info-box code {
+  .info-box code, .collapsible-info code {
     background: #fef6e4;
     padding: 1px 6px;
     border-radius: 4px;
     font-family: "SF Mono", Consolas, monospace;
     font-size: 13px;
+  }
+  .collapsible-info {
+    background: white;
+    border-left: 5px solid #d33;
+    border-radius: 8px;
+    margin-bottom: 15px;
+    box-shadow: 0 2px 8px rgba(0,24,88,0.08);
+    overflow: hidden;
+  }
+  .collapsible-info > summary {
+    padding: 14px 18px;
+    background: transparent;
+    color: #d33;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    user-select: none;
+    list-style: none;
+  }
+  .collapsible-info > summary::-webkit-details-marker { display: none; }
+  .collapsible-info > summary::before {
+    content: "▶";
+    display: inline-block;
+    margin-right: 8px;
+    font-size: 11px;
+    transition: transform 0.2s;
+  }
+  .collapsible-info[open] > summary::before { transform: rotate(90deg); }
+  .collapsible-info > summary:hover { background: #fff5f5; }
+  .collapsible-content {
+    padding: 0 18px 18px;
+    font-size: 14px;
+  }
+  .collapsible-content p { margin: 10px 0 4px; font-weight: bold; color: #001858; }
+  .collapsible-content p:first-child { margin-top: 0; }
+  .collapsible-content ul { padding-left: 20px; margin-bottom: 6px; }
+  .collapsible-content li { margin-bottom: 4px; line-height: 1.55; }
+  .collapsible-content .note {
+    font-size: 12px;
+    color: #666;
+    font-weight: normal;
+    background: #fef6e4;
+    padding: 8px 10px;
+    border-radius: 6px;
+    margin-top: 10px;
   }
   @media print {
     body { background: white; color: black; padding: 0; font-size: 11pt; }
@@ -221,18 +266,62 @@
   </ul>
 </div>
 
-<div class="info-box">
-  <h3>🚨 緊急聯絡</h3>
-  <ul>
-    <li><strong>越南緊急：</strong>警察 <code>113</code>｜火警 <code>114</code>｜救護車 <code>115</code></li>
-    <li><strong>旅外國人急難救助全球免付費：</strong><code>+800-0885-0885</code>（境外直撥）</li>
-    <li><strong>外交部緊急聯絡中心（台灣）：</strong><code>+886-800-085-095</code></li>
-    <li><strong>駐胡志明市台北經濟文化辦事處：</strong>出發前到 <code>roc-taiwan.org</code> 查最新急難電話</li>
-    <li><strong>華航 胡志明市：</strong><code>+84-28-3910-6333</code>｜<strong>華航 台灣：</strong><code>+886-412-9000</code></li>
-    <li><strong>信用卡海外掛失：</strong>（請填入你的發卡行 24h 客服）</li>
-    <li><strong>Liberty Central Hotel：</strong>（入住時記下櫃檯電話）</li>
-  </ul>
-</div>
+<details class="collapsible-info">
+  <summary>🚨 緊急聯絡（點擊展開）</summary>
+  <div class="collapsible-content">
+    <p>🆘 越南當地緊急電話</p>
+    <ul>
+      <li>警察：<code>113</code>｜火警：<code>114</code>｜救護車：<code>115</code></li>
+      <li>交通事故：<code>+84-28-3920-1747</code>（胡志明市交警）</li>
+    </ul>
+
+    <p>🇹🇼 駐胡志明市台北經濟文化辦事處（TECO HCMC）</p>
+    <ul>
+      <li>地址：336 Nguyễn Tri Phương, Phường 4, Quận 10, TP. Hồ Chí Minh</li>
+      <li>辦公電話：<code>+84-28-3834-9160</code></li>
+      <li>急難救助專線（僅限車禍、重病、遭搶等生命安全事件）：<code>+84-903-927-019</code></li>
+      <li>傳真：<code>+84-28-3834-9166</code></li>
+      <li>網站：roc-taiwan.org/vnsgn</li>
+      <li>辦公時間：週一至週五 09:00–12:00 / 14:00–17:00（越南時間，台灣 –1h）</li>
+    </ul>
+
+    <p>📞 台灣外交部（Taiwan MOFA）</p>
+    <ul>
+      <li>旅外急難救助全球免付費：<code>+800-0885-0885</code>（境外直撥，諧音「您幫幫我、您幫幫我」）</li>
+      <li>台灣境內免付費：<code>0800-085-095</code>（「您幫我、您救我」）</li>
+      <li>海外付費專線：<code>+886-2-2348-2999</code>（24h）</li>
+    </ul>
+
+    <p>✈️ 華航 China Airlines（CI9027 / CI9026）</p>
+    <ul>
+      <li>胡志明市辦公室：<code>+84-28-3910-6333</code></li>
+      <li>台灣 24h 客服：<code>+886-412-9000</code>（手機前加 02）</li>
+      <li>新山一機場 CI 櫃檯：T2 國際航廈</li>
+    </ul>
+
+    <p>🏥 醫療（外籍友好醫院）</p>
+    <ul>
+      <li>FV Hospital 法越醫院（D7，24h 英語服務）：<code>+84-28-5411-3333</code></li>
+      <li>Columbia Asia Saigon（Bình Thạnh）：<code>+84-28-3803-0678</code></li>
+      <li>Family Medical Practice（D1）：<code>+84-28-3822-7848</code></li>
+    </ul>
+
+    <p>💳 證件 / 財物</p>
+    <ul>
+      <li>信用卡海外掛失：____________（填入你的發卡行 24h 客服）</li>
+      <li>旅平險理賠專線：____________</li>
+      <li>護照遺失：先報當地警察 → 拿報案證明 → 到 TECO 補發入國證明</li>
+    </ul>
+
+    <p>🏨 飯店</p>
+    <ul>
+      <li>Signature by M Village Lê Thánh Tôn（5/1）：check-in 時記下櫃檯電話</li>
+      <li>Liberty Central Saigon Riverside（5/2–5/4）：<code>+84-28-3827-1717</code></li>
+    </ul>
+
+    <div class="note">⚠️ 出發前建議再次確認以上電話（尤其 TECO 急難專線），以 <code>roc-taiwan.org</code> 與各官網公告為準。建議把重要電話存進手機通訊錄並截圖備份。</div>
+  </div>
+</details>
 
 <details open>
 <summary>📍 Day 1｜5/1（四）高雄 → 胡志明・老西貢巡禮</summary>
