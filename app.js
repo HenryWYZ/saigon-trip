@@ -369,8 +369,8 @@
     ],
     'day-5': [
       { drive: 20 },
-      { drive: 18 },
-      { walk: 3 },
+      { drive: 20 },
+      { drive: 10 },
       null,
       { walk: 10 },
       null,
