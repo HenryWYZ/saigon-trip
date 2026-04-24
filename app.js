@@ -352,7 +352,7 @@
       { drive: 9 },
       { drive: 7 },
       null,
-      { drive: 8, note: '司機送' },
+      null,
       { walk: 9 },
     ],
     'day-4': [
