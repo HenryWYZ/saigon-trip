@@ -341,7 +341,6 @@
       { walk: 3 },
       null,
       { drive: 7 },
-      null,
       { walk: 8 },
     ],
     'day-3': [
@@ -352,8 +351,7 @@
       { drive: 9 },
       { drive: 7 },
       null,
-      null,
-      { walk: 9 },
+      { drive: 8, note: '司機直送' },
     ],
     'day-4': [
       { walk: 7, drive: 3 },
@@ -363,7 +361,6 @@
       { walk: 4 },
       { walk: 7 },
       { walk: 12, drive: 4 },
-      { drive: 4 },
       { drive: 30, note: 'Thảo Điền' },
     ],
     'day-5': [
