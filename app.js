@@ -328,7 +328,7 @@
       { walk: 2 },
       { walk: 6 },
       { walk: 3 },
-      { drive: 12, note: '去 Q3' },
+      { walk: 6 },
     ],
     'day-2': [
       { walk: 12, drive: 4 },
@@ -351,7 +351,7 @@
       { drive: 9 },
       { drive: 7 },
       null,
-      { drive: 8, note: '司機直送' },
+      { drive: 10, note: '司機直送 Q3' },
     ],
     'day-4': [
       { drive: 12 },
