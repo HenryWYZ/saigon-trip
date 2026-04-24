@@ -354,8 +354,7 @@
       { drive: 8, note: '司機直送' },
     ],
     'day-4': [
-      { walk: 7, drive: 3 },
-      { drive: 8 },
+      { drive: 12 },
       { drive: 10 },
       { walk: 4 },
       { walk: 7 },
