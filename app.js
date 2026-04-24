@@ -356,8 +356,7 @@
     'day-4': [
       { walk: 7, drive: 3 },
       { drive: 8 },
-      { drive: 9 },
-      { drive: 5 },
+      { drive: 10 },
       { walk: 4 },
       { walk: 7 },
       { walk: 12, drive: 4 },
