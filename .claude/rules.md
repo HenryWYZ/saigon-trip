@@ -68,3 +68,22 @@ Missing any one of these leaves a broken link between UI and data.
 ## 10. Before claiming a route is accurate
 
 Don't make up street numbers. If you don't have a verified address from Michelin / official IG / Tripadvisor, say "address not verified" and add the district + neighborhood context to the query instead. Wrong addresses that *look* specific are worse than vague ones because users trust them.
+
+## 11. When swapping two strings that both appear multiple times, placeholder first
+
+`String.Replace(old, new)` is global — every occurrence of `old` becomes `new`. If you naively do `c.Replace(A, B); c.Replace(B, A)` to swap A and B, the second call also hits the A's you just created, so everything ends up as A.
+
+Even with a placeholder, order matters when each side of the swap appears in multiple places (e.g. once in a row body, once in a map-btn waypoint, once in a booking list). A clean sequence that handles N sites per value:
+
+1. Replace every occurrence of A with `__PH_A__`.
+2. Replace every occurrence of B with `__PH_B__`.
+3. Replace `__PH_A__` with B.
+4. Replace `__PH_B__` with A.
+
+Critical: **after a replacement, the newly-placed content may collide with the next replacement target**. For example, after swapping row *labels*, the labels' `href` query strings are still the old ones — a second global swap over those query strings will also rewrite the queries you just placed into map-btn hrefs, causing label/URL mismatch in the rows. Mitigations:
+
+- Do the whole swap (all related strings) with a single placeholder pass, including the query strings inside the row bodies, **not** in separate passes.
+- Or, after the swap, explicitly re-align paired fields with context-specific edits (`query=<X>">LABEL_OF_X`).
+- Or, use unique-context anchors that can't be ambiguous (`:::ROW_A_MARKER:::` + actual content) so each replacement only targets one site.
+
+Always verify after with a grep that `label` and `href` in each `<a class="place">` still point to the same venue.
