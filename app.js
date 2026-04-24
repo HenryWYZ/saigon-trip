@@ -123,6 +123,9 @@
   let rate = null;
 
   function fmt(n, d) { return n.toLocaleString('en-US', { minimumFractionDigits: d, maximumFractionDigits: d }); }
+  function escapeHtml(s) {
+    return String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  }
 
   function formatVnd(val) {
     const digits = String(val).replace(/[^\d]/g, '');
@@ -159,7 +162,7 @@
   function renderRate(r, dateStr, cached) {
     rate = r;
     const per100k = r * 100000;
-    const dateLabel = dateStr ? '（' + dateStr + (cached ? '・快取' : '') + '）' : '';
+    const dateLabel = dateStr ? '（' + escapeHtml(dateStr) + (cached ? '・快取' : '') + '）' : '';
     fxRate.innerHTML =
       '1 VND = ' + r.toFixed(5) + ' TWD｜100,000 VND ≈ ' + fmt(per100k, 0) + ' TWD' +
       dateLabel + ' <span class="fx-refresh" id="fx-refresh">↻ 更新</span>';
@@ -226,7 +229,7 @@
         const rain = daily.precipitation_probability_max[i] || 0;
         html +=
           '<div class="weather-day">' +
-            '<div class="wd-name">' + (dayNames[i] || daily.time[i].slice(5)) + '</div>' +
+            '<div class="wd-name">' + (dayNames[i] || escapeHtml(String(daily.time[i]).slice(5))) + '</div>' +
             '<div class="wd-emoji">' + emojiFor(daily.weather_code[i]) + '</div>' +
             '<div class="wd-temp">' + tmin + '° / ' + tmax + '°</div>' +
             '<div class="wd-rain">💧' + rain + '%</div>' +
