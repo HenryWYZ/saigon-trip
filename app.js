@@ -328,6 +328,7 @@
       { walk: 6 },
       { walk: 3 },
       { walk: 6 },
+      { walk: 1, note: '同條街 50m' },
     ],
     'day-2': [
       { drive: 5, note: '攜行李 → Liberty' },
