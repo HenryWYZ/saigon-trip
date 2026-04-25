@@ -330,9 +330,9 @@
       { walk: 6 },
     ],
     'day-2': [
-      { walk: 8, drive: 3 },
-      { drive: 5, note: '攜行李' },
+      { drive: 5, note: '攜行李 → Liberty' },
       { walk: 12, drive: 5 },
+      { walk: 1, note: '同條街' },
       { walk: 4 },
       { drive: 6 },
       { drive: 3 },
