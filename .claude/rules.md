@@ -87,3 +87,42 @@ Critical: **after a replacement, the newly-placed content may collide with the n
 - Or, use unique-context anchors that can't be ambiguous (`:::ROW_A_MARKER:::` + actual content) so each replacement only targets one site.
 
 Always verify after with a grep that `label` and `href` in each `<a class="place">` still point to the same venue.
+
+## 12. After mass edits, verify HTML AND CSS AND JS — counting `<tr>` is not enough
+
+A row-count match is a necessary but not sufficient check. The site shipped twice with `<tr>/TRAVEL` aligned but the page **completely unstyled** because every newline in the `<style>` block had been replaced with a literal `+` character — turning the entire stylesheet into one giant line of unparseable nonsense, which the browser silently dropped, leaving naked HTML.
+
+Source of the corruption: a PowerShell function call where unparenthesized concatenation was treated as multiple positional arguments —
+
+```powershell
+Rep $NL + '  <tr>...'  ''  'label'        # WRONG — 4 args, $NL gets replaced with '+'
+Rep ($NL + '  <tr>...') ''  'label'       # CORRECT — 3 args
+```
+
+The first form silently replaces every CRLF in the file with a `+` character. The follow-up regex repair (`\+(\s+<)` → `\n…`) only fixes HTML tag boundaries; CSS uses `}`, `;`, `*/`, `{`, `,` as line-end markers, which the HTML-only fix leaves untouched.
+
+### Mandatory post-edit verification — three layers
+
+After any non-trivial PowerShell or batch edit, run all three:
+
+```bash
+# 1. HTML structural balance + tag-boundary corruption
+grep -c '<tr'      file.html      # match </tr> count
+grep -c '<details' file.html      # match </details> count
+grep -c '>+<'      file.html      # MUST be 0
+
+# 2. CSS integrity — the lesson from this incident
+awk '/<style>/,/<\/style>/' file.html | grep -cE '}\+|;\+|\*/\+|\{\+'   # MUST be 0
+awk '/<style>/,/<\/style>/' file.html | wc -l                            # ≥ ~100 for our stylesheet
+
+# 3. JS — executable in jsdom (or at least standalone Node with stubs)
+node /tmp/lite-eval.mjs   # see /.claude/skills/verify-js.md
+```
+
+### How to recover when corruption already shipped
+
+The `+` corruption is reversible with regex passes that target every line-ending context:
+- HTML: `\+( +<)` → `\n…` and `>(\++)<` → `>\n<`
+- CSS: `<style>+` → `<style>\n`, `([};{,])\+(\s)` → `…\n`, `(\*/)\+(\s)` → `*/\n…`
+
+**Do not** apply a blanket `+` → `\n` replace — `+` is legitimate in URL queries (`Pho+Viet+Nam`), in CSS adjacent sibling selectors (`.a + .b`), and in HTML attribute values (` title="2 + 3"`). Each replacement must check the surrounding context.
