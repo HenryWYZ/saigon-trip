@@ -1,4 +1,4 @@
-const CACHE = 'saigon-trip-v26';
+const CACHE = 'saigon-trip-v27';
 const ASSETS = ['./', './index.html', './manifest.json', './app.js', './favicon.svg'];
 
 self.addEventListener('install', (e) => {

@@ -23,547 +23,17 @@
 <link rel="icon" type="image/svg+xml" href="favicon.svg">
 <link rel="apple-touch-icon" href="favicon.svg">
 <link rel="manifest" href="manifest.json">
-<style>
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body {
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang TC", "Microsoft JhengHei", sans-serif;
-    background: linear-gradient(135deg, #fef6e4 0%, #f3d2c1 100%);
-    color: #001858;
-    line-height: 1.6;
-    padding: 20px;
-    min-height: 100vh;
-  }
-  .container { max-width: 900px; margin: 0 auto; }
-  header {
-    background: #001858;
-    color: #fef6e4;
-    padding: 14px 18px;
-    border-radius: 12px;
-    text-align: center;
-    margin-bottom: 12px;
-  }
-  header h1 { font-size: 20px; margin-bottom: 2px; }
-  header p { opacity: 0.85; font-size: 12px; }
-  header .slogan {
-    margin-top: 6px;
-    font-size: 13px;
-    font-style: italic;
-    letter-spacing: 2px;
-    opacity: 0.75;
-    font-weight: normal;
-  }
-  .fx-box {
-    background: white;
-    padding: 12px 14px;
-    border-radius: 8px;
-    margin-bottom: 12px;
-    border-left: 5px solid #8bd3dd;
-    box-shadow: 0 2px 8px rgba(0,24,88,0.08);
-  }
-  .fx-row {
-    display: flex;
-    align-items: flex-end;
-    gap: 8px;
-  }
-  .fx-group { flex: 1; min-width: 0; }
-  .fx-group label {
-    display: block;
-    font-size: 11px;
-    color: #666;
-    margin-bottom: 3px;
-    font-weight: bold;
-  }
-  .fx-group input {
-    width: 100%;
-    padding: 8px 10px;
-    font-size: 16px;
-    border: 2px solid #f3d2c1;
-    border-radius: 6px;
-    background: #fef6e4;
-    color: #001858;
-    font-family: inherit;
-  }
-  .fx-group input:focus { outline: none; border-color: #f582ae; background: white; }
-  .fx-output {
-    padding: 8px 10px;
-    font-size: 16px;
-    background: #f3d2c1;
-    border-radius: 6px;
-    font-weight: bold;
-    color: #001858;
-    min-height: 38px;
-    display: flex;
-    align-items: center;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-  .fx-arrow {
-    font-size: 18px;
-    color: #f582ae;
-    font-weight: bold;
-    padding-bottom: 8px;
-    flex: 0 0 auto;
-  }
-  .fx-rate {
-    margin-top: 8px;
-    font-size: 11px;
-    color: #666;
-    text-align: center;
-    line-height: 1.4;
-  }
-  .fx-refresh {
-    color: #f582ae;
-    cursor: pointer;
-    user-select: none;
-    margin-left: 4px;
-    font-weight: bold;
-  }
-  .fx-refresh:hover { text-decoration: underline; }
-  .info-box {
-    background: white;
-    padding: 20px;
-    margin-bottom: 15px;
-    border-left: 5px solid #f582ae;
-    border-radius: 8px;
-    box-shadow: 0 2px 8px rgba(0,24,88,0.08);
-  }
-  .info-box h2 { color: #f582ae; margin-bottom: 10px; font-size: 16px; font-weight: bold; }
-  .info-box p, .info-box li { font-size: 14px; margin-bottom: 4px; }
-  .info-box ul { padding-left: 20px; }
-  details {
-    background: white;
-    margin-bottom: 15px;
-    border-radius: 12px;
-    overflow: hidden;
-    box-shadow: 0 2px 8px rgba(0,24,88,0.08);
-  }
-  summary {
-    padding: 18px 22px;
-    background: #8bd3dd;
-    color: #001858;
-    font-size: 18px;
-    font-weight: bold;
-    cursor: pointer;
-    user-select: none;
-  }
-  summary:hover { background: #7bc5cf; }
-  .map-btns {
-    padding: 12px 20px;
-    background: #fef6e4;
-    border-bottom: 1px solid #f3d2c1;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-  }
-  .map-btn {
-    display: inline-block;
-    background: #f582ae;
-    color: white;
-    padding: 8px 14px;
-    border-radius: 20px;
-    text-decoration: none;
-    font-size: 13px;
-    font-weight: bold;
-  }
-  .map-btn:hover { background: #d85c8b; }
-  table { width: 100%; border-collapse: collapse; }
-  td {
-    padding: 12px 16px;
-    border-bottom: 1px solid #f3d2c1;
-    font-size: 14px;
-    vertical-align: top;
-  }
-  td:first-child {
-    color: #f582ae;
-    font-weight: bold;
-    width: 120px;
-    line-height: 1.5;
-  }
-  .checkbox { margin-right: 8px; transform: scale(1.2); }
-  .highlight { background: #fef6e4; }
-  .warn { color: #d33; font-weight: bold; }
-  .must { color: #e8a317; font-weight: bold; }
-  .must-list {
-    margin-top: 6px;
-    padding: 8px 12px;
-    background: #fff8e7;
-    border-left: 3px solid #e8a317;
-    font-size: 13px;
-    border-radius: 4px;
-  }
-  .must-list strong { color: #e8a317; }
-  .progress-wrap {
-    position: sticky;
-    top: 0;
-    z-index: 100;
-    background: rgba(254, 246, 228, 0.95);
-    backdrop-filter: blur(6px);
-    -webkit-backdrop-filter: blur(6px);
-    padding: 10px 14px;
-    margin-bottom: 15px;
-    border-radius: 12px;
-    box-shadow: 0 2px 8px rgba(0,24,88,0.12);
-  }
-  .progress-bg {
-    height: 10px;
-    background: #f3d2c1;
-    border-radius: 5px;
-    overflow: hidden;
-  }
-  .progress-bar-fill {
-    height: 100%;
-    background: linear-gradient(90deg, #8bd3dd, #f582ae);
-    width: 0%;
-    transition: width 0.35s ease;
-  }
-  .progress-text {
-    font-size: 12px;
-    color: #001858;
-    margin-top: 6px;
-    text-align: center;
-    font-weight: bold;
-  }
-  .info-box code, .collapsible-info code {
-    background: #fef6e4;
-    padding: 1px 6px;
-    border-radius: 4px;
-    font-family: "SF Mono", Consolas, monospace;
-    font-size: 13px;
-  }
-  .collapsible-info {
-    background: white;
-    border-left: 5px solid #d33;
-    border-radius: 8px;
-    margin-bottom: 15px;
-    box-shadow: 0 2px 8px rgba(0,24,88,0.08);
-    overflow: hidden;
-  }
-  .collapsible-info > summary {
-    padding: 14px 18px;
-    background: transparent;
-    color: #d33;
-    font-size: 16px;
-    font-weight: bold;
-    cursor: pointer;
-    user-select: none;
-    list-style: none;
-  }
-  .collapsible-info > summary::-webkit-details-marker { display: none; }
-  .collapsible-info > summary::before {
-    content: "▶";
-    display: inline-block;
-    margin-right: 8px;
-    font-size: 11px;
-    transition: transform 0.2s;
-  }
-  .collapsible-info[open] > summary::before { transform: rotate(90deg); }
-  .collapsible-info > summary:hover { background: #fff5f5; }
-  .collapsible-content {
-    padding: 0 18px 18px;
-    font-size: 14px;
-  }
-  .collapsible-content p { margin: 10px 0 4px; font-weight: bold; color: #001858; }
-  .collapsible-content p:first-child { margin-top: 0; }
-  .collapsible-content ul { padding-left: 20px; margin-bottom: 6px; }
-  .collapsible-content li { margin-bottom: 4px; line-height: 1.55; }
-  a.place, a.place:link, a.place:visited {
-    color: inherit;
-    text-decoration: underline;
-    text-decoration-color: #f582ae;
-    text-decoration-style: dotted;
-    text-underline-offset: 3px;
-    text-decoration-thickness: 1.5px;
-  }
-  a.place:hover, a.place:active { color: #f582ae; text-decoration-style: solid; }
-  @media print { a.place { text-decoration: none; color: black; } }
-  .collapsible-content .note {
-    font-size: 12px;
-    color: #666;
-    font-weight: normal;
-    background: #fef6e4;
-    padding: 8px 10px;
-    border-radius: 6px;
-    margin-top: 10px;
-  }
-  @media print {
-    body { background: white; color: black; padding: 0; font-size: 11pt; }
-    .container { max-width: 100%; }
-    header { background: white !important; color: black !important; border: 2px solid #001858; border-radius: 0; padding: 12px; margin-bottom: 10px; }
-    header h1 { font-size: 18pt; }
-    header p { opacity: 1; }
-    .map-btns, .checkbox, .progress-wrap { display: none !important; }
-    details { box-shadow: none; border: 1px solid #888; page-break-inside: avoid; margin-bottom: 6px; border-radius: 0; }
-    summary { background: #eee !important; color: black !important; font-size: 13pt; padding: 8px 12px; list-style: none; }
-    summary::-webkit-details-marker { display: none; }
-    .info-box { box-shadow: none; border: 1px solid #888; border-left-width: 3px; border-radius: 0; page-break-inside: avoid; }
-    .info-box h2 { color: black; }
-    .must-list { background: #f7f7f7 !important; border-left-color: #888; }
-    td { padding: 6px 10px; font-size: 10pt; }
-    td:first-child { color: black; }
-    .highlight { background: #f0f0f0 !important; }
-    .warn, .must { color: black !important; }
-    footer { display: none; }
-    a { color: black; text-decoration: none; }
-  }
-  footer {
-    text-align: center;
-    padding: 20px;
-    color: #172c66;
-    font-size: 13px;
-    opacity: 0.7;
-  }
-  /* === Day jump === */
-  .day-jump {
-    display: flex;
-    gap: 6px;
-    margin-bottom: 12px;
-    overflow-x: auto;
-    padding: 2px;
-  }
-  .day-jump a {
-    flex: 1 1 0;
-    min-width: 64px;
-    text-align: center;
-    padding: 8px 4px;
-    background: white;
-    color: #001858;
-    text-decoration: none;
-    border-radius: 8px;
-    font-size: 13px;
-    font-weight: bold;
-    box-shadow: 0 1px 3px rgba(0,24,88,0.08);
-    border: 2px solid transparent;
-    transition: border-color 0.15s, background 0.15s;
-  }
-  .day-jump a small {
-    display: block;
-    font-size: 10px;
-    font-weight: normal;
-    opacity: 0.65;
-    margin-top: 2px;
-  }
-  .day-jump a:hover { border-color: #f582ae; }
-  .day-jump a.today { border-color: #f582ae; background: #fff0f5; }
-  /* === Weather === */
-  .weather-box {
-    background: white;
-    padding: 10px 12px;
-    margin-bottom: 12px;
-    border-left: 5px solid #8bd3dd;
-    border-radius: 8px;
-    box-shadow: 0 2px 8px rgba(0,24,88,0.08);
-  }
-  .weather-header {
-    font-size: 13px;
-    font-weight: bold;
-    color: #001858;
-    margin-bottom: 6px;
-  }
-  .weather-days {
-    display: grid;
-    grid-template-columns: repeat(5, 1fr);
-    gap: 4px;
-    font-size: 12px;
-    text-align: center;
-  }
-  .weather-day {
-    padding: 5px 2px;
-    background: #fef6e4;
-    border-radius: 6px;
-    line-height: 1.3;
-  }
-  .wd-name { font-weight: bold; font-size: 11px; color: #001858; }
-  .wd-emoji { font-size: 20px; margin: 1px 0; }
-  .wd-temp { font-size: 11px; color: #001858; }
-  .wd-rain { font-size: 10px; color: #6b8cff; }
-  .wd-cached { grid-column: 1 / -1; font-size: 10px; color: #999; margin-top: 4px; }
-  /* === Now indicator === */
-  tr.now td {
-    background: linear-gradient(90deg, rgba(139,211,221,0.35), rgba(245,130,174,0.25)) !important;
-    font-weight: bold;
-  }
-  tr.now td:first-child { color: #e83366 !important; }
-  tr.now td:first-child::after {
-    content: " ◀";
-    animation: pulse 1.5s ease-in-out infinite;
-  }
-  @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.35; } }
-  /* === Theme toggle === */
-  .theme-toggle {
-    position: fixed;
-    top: 12px;
-    right: 12px;
-    z-index: 200;
-    background: rgba(0,24,88,0.85);
-    color: white;
-    border: none;
-    width: 38px;
-    height: 38px;
-    border-radius: 50%;
-    font-size: 17px;
-    cursor: pointer;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
-    -webkit-backdrop-filter: blur(4px);
-    backdrop-filter: blur(4px);
-  }
-  .theme-toggle:active { transform: scale(0.92); }
-  @media print { .theme-toggle { display: none; } }
-  /* === Phrase variant === */
-  .phrase-info { border-left-color: #e8a317; }
-  .phrase-info > summary { color: #e8a317; }
-  .phrase-info > summary:hover { background: #fff8e7; }
-  .phrase-info .collapsible-content li { line-height: 1.7; }
-  .phrase-info .collapsible-content strong { color: #e8a317; }
-  /* === Bidirectional FX separator === */
-  .fx-row + .fx-row { margin-top: 8px; padding-top: 8px; border-top: 1px dashed #f3d2c1; }
-  /* === Dark mode === */
-  body.dark {
-    background: linear-gradient(135deg, #0a1227 0%, #1a2341 100%);
-    color: #e8edff;
-  }
-  body.dark header { background: #050a1c !important; color: #e8edff; }
-  body.dark .info-box,
-  body.dark details,
-  body.dark .fx-box,
-  body.dark .collapsible-info,
-  body.dark .weather-box { background: #1e2a4a; color: #e8edff; }
-  body.dark .day-jump a { background: #1e2a4a; color: #e8edff; box-shadow: 0 1px 3px rgba(0,0,0,0.3); }
-  body.dark .day-jump a.today { background: #3a2a4a; border-color: #f582ae; }
-  body.dark .info-box h2 { color: #f582ae; }
-  body.dark .info-box p, body.dark .info-box li { color: #e8edff; }
-  body.dark td { border-bottom-color: #3a4670; color: #e8edff; }
-  body.dark td:first-child { color: #f582ae; }
-  body.dark .highlight { background: #253354 !important; }
-  body.dark .must-list { background: #3a2f1a; border-left-color: #e8a317; color: #f0e0b0; }
-  body.dark .must-list strong { color: #ffc850; }
-  body.dark summary { background: #3a4670; color: #e8edff; }
-  body.dark summary:hover { background: #4a567a; }
-  body.dark .map-btns { background: #253354; border-bottom-color: #3a4670; }
-  body.dark .progress-wrap { background: rgba(30,42,74,0.92); }
-  body.dark .progress-text { color: #e8edff; }
-  body.dark .progress-bg { background: #3a4670; }
-  body.dark .fx-group input { background: #253354; color: #e8edff; border-color: #3a4670; }
-  body.dark .fx-group input:focus { background: #2a3968; border-color: #f582ae; }
-  body.dark .fx-output { background: #3a4670; color: #e8edff; }
-  body.dark .fx-rate { color: #b8c0d8; }
-  body.dark .collapsible-info { border-left-color: #ff6b6b; }
-  body.dark .collapsible-info > summary { color: #ff8f8f; }
-  body.dark .collapsible-info > summary:hover { background: #2a1a1a; }
-  body.dark .phrase-info { border-left-color: #e8a317; }
-  body.dark .phrase-info > summary { color: #ffc850; }
-  body.dark .phrase-info > summary:hover { background: #2a2515; }
-  body.dark .collapsible-content p { color: #e8edff; }
-  body.dark .collapsible-content .note { background: #253354; color: #b8c0d8; }
-  body.dark code, body.dark .info-box code, body.dark .collapsible-info code { background: #253354 !important; color: #f0e0b0; }
-  body.dark .weather-day { background: #253354; }
-  body.dark .wd-name, body.dark .wd-temp { color: #e8edff; }
-  body.dark .theme-toggle { background: rgba(232,237,255,0.15); color: #ffc850; }
-  body.dark footer { color: #b8c0d8; }
-  body.dark .fx-row + .fx-row { border-top-color: #3a4670; }
-  body.dark tr.now td { background: linear-gradient(90deg, rgba(139,211,221,0.5), rgba(245,130,174,0.4)) !important; }
-  .ig-link {
-    display: inline-block;
-    margin-left: 4px;
-    width: 15px;
-    height: 15px;
-    vertical-align: -3px;
-    color: #E4405F;
-    opacity: 0.72;
-    transition: opacity 0.15s, transform 0.15s;
-  }
-  .ig-link:hover { opacity: 1; transform: scale(1.12); }
-  .ig-link svg { width: 100%; height: 100%; display: block; }
-  body.dark .ig-link { color: #ff5f7e; }
-  @media print { .ig-link { display: none !important; } }
-  .backup-info { border-left-color: #6b8cff; }
-  .backup-info > summary { color: #6b8cff; }
-  .backup-info > summary:hover { background: #eef1ff; }
-  .backup-info .collapsible-content .note-inline {
-    display: inline-block;
-    font-size: 12px;
-    color: #666;
-    margin-top: 2px;
-  }
-  body.dark .backup-info { border-left-color: #8ba6ff; }
-  body.dark .backup-info > summary { color: #a5b8ff; }
-  body.dark .backup-info > summary:hover { background: #1a2040; }
-  body.dark .backup-info .note-inline { color: #b8c0d8; }
-  .travel-badge {
-    display: inline-block;
-    font-size: 10px;
-    color: #4a6eff;
-    background: #eef1ff;
-    padding: 2px 7px;
-    border-radius: 10px;
-    margin: 3px 0 0;
-    font-weight: bold;
-    white-space: nowrap;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  }
-  .travel-badge small {
-    font-weight: normal;
-    font-size: 9px;
-    color: #888;
-    margin-left: 2px;
-  }
-  body.dark .travel-badge { background: #253354; color: #a5b8ff; }
-  body.dark .travel-badge small { color: #b8c0d8; }
-  body.dark .weather-header { color: #e8edff; }
-  body.dark .weather-day { color: #e8edff; }
-  body.dark .wd-name, body.dark .wd-temp { color: #e8edff; }
-  body.dark .wd-rain { color: #a5b8ff; }
-  body.dark .wd-cached { color: #b8c0d8; }
-  body.dark .fx-group label { color: #b8c0d8; }
-  body.dark .fx-rate { color: #b8c0d8; }
-  body.dark .collapsible-content p { color: #e8edff; }
-  body.dark .collapsible-content li { color: #e8edff; }
-  body.dark .backup-info .note-inline { color: #b8c0d8; }
-  @media print {
-    .travel-badge { background: transparent; border: 1px solid #888; color: black; padding: 1px 4px; }
-    .travel-badge small { color: black; }
-  }
-  .skip-link {
-    position: absolute;
-    left: -9999px;
-    top: 0;
-    background: #001858;
-    color: #fef6e4;
-    padding: 10px 16px;
-    z-index: 1000;
-    text-decoration: none;
-    font-weight: bold;
-    border-radius: 0 0 6px 0;
-  }
-  .skip-link:focus { left: 0; }
-  *:focus { outline: none; }
-  *:focus-visible {
-    outline: 2px solid #f582ae;
-    outline-offset: 2px;
-    border-radius: 2px;
-  }
-  body.dark *:focus-visible { outline-color: #ffc850; }
-  @media (prefers-reduced-motion: reduce) {
-    *, *::before, *::after {
-      animation-duration: 0.01ms !important;
-      animation-iteration-count: 1 !important;
-      transition-duration: 0.01ms !important;
-      scroll-behavior: auto !important;
-    }
-  }
-</style>
+<style>+  * { box-sizing: border-box; margin: 0; padding: 0; }+  body {+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang TC", "Microsoft JhengHei", sans-serif;+    background: linear-gradient(135deg, #fef6e4 0%, #f3d2c1 100%);+    color: #001858;+    line-height: 1.6;+    padding: 20px;+    min-height: 100vh;+  }+  .container { max-width: 900px; margin: 0 auto; }+  header {+    background: #001858;+    color: #fef6e4;+    padding: 14px 18px;+    border-radius: 12px;+    text-align: center;+    margin-bottom: 12px;+  }+  header h1 { font-size: 20px; margin-bottom: 2px; }+  header p { opacity: 0.85; font-size: 12px; }+  header .slogan {+    margin-top: 6px;+    font-size: 13px;+    font-style: italic;+    letter-spacing: 2px;+    opacity: 0.75;+    font-weight: normal;+  }+  .fx-box {+    background: white;+    padding: 12px 14px;+    border-radius: 8px;+    margin-bottom: 12px;+    border-left: 5px solid #8bd3dd;+    box-shadow: 0 2px 8px rgba(0,24,88,0.08);+  }+  .fx-row {+    display: flex;+    align-items: flex-end;+    gap: 8px;+  }+  .fx-group { flex: 1; min-width: 0; }+  .fx-group label {+    display: block;+    font-size: 11px;+    color: #666;+    margin-bottom: 3px;+    font-weight: bold;+  }+  .fx-group input {+    width: 100%;+    padding: 8px 10px;+    font-size: 16px;+    border: 2px solid #f3d2c1;+    border-radius: 6px;+    background: #fef6e4;+    color: #001858;+    font-family: inherit;+  }+  .fx-group input:focus { outline: none; border-color: #f582ae; background: white; }+  .fx-output {+    padding: 8px 10px;+    font-size: 16px;+    background: #f3d2c1;+    border-radius: 6px;+    font-weight: bold;+    color: #001858;+    min-height: 38px;+    display: flex;+    align-items: center;+    overflow: hidden;+    text-overflow: ellipsis;+    white-space: nowrap;+  }+  .fx-arrow {+    font-size: 18px;+    color: #f582ae;+    font-weight: bold;+    padding-bottom: 8px;+    flex: 0 0 auto;+  }+  .fx-rate {+    margin-top: 8px;+    font-size: 11px;+    color: #666;+    text-align: center;+    line-height: 1.4;+  }+  .fx-refresh {+    color: #f582ae;+    cursor: pointer;+    user-select: none;+    margin-left: 4px;+    font-weight: bold;+  }+  .fx-refresh:hover { text-decoration: underline; }+  .info-box {+    background: white;+    padding: 20px;+    margin-bottom: 15px;+    border-left: 5px solid #f582ae;+    border-radius: 8px;+    box-shadow: 0 2px 8px rgba(0,24,88,0.08);+  }+  .info-box h2 { color: #f582ae; margin-bottom: 10px; font-size: 16px; font-weight: bold; }+  .info-box p, .info-box li { font-size: 14px; margin-bottom: 4px; }+  .info-box ul { padding-left: 20px; }+  details {+    background: white;+    margin-bottom: 15px;+    border-radius: 12px;+    overflow: hidden;+    box-shadow: 0 2px 8px rgba(0,24,88,0.08);+  }+  summary {+    padding: 18px 22px;+    background: #8bd3dd;+    color: #001858;+    font-size: 18px;+    font-weight: bold;+    cursor: pointer;+    user-select: none;+  }+  summary:hover { background: #7bc5cf; }+  .map-btns {+    padding: 12px 20px;+    background: #fef6e4;+    border-bottom: 1px solid #f3d2c1;+    display: flex;+    flex-wrap: wrap;+    gap: 8px;+  }+  .map-btn {+    display: inline-block;+    background: #f582ae;+    color: white;+    padding: 8px 14px;+    border-radius: 20px;+    text-decoration: none;+    font-size: 13px;+    font-weight: bold;+  }+  .map-btn:hover { background: #d85c8b; }+  table { width: 100%; border-collapse: collapse; }+  td {+    padding: 12px 16px;+    border-bottom: 1px solid #f3d2c1;+    font-size: 14px;+    vertical-align: top;+  }+  td:first-child {+    color: #f582ae;+    font-weight: bold;+    width: 120px;+    line-height: 1.5;+  }+  .checkbox { margin-right: 8px; transform: scale(1.2); }+  .highlight { background: #fef6e4; }+  .warn { color: #d33; font-weight: bold; }+  .must { color: #e8a317; font-weight: bold; }+  .must-list {+    margin-top: 6px;+    padding: 8px 12px;+    background: #fff8e7;+    border-left: 3px solid #e8a317;+    font-size: 13px;+    border-radius: 4px;+  }+  .must-list strong { color: #e8a317; }+  .progress-wrap {+    position: sticky;+    top: 0;+    z-index: 100;+    background: rgba(254, 246, 228, 0.95);+    backdrop-filter: blur(6px);+    -webkit-backdrop-filter: blur(6px);+    padding: 10px 14px;+    margin-bottom: 15px;+    border-radius: 12px;+    box-shadow: 0 2px 8px rgba(0,24,88,0.12);+  }+  .progress-bg {+    height: 10px;+    background: #f3d2c1;+    border-radius: 5px;+    overflow: hidden;+  }+  .progress-bar-fill {+    height: 100%;+    background: linear-gradient(90deg, #8bd3dd, #f582ae);+    width: 0%;+    transition: width 0.35s ease;+  }+  .progress-text {+    font-size: 12px;+    color: #001858;+    margin-top: 6px;+    text-align: center;+    font-weight: bold;+  }+  .info-box code, .collapsible-info code {+    background: #fef6e4;+    padding: 1px 6px;+    border-radius: 4px;+    font-family: "SF Mono", Consolas, monospace;+    font-size: 13px;+  }+  .collapsible-info {+    background: white;+    border-left: 5px solid #d33;+    border-radius: 8px;+    margin-bottom: 15px;+    box-shadow: 0 2px 8px rgba(0,24,88,0.08);+    overflow: hidden;+  }+  .collapsible-info > summary {+    padding: 14px 18px;+    background: transparent;+    color: #d33;+    font-size: 16px;+    font-weight: bold;+    cursor: pointer;+    user-select: none;+    list-style: none;+  }+  .collapsible-info > summary::-webkit-details-marker { display: none; }+  .collapsible-info > summary::before {+    content: "▶";+    display: inline-block;+    margin-right: 8px;+    font-size: 11px;+    transition: transform 0.2s;+  }+  .collapsible-info[open] > summary::before { transform: rotate(90deg); }+  .collapsible-info > summary:hover { background: #fff5f5; }+  .collapsible-content {+    padding: 0 18px 18px;+    font-size: 14px;+  }+  .collapsible-content p { margin: 10px 0 4px; font-weight: bold; color: #001858; }+  .collapsible-content p:first-child { margin-top: 0; }+  .collapsible-content ul { padding-left: 20px; margin-bottom: 6px; }+  .collapsible-content li { margin-bottom: 4px; line-height: 1.55; }+  a.place, a.place:link, a.place:visited {+    color: inherit;+    text-decoration: underline;+    text-decoration-color: #f582ae;+    text-decoration-style: dotted;+    text-underline-offset: 3px;+    text-decoration-thickness: 1.5px;+  }+  a.place:hover, a.place:active { color: #f582ae; text-decoration-style: solid; }+  @media print { a.place { text-decoration: none; color: black; } }+  .collapsible-content .note {+    font-size: 12px;+    color: #666;+    font-weight: normal;+    background: #fef6e4;+    padding: 8px 10px;+    border-radius: 6px;+    margin-top: 10px;+  }+  @media print {+    body { background: white; color: black; padding: 0; font-size: 11pt; }+    .container { max-width: 100%; }+    header { background: white !important; color: black !important; border: 2px solid #001858; border-radius: 0; padding: 12px; margin-bottom: 10px; }+    header h1 { font-size: 18pt; }+    header p { opacity: 1; }+    .map-btns, .checkbox, .progress-wrap { display: none !important; }+    details { box-shadow: none; border: 1px solid #888; page-break-inside: avoid; margin-bottom: 6px; border-radius: 0; }+    summary { background: #eee !important; color: black !important; font-size: 13pt; padding: 8px 12px; list-style: none; }+    summary::-webkit-details-marker { display: none; }+    .info-box { box-shadow: none; border: 1px solid #888; border-left-width: 3px; border-radius: 0; page-break-inside: avoid; }+    .info-box h2 { color: black; }+    .must-list { background: #f7f7f7 !important; border-left-color: #888; }+    td { padding: 6px 10px; font-size: 10pt; }+    td:first-child { color: black; }+    .highlight { background: #f0f0f0 !important; }+    .warn, .must { color: black !important; }+    footer { display: none; }+    a { color: black; text-decoration: none; }+  }+  footer {+    text-align: center;+    padding: 20px;+    color: #172c66;+    font-size: 13px;+    opacity: 0.7;+  }+  /* === Day jump === */+  .day-jump {+    display: flex;+    gap: 6px;+    margin-bottom: 12px;+    overflow-x: auto;+    padding: 2px;+  }+  .day-jump a {+    flex: 1 1 0;+    min-width: 64px;+    text-align: center;+    padding: 8px 4px;+    background: white;+    color: #001858;+    text-decoration: none;+    border-radius: 8px;+    font-size: 13px;+    font-weight: bold;+    box-shadow: 0 1px 3px rgba(0,24,88,0.08);+    border: 2px solid transparent;+    transition: border-color 0.15s, background 0.15s;+  }+  .day-jump a small {+    display: block;+    font-size: 10px;+    font-weight: normal;+    opacity: 0.65;+    margin-top: 2px;+  }+  .day-jump a:hover { border-color: #f582ae; }+  .day-jump a.today { border-color: #f582ae; background: #fff0f5; }+  /* === Weather === */+  .weather-box {+    background: white;+    padding: 10px 12px;+    margin-bottom: 12px;+    border-left: 5px solid #8bd3dd;+    border-radius: 8px;+    box-shadow: 0 2px 8px rgba(0,24,88,0.08);+  }+  .weather-header {+    font-size: 13px;+    font-weight: bold;+    color: #001858;+    margin-bottom: 6px;+  }+  .weather-days {+    display: grid;+    grid-template-columns: repeat(5, 1fr);+    gap: 4px;+    font-size: 12px;+    text-align: center;+  }+  .weather-day {+    padding: 5px 2px;+    background: #fef6e4;+    border-radius: 6px;+    line-height: 1.3;+  }+  .wd-name { font-weight: bold; font-size: 11px; color: #001858; }+  .wd-emoji { font-size: 20px; margin: 1px 0; }+  .wd-temp { font-size: 11px; color: #001858; }+  .wd-rain { font-size: 10px; color: #6b8cff; }+  .wd-cached { grid-column: 1 / -1; font-size: 10px; color: #999; margin-top: 4px; }+  /* === Now indicator === */+  tr.now td {+    background: linear-gradient(90deg, rgba(139,211,221,0.35), rgba(245,130,174,0.25)) !important;+    font-weight: bold;+  }+  tr.now td:first-child { color: #e83366 !important; }+  tr.now td:first-child::after {+    content: " ◀";+    animation: pulse 1.5s ease-in-out infinite;+  }+  @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.35; } }+  /* === Theme toggle === */+  .theme-toggle {+    position: fixed;+    top: 12px;+    right: 12px;+    z-index: 200;+    background: rgba(0,24,88,0.85);+    color: white;+    border: none;+    width: 38px;+    height: 38px;+    border-radius: 50%;+    font-size: 17px;+    cursor: pointer;+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);+    -webkit-backdrop-filter: blur(4px);+    backdrop-filter: blur(4px);+  }+  .theme-toggle:active { transform: scale(0.92); }+  @media print { .theme-toggle { display: none; } }+  /* === Phrase variant === */+  .phrase-info { border-left-color: #e8a317; }+  .phrase-info > summary { color: #e8a317; }+  .phrase-info > summary:hover { background: #fff8e7; }+  .phrase-info .collapsible-content li { line-height: 1.7; }+  .phrase-info .collapsible-content strong { color: #e8a317; }+  /* === Bidirectional FX separator === */+  .fx-row + .fx-row { margin-top: 8px; padding-top: 8px; border-top: 1px dashed #f3d2c1; }+  /* === Dark mode === */+  body.dark {+    background: linear-gradient(135deg, #0a1227 0%, #1a2341 100%);+    color: #e8edff;+  }+  body.dark header { background: #050a1c !important; color: #e8edff; }+  body.dark .info-box,+  body.dark details,+  body.dark .fx-box,+  body.dark .collapsible-info,+  body.dark .weather-box { background: #1e2a4a; color: #e8edff; }+  body.dark .day-jump a { background: #1e2a4a; color: #e8edff; box-shadow: 0 1px 3px rgba(0,0,0,0.3); }+  body.dark .day-jump a.today { background: #3a2a4a; border-color: #f582ae; }+  body.dark .info-box h2 { color: #f582ae; }+  body.dark .info-box p, body.dark .info-box li { color: #e8edff; }+  body.dark td { border-bottom-color: #3a4670; color: #e8edff; }+  body.dark td:first-child { color: #f582ae; }+  body.dark .highlight { background: #253354 !important; }+  body.dark .must-list { background: #3a2f1a; border-left-color: #e8a317; color: #f0e0b0; }+  body.dark .must-list strong { color: #ffc850; }+  body.dark summary { background: #3a4670; color: #e8edff; }+  body.dark summary:hover { background: #4a567a; }+  body.dark .map-btns { background: #253354; border-bottom-color: #3a4670; }+  body.dark .progress-wrap { background: rgba(30,42,74,0.92); }+  body.dark .progress-text { color: #e8edff; }+  body.dark .progress-bg { background: #3a4670; }+  body.dark .fx-group input { background: #253354; color: #e8edff; border-color: #3a4670; }+  body.dark .fx-group input:focus { background: #2a3968; border-color: #f582ae; }+  body.dark .fx-output { background: #3a4670; color: #e8edff; }+  body.dark .fx-rate { color: #b8c0d8; }+  body.dark .collapsible-info { border-left-color: #ff6b6b; }+  body.dark .collapsible-info > summary { color: #ff8f8f; }+  body.dark .collapsible-info > summary:hover { background: #2a1a1a; }+  body.dark .phrase-info { border-left-color: #e8a317; }+  body.dark .phrase-info > summary { color: #ffc850; }+  body.dark .phrase-info > summary:hover { background: #2a2515; }+  body.dark .collapsible-content p { color: #e8edff; }+  body.dark .collapsible-content .note { background: #253354; color: #b8c0d8; }+  body.dark code, body.dark .info-box code, body.dark .collapsible-info code { background: #253354 !important; color: #f0e0b0; }+  body.dark .weather-day { background: #253354; }+  body.dark .wd-name, body.dark .wd-temp { color: #e8edff; }+  body.dark .theme-toggle { background: rgba(232,237,255,0.15); color: #ffc850; }+  body.dark footer { color: #b8c0d8; }+  body.dark .fx-row + .fx-row { border-top-color: #3a4670; }+  body.dark tr.now td { background: linear-gradient(90deg, rgba(139,211,221,0.5), rgba(245,130,174,0.4)) !important; }+  .ig-link {+    display: inline-block;+    margin-left: 4px;+    width: 15px;+    height: 15px;+    vertical-align: -3px;+    color: #E4405F;+    opacity: 0.72;+    transition: opacity 0.15s, transform 0.15s;+  }+  .ig-link:hover { opacity: 1; transform: scale(1.12); }+  .ig-link svg { width: 100%; height: 100%; display: block; }+  body.dark .ig-link { color: #ff5f7e; }+  @media print { .ig-link { display: none !important; } }+  .backup-info { border-left-color: #6b8cff; }+  .backup-info > summary { color: #6b8cff; }+  .backup-info > summary:hover { background: #eef1ff; }+  .backup-info .collapsible-content .note-inline {+    display: inline-block;+    font-size: 12px;+    color: #666;+    margin-top: 2px;+  }+  body.dark .backup-info { border-left-color: #8ba6ff; }+  body.dark .backup-info > summary { color: #a5b8ff; }+  body.dark .backup-info > summary:hover { background: #1a2040; }+  body.dark .backup-info .note-inline { color: #b8c0d8; }+  .travel-badge {+    display: inline-block;+    font-size: 10px;+    color: #4a6eff;+    background: #eef1ff;+    padding: 2px 7px;+    border-radius: 10px;+    margin: 3px 0 0;+    font-weight: bold;+    white-space: nowrap;+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;+  }+  .travel-badge small {+    font-weight: normal;+    font-size: 9px;+    color: #888;+    margin-left: 2px;+  }+  body.dark .travel-badge { background: #253354; color: #a5b8ff; }+  body.dark .travel-badge small { color: #b8c0d8; }+  body.dark .weather-header { color: #e8edff; }+  body.dark .weather-day { color: #e8edff; }+  body.dark .wd-name, body.dark .wd-temp { color: #e8edff; }+  body.dark .wd-rain { color: #a5b8ff; }+  body.dark .wd-cached { color: #b8c0d8; }+  body.dark .fx-group label { color: #b8c0d8; }+  body.dark .fx-rate { color: #b8c0d8; }+  body.dark .collapsible-content p { color: #e8edff; }+  body.dark .collapsible-content li { color: #e8edff; }+  body.dark .backup-info .note-inline { color: #b8c0d8; }+  @media print {+    .travel-badge { background: transparent; border: 1px solid #888; color: black; padding: 1px 4px; }+    .travel-badge small { color: black; }+  }+  .skip-link {+    position: absolute;+    left: -9999px;+    top: 0;+    background: #001858;+    color: #fef6e4;+    padding: 10px 16px;+    z-index: 1000;+    text-decoration: none;+    font-weight: bold;+    border-radius: 0 0 6px 0;+  }+  .skip-link:focus { left: 0; }+  *:focus { outline: none; }+  *:focus-visible {+    outline: 2px solid #f582ae;+    outline-offset: 2px;+    border-radius: 2px;+  }+  body.dark *:focus-visible { outline-color: #ffc850; }+  @media (prefers-reduced-motion: reduce) {+    *, *::before, *::after {+      animation-duration: 0.01ms !important;+      animation-iteration-count: 1 !important;+      transition-duration: 0.01ms !important;+      scroll-behavior: auto !important;+    }+  }+</style>
 </head>
 <body>
 <a href="#main" class="skip-link">跳至主要內容</a>
 <button class="theme-toggle" id="theme-toggle" type="button" aria-label="切換深色模式">🌙</button>
 <main class="container" id="main">
-
 <header>
   <h1>🇻🇳 胡志明五日行程</h1>
   <p>2026/5/1（四）– 5/5（一）｜CI9027 出發・CI9026 回程</p>
   <p class="slogan">人生不會總是光明　但有時候會在胡志明</p>
 </header>
-
 <div class="fx-box" id="fx-box">
   <div class="fx-row">
     <div class="fx-group">
@@ -578,7 +48,6 @@
   </div>
   <div class="fx-rate" id="fx-rate" aria-live="polite">匯率載入中…</div>
 </div>
-
 <nav class="day-jump" id="day-jump" aria-label="每日行程快速跳轉">
   <a href="#day-1" data-day="1">Day 1<small>5/1 四</small></a>
   <a href="#day-2" data-day="2">Day 2<small>5/2 五</small></a>
@@ -586,17 +55,14 @@
   <a href="#day-4" data-day="4">Day 4<small>5/4 日</small></a>
   <a href="#day-5" data-day="5">Day 5<small>5/5 一</small></a>
 </nav>
-
 <div class="weather-box" id="weather-box">
   <div class="weather-header">☁️ 5/1–5/5 胡志明天氣</div>
   <div class="weather-days" id="weather-days" aria-live="polite">載入中…</div>
 </div>
-
 <div class="progress-wrap" id="progress-wrap">
   <div class="progress-bg"><div class="progress-bar-fill" id="progress-bar"></div></div>
   <div class="progress-text" id="progress-text" aria-live="polite" aria-atomic="true">已完成 0 / 0</div>
 </div>
-
 <div class="info-box">
   <h2>🏨 住宿</h2>
   <ul>
@@ -604,12 +70,10 @@
     <li>5/2–5/4：<a class="place" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=Liberty+Central+Saigon+Riverside+17+Ton+Duc+Thang">Liberty Central Saigon Riverside Hotel</a></li>
   </ul>
 </div>
-
 <div class="info-box">
   <h2>💱 換錢</h2>
   <p><a class="place" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=Ha+Tam+Jewelry+2+Nguyen+An+Ninh">Ha Tam Jewelry 河潭金行</a>｜2 Đ. Nguyễn An Ninh, Q1（濱城市場北側出口對面）｜帶 USD 100 新鈔匯率最佳</p>
 </div>
-
 <div class="info-box">
   <h2>📞 必訂位（出發前完成）</h2>
   <ul>
@@ -621,7 +85,6 @@
     <li>✅ Pizza 4P's Ben Thanh（Day 5 11:00 已訂）</li>
   </ul>
 </div>
-
 <div class="info-box">
   <h2>💰 預算 / 匯率參考</h2>
   <p><strong>匯率（2026/4 參考，實際以當日為準）：</strong>1 USD ≈ 25,000 VND｜1 TWD ≈ 780 VND｜100,000 VND ≈ 128 TWD</p>
@@ -635,7 +98,6 @@
     <li>小費慣例：Spa/高級餐廳 50,000–100,000 VND；一般餐廳已含服務費</li>
   </ul>
 </div>
-
 <details class="collapsible-info backup-info">
   <summary>🗓️ 備用行程（行程若提早結束可補）</summary>
   <div class="collapsible-content">
@@ -644,20 +106,17 @@
       <li>🌃 <a class="place" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=Ben+Thanh+Night+Market">濱城夜市 Ben Thanh Night Market</a>｜原 21:00–22:00<br><span class="note-inline">必吃：烤鮮蝦/烤墨魚｜Nem Nướng｜Bánh Tráng Trộn｜榴槤冰淇淋｜紀念品殺價 40–50%</span></li>
       <li>🌃 <a class="place" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=Bui+Vien+Walking+Street">Bui Vien 范五老街</a>｜原 22:00–23:00（背包客派對街）</li>
       <li>🍨 <a class="place" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=Dau+Hu+Co+Thuy+Bui+Vien">Đậu Hủ Bùi Viện 豆腐甜品</a>｜原 23:00<br><span class="note-inline">必點：椰奶豆花｜薑汁豆花｜加料珍珠、花生、芋圓</span></li>
-    </ul>
-
+    </ul>+
     <p>Day 2（5/2）備用</p>
     <ul>
       <li>🥐 <a class="place" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=Bo+Ne+Ba+Nui+94+Nguyen+Thai+Binh+Quan+1">Bò Né Bà Nũi</a>｜94 Nguyễn Thái Bình, Q1（越式鐵板牛排早餐）<br><span class="note-inline">必點：Bò Né Đặc Biệt 招牌綜合鐵板｜Bánh Mì Pâté 沾蛋黃；想坐著吃熱早餐時可換</span></li>
       <li>🌆 河畔散步 / Liberty 頂樓泳池｜原 21:30（飯店設施，任何時段都能用）</li>
-    </ul>
-
+    </ul>+
     <p>Day 3（5/3）備用</p>
     <ul>
       <li>👗 <a class="place" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=FRAGILE+CLUB+Thao+Dien+Thu+Duc">FRAGILE CLUB</a>｜原 11:30–12:00（在 Thảo Điền，要過橋 20+ 分車程）</li>
       <li>☕ <a class="place" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=Cafe+Mien+Thao+Moc+554E+Minh+Phung+Quan+11">Cafe Mien Thao Moc</a>｜原 18:00–18:45（在 Q11，離主行程 20+ 分車程）<br><span class="note-inline">必點：Trà Đào 蜜桃茶｜Cà Phê Cốt Dừa 椰奶咖啡｜Matcha Latte｜樹林造景必拍</span></li>
-    </ul>
-
+    </ul>+
     <p>Day 4（5/4）備用</p>
     <ul>
       <li>🌟 <a class="place" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=CieL+Dining+Thao+Dien+Thu+Duc">CieL Dining</a>｜Thảo Điền, Thủ Đức（Michelin 1⭐ 正式晚餐，需提前 1 週訂）<br><span class="note-inline">想吃高級 tasting menu 時的選項，但跨橋到 Thảo Điền 單程 30 分</span></li>
@@ -666,11 +125,14 @@
       <li>🌃 <a class="place" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=Ho+Thi+Ky+Food+Street+Quan+10">Ho Thi Ky 花市夜市</a>｜原 21:30–22:30（Q10）<br><span class="note-inline">必吃：Bánh Tráng Nướng 越式披薩｜各式螺（椰奶蟹 / 炒蜆 / 辣炒螺）｜Bánh Canh Ghẹ 螃蟹粿條｜Chè Khmer 柬埔寨甜湯</span></li>
       <li>🍨 <a class="place" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=Che+Ha+Ky+138+Chau+Van+Liem+Quan+5">Ha Ky Sweet Soup</a>｜原 22:30–23:00（Q5 Chợ Lớn）<br><span class="note-inline">必點：什錦甜湯｜清補涼｜杏仁豆花</span></li>
       <li>💆 <a class="place" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=Ha+Spa+Massage+49+Pham+Viet+Chanh+Quan+1">MASSAGE HẠ SPA QUẬN 1</a>｜原 23:30（夜間全身按摩）</li>
-    </ul>
-
+    </ul>+
     <p>🍜 餐廳備選（不限特定天，可任一餐替換）</p>
     <ul>
       <li>🍲 <a class="place" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=Bep+Me+In+165%2F50+Nguyen+Thai+Binh+Quan+1">Bếp Mẹ Ỉn</a>｜165/50 Nguyễn Thái Bình, Bến Thành, Q1<br><span class="note-inline">越式家常菜巷弄老店。可替換 Day 4 Ngon Restaurant 午餐（都是經典越菜），或塞進任一晚餐代替原本排程。</span></li>
+    </ul>+
+    <p>Day 5（5/5）備用</p>
+    <ul>
+      <li>🍳 <a class="place" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=Dong+Nguyen+Chicken+Rice+801+Nguyen+Trai+Quan+5">東源雞飯</a>｜801 Nguyễn Trãi, Q5 Chợ Lớn（海南雞飯，跨區到華人區，單程 Grab 20 分）<br><span class="note-inline">必點：Cơm Gà Xối Mỡ 炸雞飯⭐｜Cơm Gà Hấp 蒸雞飯；想體驗 Chợ Lớn 老華人區早餐時換上</span></li>
     </ul>
 
     <div class="note">💡 這些項目當初超過 20:00 或地點偏遠。白天提前結束、不想太早收工時，可隨手挑一項補上。Google Maps 與 IG 連結都保留著。</div>
@@ -688,8 +150,7 @@
       <li><strong>Dạ / Vâng</strong>（呀 / 問）— 是 / 好的</li>
       <li><strong>Không</strong>（空）— 不</li>
       <li><strong>Bạn nói tiếng Anh được không?</strong> — 你會說英文嗎？</li>
-    </ul>
-
+    </ul>+
     <p>🛒 買東西 / 殺價</p>
     <ul>
       <li><strong>Bao nhiêu?</strong>（包妞）— 多少錢？</li>
@@ -698,8 +159,7 @@
       <li><strong>Cho tôi cái này</strong>（招東蓋奈）— 我要這個</li>
       <li><strong>Tính tiền</strong>（頂典）— 結帳</li>
       <li><strong>Có thẻ được không?</strong> — 可以刷卡嗎？</li>
-    </ul>
-
+    </ul>+
     <p>🍜 點餐 / 飲食要求</p>
     <ul>
       <li><strong>Ngon quá!</strong>（雍瓜）— 好吃！</li>
@@ -708,8 +168,7 @@
       <li><strong>Không đá</strong>（空達）— 去冰</li>
       <li><strong>Ít đường</strong>（依登）— 少糖</li>
       <li><strong>Cho xin hoá đơn</strong> — 請給我收據</li>
-    </ul>
-
+    </ul>+
     <p>🚗 交通 / 問路</p>
     <ul>
       <li><strong>Sân bay</strong>（三拜）— 機場</li>
@@ -717,8 +176,7 @@
       <li><strong>Nhà vệ sinh ở đâu?</strong>（呀衛辛俄都）— 廁所在哪？</li>
       <li><strong>Dừng lại đây</strong>（永來呆）— 停這裡</li>
       <li><strong>Đi thẳng / rẽ trái / rẽ phải</strong> — 直走 / 左轉 / 右轉</li>
-    </ul>
-
+    </ul>+
     <p>🆘 求救 / 意外</p>
     <ul>
       <li><strong>Cứu tôi!</strong>（鳩東）— 救命！</li>
@@ -726,19 +184,16 @@
       <li><strong>Gọi xe cứu thương</strong> — 叫救護車</li>
       <li><strong>Tôi bị mất hộ chiếu / ví</strong> — 我掉了護照 / 錢包</li>
       <li><strong>Tôi cần bác sĩ</strong>（東根拔席）— 我需要醫生</li>
-    </ul>
-
+    </ul>+
     <p>🔢 數字</p>
     <ul>
       <li>0 không｜1 một｜2 hai｜3 ba｜4 bốn｜5 năm</li>
       <li>6 sáu｜7 bảy｜8 tám｜9 chín｜10 mười</li>
       <li>百 trăm｜千 nghìn / ngàn｜1 萬 = 10 nghìn</li>
-    </ul>
-
+    </ul>+
     <div class="note">💡 括弧內為粗略中文諧音。南方口音 d / v / gi 常念 /y/，r 念 /z/。聽不懂時點菜單/比手畫腳通常都能通。建議出發前下載 Google Translate 越南文離線包。</div>
   </div>
 </details>
-
 <details open id="day-1" data-date="2026-05-01">
 <summary>📍 Day 1｜5/1（四）高雄 → 胡志明・老西貢巡禮</summary>
 <div class="map-btns">
@@ -755,7 +210,8 @@
   <tr><td>14:15–15:00</td><td><input type="checkbox" class="checkbox">📮 <a class="place" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=Saigon+Central+Post+Office">西貢中心郵政局</a></td></tr>
   <tr><td>15:00–15:30</td><td><input type="checkbox" class="checkbox">⛪ <a class="place" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=Notre+Dame+Cathedral+Basilica+of+Saigon">西貢聖母聖殿主教座堂</a>（粉紅外觀拍照）</td></tr>
   <tr><td>15:30–16:00</td><td><input type="checkbox" class="checkbox">📚 <a class="place" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=Book+Street+Saigon">Book Street 書街</a></td></tr>
-  <tr><td>16:00–16:45</td><td><input type="checkbox" class="checkbox">🎭 <a class="place" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=Saigon+Opera+House">胡志明市大劇院</a> + <a class="place" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=Nguyen+Hue+Walking+Street">阮惠步行街</a></td></tr>
+  <tr><td>16:00–16:45</td><td><input type="checkbox" class="checkbox">🎭 <a class="place" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=Saigon+Opera+House">胡志明市大劇院</a> 
+ <a class="place" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=Nguyen+Hue+Walking+Street">阮惠步行街</a></td></tr>
   <tr><td>16:45–17:45</td><td><input type="checkbox" class="checkbox">☕ <strong><a class="place" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=42+Nguyen+Hue+Cafe+Apartment+Quan+1">The Cafe Apartment</a></strong> 咖啡公寓
     <div class="must-list"><strong>推薦樓層：</strong>Thinker & Dreamer Coffee（4F）｜Partea 英式下午茶｜Saigon Ơi Cafe<br><strong>必點：</strong>Cà Phê Sữa Đá（冰煉乳咖啡）｜Bạc Xỉu（白咖啡）｜Cà Phê Trứng（雞蛋咖啡）</div>
   </td></tr>
@@ -764,25 +220,23 @@
   </td></tr>
 </table>
 </details>
-
 <details id="day-2" data-date="2026-05-02">
 <summary>📍 Day 2｜5/2（五）潮店 + Forest Spa + Chài Village</summary>
 <div class="map-btns">
   <a class="map-btn" target="_blank" href="https://www.google.com/maps/dir/Banh+Mi+Huynh+Hoa+26+Le+Thi+Rieng+Quan+1/CULCAT+9+Le+Thi+Rieng+Quan+1/CULCAT+96+Ho+Tung+Mau+Quan+1/STRESSMAMA+214+Hai+Ba+Trung+Tan+Dinh/Rue+Miche+9B+Phung+Khac+Khoan+Quan+1/Quan+Thuy+94+Mien+Cua+84+Dinh+Tien+Hoang/Forest+Spa+Dinh+Tien+Hoang+Quan+1/Liberty+Central+Saigon+Riverside+17+Ton+Duc+Thang/Chai+Village+99+Nguyen+Hue+Quan+1">🗺️ 開啟 Day 2 完整路線</a>
 </div>
 <table>
-  <tr><td>08:30–09:30</td><td><input type="checkbox" class="checkbox">🥖 <strong><a class="place" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=Banh+Mi+Huynh+Hoa+26+Le+Thi+Rieng+Quan+1">Bánh Mì Huỳnh Hoa</a></strong> 越南最有名 pâté 法包｜26 Lê Thị Riêng, Q1
+  <tr><td>09:30–10:30</td><td><input type="checkbox" class="checkbox">🥖 <strong><a class="place" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=Banh+Mi+Huynh+Hoa+26+Le+Thi+Rieng+Quan+1">Bánh Mì Huỳnh Hoa</a></strong> 越南最有名 pâté 法包｜26 Lê Thị Riêng, Q1
     <div class="must-list"><strong>必點：</strong>Bánh Mì Đặc Biệt（招牌綜合：pâté + 火腿 + 肝醬）｜配 Cà Phê Sữa Đá<br><strong>注意：</strong>排隊 20–40 分鐘很常見，外帶為主；50–65k VND；跟 CULCAT（9 Lê Thị Riêng）同條街，吃完直接走過去</div>
   </td></tr>
-  <tr><td>09:30–10:00</td><td><input type="checkbox" class="checkbox">🏨 Signature 退房 → Liberty Central 寄行李</td></tr>
-  <tr><td>10:00–10:30</td><td><input type="checkbox" class="checkbox">👗 <a class="place" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=CULCAT+9+Le+Thi+Rieng+Quan+1">CULCAT Lê Thị Riêng</a>（5.0⭐）</td></tr>
-  <tr><td>10:30–11:00</td><td><input type="checkbox" class="checkbox">👗 <a class="place" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=CULCAT+96+Ho+Tung+Mau+Quan+1">CULCAT & THRIFT MAMA</a></td></tr>
-  <tr><td>11:00–11:30</td><td><input type="checkbox" class="checkbox">👗 <a class="place" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=STRESSMAMA+214+Hai+Ba+Trung+Tan+Dinh">STRESSMAMA</a></td></tr>
-  <tr><td>11:30–12:00</td><td><input type="checkbox" class="checkbox">👗 <a class="place" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=Rue+Miche+9B+Phung+Khac+Khoan+Quan+1">Rue Miche Boutique</a></td></tr>
-  <tr><td>12:15–13:30</td><td><input type="checkbox" class="checkbox">🍲 <strong><a class="place" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=Quan+Thuy+94+Mien+Cua+84+Dinh+Tien+Hoang">Quán Thuý 94 - Miến Cua</a></strong> 蟹肉粉絲
+  <tr><td>10:30–11:00</td><td><input type="checkbox" class="checkbox">🏨 Signature 退房 → Liberty Central 寄行李</td></tr>
+  <tr><td>11:00–11:30</td><td><input type="checkbox" class="checkbox">👗 <a class="place" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=CULCAT+9+Le+Thi+Rieng+Quan+1">CULCAT Lê Thị Riêng</a>（5.0⭐）</td></tr>
+  <tr><td>11:30–12:00</td><td><input type="checkbox" class="checkbox">👗 <a class="place" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=CULCAT+96+Ho+Tung+Mau+Quan+1">CULCAT & THRIFT MAMA</a></td></tr>
+  <tr><td>12:00–12:30</td><td><input type="checkbox" class="checkbox">👗 <a class="place" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=STRESSMAMA+214+Hai+Ba+Trung+Tan+Dinh">STRESSMAMA</a></td></tr>
+  <tr><td>12:30–13:00</td><td><input type="checkbox" class="checkbox">👗 <a class="place" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=Rue+Miche+9B+Phung+Khac+Khoan+Quan+1">Rue Miche Boutique</a></td></tr>
+  <tr><td>13:00–14:00</td><td><input type="checkbox" class="checkbox">🍲 <strong><a class="place" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=Quan+Thuy+94+Mien+Cua+84+Dinh+Tien+Hoang">Quán Thuý 94 - Miến Cua</a></strong> 蟹肉粉絲（用完餐 200m 走到 Forest Spa）
     <div class="must-list"><strong>招牌：</strong>Miến Xào Cua（蟹肉炒冬粉）<br><strong>必點：</strong>Súp Cua（蟹肉羹）｜Cua Rang Me（羅望子炒蟹）｜Càng Cua Rang Muối（椒鹽蟹鉗）</div>
-  </td></tr>
-  <tr><td>13:30–14:00</td><td><input type="checkbox" class="checkbox">🚕 Grab 前往 Forest Spa</td></tr>
+  </td></tr>+
   <tr class="highlight"><td>14:00–16:30</td><td><input type="checkbox" class="checkbox">💆 <strong><a class="place" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=Forest+Spa+Dinh+Tien+Hoang+Quan+1">Forest Spa 森流水療館</a></strong>（77 Đinh Tiên Hoàng）完整療程（✅ 已訂位 14:00）</td></tr>
   <tr><td>16:30–17:30</td><td><input type="checkbox" class="checkbox">🚶 自由時間（Liberty Check-in / 河畔散步）</td></tr>
   <tr class="highlight"><td>18:30–20:30</td><td><input type="checkbox" class="checkbox">🦀 <strong><a class="place" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=Chai+Village+99+Nguyen+Hue+Quan+1">Chài Village</a></strong> 海鮮餐廳（✅ 已訂位 18:30）
@@ -790,19 +244,18 @@
   </td></tr>
 </table>
 </details>
-
 <details id="day-3" data-date="2026-05-03">
 <summary>📍 Day 3｜5/3（六）潮店 + 黛奧司機 + Nhà Tú</summary>
 <div class="map-btns">
   <a class="map-btn" target="_blank" href="https://www.google.com/maps/dir/Bun+Bo+Hue+Co+Nhu+274+Vo+Van+Tan+Quan+3/A+A+A+Concept+Store+246+Nguyen+Thi+Minh+Khai+Quan+3/LIDER+07+Ton+That+Thiep+Quan+1/Kiem+La+Mot+26+Ton+That+Thiep+Quan+1/Banh+Canh+Cua+87+Tran+Khac+Chan+Quan+1/The+New+Playground+26+Ly+Tu+Trong+Quan+1/War+Remnants+Museum/Independence+Palace+Ho+Chi+Minh/Tan+Dinh+Church+Ho+Chi+Minh/Jade+Emperor+Pagoda/Nha+Tu+129%2F4+Vo+Van+Tan+Quan+3">🗺️ 開啟 Day 3 完整路線</a>
 </div>
 <table>
-  <tr><td>08:30–09:30</td><td><input type="checkbox" class="checkbox">🍳 <strong><a class="place" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=Bun+Bo+Hue+Co+Nhu+274+Vo+Van+Tan+Quan+3">Bún Bò Huế Mỡ Nổi Cô Như</a></strong>
+  <tr><td>09:30–10:30</td><td><input type="checkbox" class="checkbox">🍳 <strong><a class="place" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=Bun+Bo+Hue+Co+Nhu+274+Vo+Van+Tan+Quan+3">Bún Bò Huế Mỡ Nổi Cô Như</a></strong>
     <div class="must-list"><strong>必點：</strong>Bún Bò Huế Đặc Biệt（招牌綜合）— 牛肉+牛腱+豬血+豬腳，湯頭特色是浮油辣香</div>
   </td></tr>
-  <tr><td>10:00–10:30</td><td><input type="checkbox" class="checkbox">👗 <a class="place" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=A+A+A+Concept+Store+246+Nguyen+Thi+Minh+Khai+Quan+3">A Ă Â CONCEPT STORE</a></td></tr>
-  <tr><td>10:30–11:00</td><td><input type="checkbox" class="checkbox">👗 <a class="place" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=LIDER+07+Ton+That+Thiep+Quan+1">LIDER</a></td></tr>
-  <tr><td>11:00–11:30</td><td><input type="checkbox" class="checkbox">👗 <a class="place" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=Kiem+La+Mot+26+Ton+That+Thiep+Quan+1">Kiếm Là Mốt Kiemlamot</a></td></tr>
+  <tr><td>10:30–11:00</td><td><input type="checkbox" class="checkbox">👗 <a class="place" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=A+A+A+Concept+Store+246+Nguyen+Thi+Minh+Khai+Quan+3">A Ă Â CONCEPT STORE</a></td></tr>
+  <tr><td>11:00–11:30</td><td><input type="checkbox" class="checkbox">👗 <a class="place" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=LIDER+07+Ton+That+Thiep+Quan+1">LIDER</a></td></tr>
+  <tr><td>11:30–12:00</td><td><input type="checkbox" class="checkbox">👗 <a class="place" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=Kiem+La+Mot+26+Ton+That+Thiep+Quan+1">Kiếm Là Mốt Kiemlamot</a></td></tr>
   <tr><td>12:15–13:30</td><td><input type="checkbox" class="checkbox">🍜 <strong><a class="place" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=Banh+Canh+Cua+87+Tran+Khac+Chan+Quan+1">Bánh Canh Cua 87</a></strong> 蟹肉粿條
     <div class="must-list"><strong>必點：</strong>Bánh Canh Cua Đặc Biệt（綜合蟹肉粿條）— 含蟹鉗、蟹肉、鵪鶉蛋、蝦、豬肉｜加點 Giò Heo（豬腳）</div>
   </td></tr>
@@ -813,39 +266,38 @@
   </td></tr>
 </table>
 </details>
-
 <details id="day-4" data-date="2026-05-04">
 <summary>📍 Day 4｜5/4（日）文化 + 高級餐廳 + 夜市</summary>
 <div class="map-btns">
   <a class="map-btn" target="_blank" href="https://www.google.com/maps/dir/Mille+Mille+32+Tran+Cao+Van+Quan+3/Quan+An+Ngon+160+Pasteur+Quan+1/Rose+Spa+Dakao+19A+Mai+Thi+Luu+Quan+1/72+Tran+Dinh+Xu+Co+Giang+Quan+1/Push+Push+20+Nguyen+Van+Nguyen+Tan+Dinh/ThiBa+Cafe+68+Suong+Nguyet+Anh+Quan+1/The+Refinery+74+Hai+Ba+Trung+Quan+1/Ho+Thi+Ky+Food+Street+Quan+10/Che+Ha+Ky+138+Chau+Van+Liem+Quan+5">🗺️ 開啟 Day 4 完整路線</a>
 </div>
 <table>
-  <tr><td>09:00–10:30</td><td><input type="checkbox" class="checkbox">🥐 <strong><a class="place" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=Mille+Mille+32+Tran+Cao+Van+Quan+3">Mille Mille Boutique</a></strong> 早餐 + 咖啡 + 伴手禮（法式餅店・9:00 開）
+  <tr><td>09:30–10:30</td><td><input type="checkbox" class="checkbox">🥐 <strong><a class="place" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=Mille+Mille+32+Tran+Cao+Van+Quan+3">Mille Mille Boutique</a></strong> 早餐 + 咖啡 + 伴手禮（法式餅店・9:00 開）
     <div class="must-list"><strong>必點早餐：</strong>可頌｜法式吐司｜越南蛋糕｜Cà Phê Sữa Đá 冰煉乳咖啡<br><strong>必買伴手禮：</strong>椰子酥餅｜越式綠豆糕｜腰果巧克力｜咖啡糖</div>
+  </td></tr>
+  <tr><td>10:30–11:00</td><td><input type="checkbox" class="checkbox">🧋 <strong><a class="place" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=Phuc+Long+42+Tran+Cao+Van+Quan+3">福隆奶茶 Phúc Long Trần Cao Vân</a></strong> 越南最有名奶茶（Mille Mille 隔壁兩家）
+    <div class="must-list"><strong>必點：</strong>Trà Sữa Phúc Long 招牌奶茶⭐｜Trà Đào Cam Sả 香茅蜜桃茶｜Trà Ô Long 烏龍茶</div>
   </td></tr>
   <tr><td>12:00–13:30</td><td><input type="checkbox" class="checkbox">🍲 <strong><a class="place" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=Quan+An+Ngon+160+Pasteur+Quan+1">Ngon Restaurant</a></strong> 越南菜
     <div class="must-list"><strong>必點：</strong>Gỏi Cuốn（越式生春捲）｜Bún Chả Hà Nội（河內烤肉米線）｜Cá Kho Tộ（砂鍋焦糖魚）｜Bánh Xèo（越式煎餅）｜飯後：Chè Ba Màu（三色冰）</div>
   </td></tr>
   <tr class="highlight"><td>14:00–15:00</td><td><input type="checkbox" class="checkbox">💆 <a class="place" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=Rose+Spa+Dakao+19A+Mai+Thi+Luu+Quan+1">Rose Spa DAKAO</a> 漢方洗頭 + 全身/腳底按摩｜19A Mai Thị Lựu, Đa Kao, Q1</td></tr>
-  <tr><td>15:30–16:30</td><td><input type="checkbox" class="checkbox">🚶 <a class="place" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=72+Tran+Dinh+Xu+Co+Giang+Quan+1">72 Trần Đình Xu</a> + <a class="place" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=Push+Push+20+Nguyen+Van+Nguyen+Tan+Dinh">Push Push</a> + 11 Garmentory</td></tr>
-  <tr><td>16:30–17:15</td><td><input type="checkbox" class="checkbox">☕ <strong><a class="place" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=ThiBa+Cafe+68+Suong+Nguyet+Anh+Quan+1">ThiBa Coffee Bar</a></strong> 或 <strong><a class="place" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=Phuc+Long+Coffee+Tea+Ben+Thanh">福隆奶茶</a></strong>
-    <div class="must-list"><strong>ThiBa 必點：</strong>Espresso Tonic｜Cold Brew｜Cà Phê Muối（鹹奶油咖啡）⭐<br><strong>福隆必點：</strong>Trà Sữa Phúc Long（招牌奶茶）⭐｜Trà Đào Cam Sả（香茅蜜桃茶）</div>
+  <tr><td>15:30–16:30</td><td><input type="checkbox" class="checkbox">🚶 <a class="place" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=72+Tran+Dinh+Xu+Co+Giang+Quan+1">72 Trần Đình Xu</a> 
+ <a class="place" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=Push+Push+20+Nguyen+Van+Nguyen+Tan+Dinh">Push Push</a> + 11 Garmentory</td></tr>
+  <tr><td>16:30–17:15</td><td><input type="checkbox" class="checkbox">☕ <strong><a class="place" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=ThiBa+Cafe+68+Suong+Nguyet+Anh+Quan+1">ThiBa Coffee Bar</a></strong>
+    <div class="must-list"><strong>必點：</strong>Espresso Tonic｜Cold Brew｜Cà Phê Muối（鹹奶油咖啡）⭐｜Cold Brew Tonic</div>
   </td></tr>
   <tr class="highlight"><td>18:30–20:30</td><td><input type="checkbox" class="checkbox">🥖 <strong><a class="place" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=The+Refinery+74+Hai+Ba+Trung+Quan+1">鴉片工廠 The Refinery</a></strong> 法式餐酒館（✅ 已訂位 18:30）
     <div class="must-list"><strong>位置：</strong>74/7 Hai Bà Trưng（1881 年舊鴉片工廠改建，黃色拱門進入庭院）<br><strong>必點：</strong>French Onion Soup｜Steak Frites｜Duck Confit<br><strong>調酒：</strong>French 75｜Negroni</div>
   </td></tr>
 </table>
 </details>
-
 <details id="day-5" data-date="2026-05-05">
 <summary>📍 Day 5｜5/5（一）最後巡禮 → 回高雄</summary>
 <div class="map-btns">
-  <a class="map-btn" target="_blank" href="https://www.google.com/maps/dir/Dong+Nguyen+Chicken+Rice+801+Nguyen+Trai+Quan+5/Cho+Tan+Dinh+48+Ma+Lo+Quan+1/Pizza+4Ps+8+Thu+Khoa+Huan+Quan+1/Liberty+Central+Saigon+Riverside+17+Ton+Duc+Thang/Tan+Son+Nhat+International+Airport">🗺️ 開啟 Day 5 完整路線</a>
+  <a class="map-btn" target="_blank" href="https://www.google.com/maps/dir/Cho+Tan+Dinh+48+Ma+Lo+Quan+1/Pizza+4Ps+8+Thu+Khoa+Huan+Quan+1/Liberty+Central+Saigon+Riverside+17+Ton+Duc+Thang/Tan+Son+Nhat+International+Airport">🗺️ 開啟 Day 5 完整路線</a>
 </div>
 <table>
-  <tr><td>08:30–09:30</td><td><input type="checkbox" class="checkbox">🍳 <strong><a class="place" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=Dong+Nguyen+Chicken+Rice+801+Nguyen+Trai+Quan+5">東源雞飯</a></strong> 海南雞飯早餐
-    <div class="must-list"><strong>必點：</strong>Cơm Gà Xối Mỡ（炸雞飯）⭐｜Cơm Gà Hấp（海南蒸雞飯）｜配雞湯、薑蓉醬、辣椒醬</div>
-  </td></tr>
   <tr><td>09:30–10:45</td><td><input type="checkbox" class="checkbox">🛒 <strong><a class="place" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=Cho+Tan+Dinh+48+Ma+Lo+Quan+1">新定市場 Chợ Tân Định</a>採買伴手禮</strong>
     <div class="must-list"><strong>必買：</strong>Trung Nguyên G7 三合一咖啡｜腰果｜椰子糖｜Kẹo Dừa 椰奶糖｜榴槤餅｜綠豆糕</div>
   </td></tr>
@@ -859,7 +311,6 @@
   <tr><td>15:30–</td><td><input type="checkbox" class="checkbox">✈️ CI9026 飛回高雄小港</td></tr>
 </table>
 </details>
-
 <details class="collapsible-info">
   <summary>🚨 緊急聯絡（點擊展開）</summary>
   <div class="collapsible-content">
@@ -867,8 +318,7 @@
     <ul>
       <li>警察：<code>113</code>｜火警：<code>114</code>｜救護車：<code>115</code></li>
       <li>交通事故：<code>+84-28-3920-1747</code>（胡志明市交警）</li>
-    </ul>
-
+    </ul>+
     <p>🇹🇼 駐胡志明市台北經濟文化辦事處（TECO HCMC）</p>
     <ul>
       <li>地址：336 Nguyễn Tri Phương, Phường 4, Quận 10, TP. Hồ Chí Minh</li>
@@ -877,45 +327,35 @@
       <li>傳真：<code>+84-28-3834-9166</code></li>
       <li>網站：roc-taiwan.org/vnsgn</li>
       <li>辦公時間：週一至週五 09:00–12:00 / 14:00–17:00（越南時間，台灣 –1h）</li>
-    </ul>
-
+    </ul>+
     <p>📞 台灣外交部（Taiwan MOFA）</p>
     <ul>
       <li>旅外急難救助全球免付費：<code>+800-0885-0885</code>（境外直撥，諧音「您幫幫我、您幫幫我」）</li>
       <li>台灣境內免付費：<code>0800-085-095</code>（「您幫我、您救我」）</li>
       <li>海外付費專線：<code>+886-2-2348-2999</code>（24h）</li>
-    </ul>
-
+    </ul>+
     <p>✈️ 華航 China Airlines（CI9027 / CI9026）</p>
     <ul>
       <li>胡志明市辦公室：<code>+84-28-3910-6333</code></li>
       <li>台灣 24h 客服：<code>+886-412-9000</code>（手機前加 02）</li>
       <li>新山一機場 CI 櫃檯：T2 國際航廈</li>
-    </ul>
-
+    </ul>+
     <p>🏥 醫療（外籍友好醫院）</p>
     <ul>
       <li>FV Hospital 法越醫院（D7，24h 英語服務）：<code>+84-28-5411-3333</code></li>
       <li>Columbia Asia Saigon（Bình Thạnh）：<code>+84-28-3803-0678</code></li>
       <li>Family Medical Practice（D1）：<code>+84-28-3822-7848</code></li>
-    </ul>
-
+    </ul>+
     <p>💳 證件 / 財物</p>
     <ul>
       <li>旅平險理賠專線：____________</li>
       <li>護照遺失：先報當地警察 → 拿報案證明 → 到 TECO 補發入國證明</li>
-    </ul>
-
+    </ul>+
     <div class="note">⚠️ 出發前建議再次確認以上電話（尤其 TECO 急難專線），以 <code>roc-taiwan.org</code> 與各官網公告為準。建議把重要電話存進手機通訊錄並截圖備份。</div>
   </div>
 </details>
-
-<footer>
-  🇻🇳 胡志明五日行程 ｜ 2026/5/1–5/5 ｜ Chúc chuyến đi vui vẻ!
-</footer>
-
+<footer>+  🇻🇳 胡志明五日行程 ｜ 2026/5/1–5/5 ｜ Chúc chuyến đi vui vẻ!+</footer>
 </main>
-
 <script defer src="app.js"></script>
 </body>
-</html>
+</html>+

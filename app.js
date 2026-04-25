@@ -337,8 +337,7 @@
       { drive: 6 },
       { drive: 3 },
       { drive: 2 },
-      { walk: 3 },
-      null,
+      { walk: 3, note: '同條街 200m' },
       { drive: 7 },
       { walk: 8 },
     ],
@@ -354,6 +353,7 @@
     ],
     'day-4': [
       { drive: 12 },
+      { walk: 1, note: 'Mille Mille 隔壁' },
       { drive: 10 },
       { drive: 8 },
       { drive: 12 },
@@ -361,8 +361,7 @@
       { drive: 8 },
     ],
     'day-5': [
-      { drive: 20 },
-      { drive: 20 },
+      { drive: 8 },
       { drive: 10 },
       null,
       { walk: 10 },
