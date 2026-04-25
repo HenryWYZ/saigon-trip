@@ -356,7 +356,6 @@
       { walk: 1, note: 'Mille Mille 隔壁' },
       { drive: 10 },
       { drive: 8 },
-      { drive: 12 },
       { walk: 12, drive: 4 },
       { drive: 8 },
     ],
