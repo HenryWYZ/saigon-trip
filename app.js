@@ -263,7 +263,6 @@
   // 地點名稱必須完全等於頁面上 <a class="place"> 的文字
   const IG_LINKS = {
     'MZ COFFEE': 'https://www.instagram.com/mzcoffee.hcm/',
-    'VVIP Wudi Spa': 'https://www.instagram.com/vvipwudi/',
     'STRESSMAMA': 'https://www.instagram.com/stressmamaworldwide/',
     // 範例：填入你看過的特定 Reel/Post URL
     // 'Phở Việt Nam': 'https://www.instagram.com/reel/XXXXXX/',
@@ -356,8 +355,8 @@
     'day-4': [
       { drive: 12 },
       { drive: 10 },
-      { walk: 4 },
-      { walk: 7 },
+      { drive: 8 },
+      { drive: 12 },
       { walk: 12, drive: 4 },
       { drive: 30, note: 'Thảo Điền' },
     ],
