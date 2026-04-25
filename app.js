@@ -358,7 +358,7 @@
       { drive: 8 },
       { drive: 12 },
       { walk: 12, drive: 4 },
-      { drive: 30, note: 'Thảo Điền' },
+      { drive: 8 },
     ],
     'day-5': [
       { drive: 20 },
