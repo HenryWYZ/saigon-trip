@@ -550,7 +550,47 @@
       transition-duration: 0.01ms !important;
       scroll-behavior: auto !important;
     }
-  }</style>
+  }
+  details.intro {
+    display: block;
+    background: transparent !important;
+    margin: 6px 0 0;
+    border-radius: 0;
+    box-shadow: none;
+    overflow: visible;
+  }
+  details.intro > summary {
+    display: inline-block;
+    padding: 2px 9px;
+    background: #eef1ff;
+    color: #4a6eff;
+    font-size: 11px;
+    font-weight: bold;
+    cursor: pointer;
+    border-radius: 10px;
+    list-style: none;
+  }
+  details.intro > summary::-webkit-details-marker { display: none; }
+  details.intro[open] > summary { background: #4a6eff; color: white; }
+  details.intro > p {
+    margin-top: 6px;
+    padding: 8px 12px;
+    background: #f5f7ff;
+    border-left: 2px solid #4a6eff;
+    border-radius: 4px;
+    font-size: 12px;
+    color: #333;
+    line-height: 1.6;
+  }
+  body.dark details.intro { background: transparent !important; }
+  body.dark details.intro > summary { background: #253354; color: #a5b8ff; }
+  body.dark details.intro[open] > summary { background: #4a6eff; color: white; }
+  body.dark details.intro > p { background: #1e2a4a; color: #d0d8ee; border-left-color: #a5b8ff; }
+  @media print {
+    details.intro > summary { display: none; }
+    details.intro > p { display: block !important; background: transparent; padding: 0 0 0 8px; border: none; font-style: italic; font-size: 10pt; color: black; }
+  }
+</style>
 </head>
 <body>
 <a href="#main" class="skip-link">跳至主要內容</a>
@@ -743,21 +783,25 @@
   <tr><td>～11:15</td><td><input type="checkbox" class="checkbox">✈️ 飛行 + 入境 + Grab 到 Signature by M Village Check-in</td></tr>
   <tr><td>12:00–13:00</td><td><input type="checkbox" class="checkbox">🍜 <strong><a class="place" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=Pho+Viet+Nam+14+Pham+Hong+Thai+Quan+1">Phở Việt Nam</a></strong> 越式河粉 🍴 <em>Michelin Bib Gourmand 2025</em>
     <div class="must-list"><strong>必點：</strong>Phở Bò Tái（生牛肉河粉）｜Chả Giò（炸春捲）｜越南冰煉乳咖啡</div>
+    <details class="intro"><summary>ℹ️ 介紹</summary><p>1971 年阮文雙先生創立的越式河粉老店，<strong>2025 Michelin Bib Gourmand</strong>。湯頭以牛骨熬數小時，配 Phở Bò Tái 生牛肉與九層塔。距 Signature 飯店步行 7 分鐘。</p></details>
   </td></tr>
   <tr><td>13:00–13:45</td><td><input type="checkbox" class="checkbox">💱 <a class="place" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=Ha+Tam+Jewelry+2+Nguyen+An+Ninh">Ha Tam Jewelry</a> 換越南盾 + 看金飾</td></tr>
-  <tr><td>13:45–14:15</td><td><input type="checkbox" class="checkbox">🛒 <a class="place" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=Ben+Thanh+Market">濱城市場</a>白天外圍認環境（純逛拍照，採買改在 D5 新定市場）</td></tr>
-  <tr><td>14:15–15:00</td><td><input type="checkbox" class="checkbox">📮 <a class="place" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=Saigon+Central+Post+Office">西貢中心郵政局</a></td></tr>
-  <tr><td>15:00–15:30</td><td><input type="checkbox" class="checkbox">⛪ <a class="place" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=Notre+Dame+Cathedral+Basilica+of+Saigon">西貢聖母聖殿主教座堂</a>（粉紅外觀拍照）</td></tr>
+  <tr><td>13:45–14:15</td><td><input type="checkbox" class="checkbox">🛒 <a class="place" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=Ben+Thanh+Market">濱城市場</a>白天外圍認環境（純逛拍照，採買改在 D5 新定市場） <details class="intro"><summary>ℹ️ 介紹</summary><p>1914 年法國殖民政府建造，胡志明市最具代表性的傳統市場。白天賣紀念品 + 衣服 + 食材，晚上轉成熱鬧夜市。鐘樓地標 600 多間攤位。</p></details></td></tr>
+  <tr><td>14:15–15:00</td><td><input type="checkbox" class="checkbox">📮 <a class="place" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=Saigon+Central+Post+Office">西貢中心郵政局</a> <details class="intro"><summary>ℹ️ 介紹</summary><p>1891 年完工的法國殖民地郵政總局，新文藝復興 + Belle Époque 風格。常被誤傳為 Eiffel 設計，實為 Marie-Alfred Foulhoux。內部拱頂大廳 + 古老地圖牆必拍。仍在運作的郵局。</p></details></td></tr>
+  <tr><td>15:00–15:30</td><td><input type="checkbox" class="checkbox">⛪ <a class="place" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=Notre+Dame+Cathedral+Basilica+of+Saigon">西貢聖母聖殿主教座堂</a>（粉紅外觀拍照） <details class="intro"><summary>ℹ️ 介紹</summary><p>1880 年法國殖民時期建造的天主教堂，紅磚由法國馬賽進口運抵越南。雙塔 60m 高的新羅馬式建築。目前正在大規模整修，外觀可拍但無法入內。</p></details></td></tr>
   <tr><td>15:30–16:00</td><td><input type="checkbox" class="checkbox">📚 <a class="place" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=Book+Street+Saigon">Book Street 書街</a></td></tr>
   <tr><td>16:00–16:45</td><td><input type="checkbox" class="checkbox">🎭 <a class="place" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=Saigon+Opera+House">胡志明市大劇院</a> 
  <a class="place" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=Nguyen+Hue+Walking+Street">阮惠步行街</a></td></tr>
   <tr><td>16:45–17:45</td><td><input type="checkbox" class="checkbox">☕ <strong><a class="place" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=42+Nguyen+Hue+Cafe+Apartment+Quan+1">The Cafe Apartment</a></strong> 咖啡公寓
     <div class="must-list"><strong>推薦樓層：</strong>Thinker & Dreamer Coffee（4F）｜Partea 英式下午茶｜Saigon Ơi Cafe<br><strong>必點：</strong>Cà Phê Sữa Đá（冰煉乳咖啡）｜Bạc Xỉu（白咖啡）｜Cà Phê Trứng（雞蛋咖啡）</div>
+    <details class="intro"><summary>ℹ️ 介紹</summary><p>1960 年代越戰時期建的住宅大樓，2014 年起整棟改造成「咖啡公寓」，9 層樓 30+ 家咖啡店 / 工作室 / 服飾店。電梯 3,000 VND 自助投幣（樓梯免費）。每層風格獨立。</p></details>
   </td></tr>
   <tr class="highlight"><td>18:00–20:00</td><td><input type="checkbox" class="checkbox">🦀 <strong><a class="place" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=An+Cua+Saigon+196+Le+Thanh+Ton+Quan+1">AN CUA SAIGON</a></strong> 螃蟹海鮮 🌟 4.8（GMaps）<span class="warn">⚠️ 必訂位</span>
     <div class="must-list"><strong>必點：</strong>Cua Rang Muối Hong Kong（港式椒鹽蟹）⭐｜Cua Sốt Trứng Muối（鹹蛋黃炒蟹）｜Ghẹ Hấp Bia（啤酒蒸青蟹）｜Cơm Chiên Hải Sản（海鮮炒飯）</div>
+    <details class="intro"><summary>ℹ️ 介紹</summary><p>當地人氣海鮮餐廳，主打螃蟹各種做法 + 鹹蛋黃料理。**Google 4.8⭐ / 1000+ 評論**。位置在 Lê Thánh Tôn 街道一樓。注意：跟同 Q1 的米其林一星 Anan Saigon 是不同店。</p></details>
   </td></tr>
-  <tr><td>20:00–21:00</td><td><input type="checkbox" class="checkbox">🍜 <em>(可選・消夜)</em> <strong><a class="place" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=Pho+2000+208+Le+Thanh+Ton+Quan+1">Phở 2000</a></strong> 雞肉河粉 🌟 4.4（GMaps）— 距 AN CUA 50m 同條街，6:00–22:00；2000 年 Bill Clinton 訪越來吃成名
+  <tr><td>20:00–21:00</td><td><input type="checkbox" class="checkbox">🍜 <em>(可選・消夜)</em> <strong><a class="place" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=Pho+2000+208+Le+Thanh+Ton+Quan+1">Phở 2000</a></strong> 雞肉河粉 🌟 4.4（GMaps）— 距 AN CUA 50m 同條街，6:00–22:00；2000 年 Bill Clinton 訪越來吃成名 <details class="intro"><summary>ℹ️ 介紹</summary><p>2000 年 11 月美國總統 Bill Clinton 訪越時來吃雞肉河粉而成名（Clinton 點 phở gà 雞肉河粉 + 芒果汁）。原址 1-3 Phan Chu Trinh，已搬到 208-210 Lê Thánh Tôn (Avanti 飯店一樓)。</p></details></td></tr>
+  <tr><td>21:00–22:00</td><td><input type="checkbox" class="checkbox">💈 <em>(可選・男士 spa)</em> <strong><a class="place" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=Amun+Barbershop+108+Bui+Thi+Xuan+Quan+1">Amun Barbershop</a></strong> 男士理髮 + 洗頭按摩 + 修面｜108 Bùi Thị Xuân, Q1（Phạm Ngũ Lão）<br>從 Phở 2000 / AN CUA Grab 5–7 分；8:00–22:30；外國人友善的 SPA 體驗 <details class="intro"><summary>ℹ️ 介紹</summary><p>Phạm Ngũ Lão（背包客街）區的男士理髮 + spa，YouTube 上很多 ASMR 按摩影片，外國旅客必去之一。完整服務：剪髮 + 修鬍 + 洗頭 + 肩頸按摩 + 耳朵清潔 + 臉部 / 修甲。一般單項 1 小時內完成。</p></details></td></tr>
 </table>
 </details>
 <details id="day-2" data-date="2026-05-02">
@@ -769,6 +813,7 @@
   <tr><td>09:30–10:00</td><td><input type="checkbox" class="checkbox">🏨 Signature 退房 → Liberty Central 寄行李</td></tr>
   <tr><td>10:00–11:00</td><td><input type="checkbox" class="checkbox">🥖 <strong><a class="place" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=Banh+Mi+Huynh+Hoa+26+Le+Thi+Rieng+Quan+1">Bánh Mì Huỳnh Hoa</a></strong> 越南最有名 pâté 法包 🌟 4.4（GMaps）｜26 Lê Thị Riêng, Q1
     <div class="must-list"><strong>必點：</strong>Bánh Mì Đặc Biệt（招牌綜合：pâté + 火腿 + 肝醬）｜配 Cà Phê Sữa Đá<br><strong>注意：</strong>排隊 20–40 分鐘很常見，外帶為主；50–65k VND；跟 CULCAT（9 Lê Thị Riêng）同條街，吃完直接走過去</div>
+    <details class="intro"><summary>ℹ️ 介紹</summary><p>1989 年開的越南最有名 Bánh Mì 老店，35+ 年歷史。13 種冷肉 + pâté + 黃油 + 越式醃菜。一個 73,000 VND（約 100 台幣），是西貢最貴的 Bánh Mì，但永遠排隊。</p></details>
   </td></tr>
   <tr><td>11:00–11:30</td><td><input type="checkbox" class="checkbox">🛍️ <a class="place" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=CULCAT+9+Le+Thi+Rieng+Quan+1">CULCAT Lê Thị Riêng</a>（5.0⭐）</td></tr>
   <tr><td>11:30–12:00</td><td><input type="checkbox" class="checkbox">🛍️ <a class="place" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=CULCAT+96+Ho+Tung+Mau+Quan+1">CULCAT & THRIFT MAMA</a></td></tr>
@@ -777,11 +822,13 @@
   <tr><td>13:00–13:30</td><td><input type="checkbox" class="checkbox">🛍️ <a class="place" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=Rue+Miche+9B+Phung+Khac+Khoan+Quan+1">Rue Miche Boutique</a></td></tr>
   <tr><td>13:30–14:00</td><td><input type="checkbox" class="checkbox">🍲 <strong><a class="place" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=Quan+Thuy+94+Mien+Cua+84+Dinh+Tien+Hoang">Quán Thuý 94 - Miến Cua</a></strong> 蟹肉粉絲 📗 <em>Michelin Selected 2024</em>（30 分快速吃完，200m 走到 Forest Spa）
     <div class="must-list"><strong>招牌：</strong>Miến Xào Cua（蟹肉炒冬粉）<br><strong>必點：</strong>Súp Cua（蟹肉羹）｜Cua Rang Me（羅望子炒蟹）｜Càng Cua Rang Muối（椒鹽蟹鉗）</div>
+    <details class="intro"><summary>ℹ️ 介紹</summary><p>蟹肉粉絲老店。店名「94」是舊地址，實際店面已搬到 84 號（Đinh Tiên Hoàng 街）。<strong>Michelin Selected 2024</strong>。Cà Mau 軟殼蟹炒粉絲是招牌。價格平實 100k–240k VND/份。</p></details>
   </td></tr>+
-  <tr class="highlight"><td>14:00–16:30</td><td><input type="checkbox" class="checkbox">💆 <strong><a class="place" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=Forest+Spa+Dinh+Tien+Hoang+Quan+1">Forest Spa 森流水療館</a></strong>（77 Đinh Tiên Hoàng）完整療程（✅ 已訂位 14:00）</td></tr>
+  <tr class="highlight"><td>14:00–16:30</td><td><input type="checkbox" class="checkbox">💆 <strong><a class="place" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=Forest+Spa+Dinh+Tien+Hoang+Quan+1">Forest Spa 森流水療館</a></strong>（77 Đinh Tiên Hoàng）完整療程（✅ 已訂位 14:00） <details class="intro"><summary>ℹ️ 介紹</summary><p>Đa Kao 區的水療館，2.5hr 完整療程包含越式按摩 + 草本洗頭 + 腳底 + 頭部。木質森林系裝潢風格。已訂位 14:00（5/2）。</p></details></td></tr>
   <tr><td>16:30–17:30</td><td><input type="checkbox" class="checkbox">🚶 自由時間（Liberty Check-in / 河畔散步）</td></tr>
   <tr class="highlight"><td>18:30–20:30</td><td><input type="checkbox" class="checkbox">🦀 <strong><a class="place" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=Chai+Village+99+Nguyen+Hue+Quan+1">Chài Village</a></strong> 海鮮餐廳 🌟 4.9（GMaps）（✅ 已訂位 18:30）
     <div class="must-list"><strong>必點：</strong>Cua Rang Me（羅望子炒蟹）⭐｜Tôm Hùm Nướng Phô Mai（起司焗龍蝦）｜Sò Điệp Nướng Mỡ Hành（蔥油烤扇貝）｜Cơm Cháy Hải Sản（海鮮鍋巴飯）</div>
+    <details class="intro"><summary>ℹ️ 介紹</summary><p>Saigon Garden 大樓頂樓的海鮮餐廳，**Google 4.9⭐**。可選自助 buffet（689k / 789k VND）或單點。夜景視野好（99 Nguyễn Huệ）。已訂位 18:30（5/2）。</p></details>
   </td></tr>
 </table>
 </details>
@@ -793,17 +840,20 @@
 <table>
   <tr><td>09:30–10:30</td><td><input type="checkbox" class="checkbox">🍳 <strong><a class="place" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=Bun+Bo+Hue+Co+Nhu+274+Vo+Van+Tan+Quan+3">Bún Bò Huế Mỡ Nổi Cô Như</a></strong> 🍴 <em>Michelin Bib Gourmand 2025</em>（重口味、辣油湯，可講「<strong>không cay</strong>」不要辣 或「<strong>ít cay</strong>」少辣）
     <div class="must-list"><strong>必點：</strong>Bún Bò Huế Đặc Biệt（招牌綜合）— 牛肉+牛腱+豬血+豬腳，湯頭特色是浮油辣香</div>
+    <details class="intro"><summary>ℹ️ 介紹</summary><p>越南順化（Huế）地區的牛肉米線，<strong>2025 Michelin Bib Gourmand</strong>。湯頭加蝦醬 + 香茅 + 辣油，比河內 Phở 重口味。Cô Như 阿姨家三代傳承的招牌。</p></details>
   </td></tr>
   <tr><td>10:30–11:00</td><td><input type="checkbox" class="checkbox">🛍️ <a class="place" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=A+A+A+Concept+Store+246+Nguyen+Thi+Minh+Khai+Quan+3">A Ă Â CONCEPT STORE</a></td></tr>
   <tr><td>11:00–11:30</td><td><input type="checkbox" class="checkbox">🛍️ <a class="place" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=LIDER+07+Ton+That+Thiep+Quan+1">LIDER</a></td></tr>
   <tr><td>11:30–12:00</td><td><input type="checkbox" class="checkbox">🛍️ <a class="place" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=Kiem+La+Mot+26+Ton+That+Thiep+Quan+1">Kiếm Là Mốt Kiemlamot</a></td></tr>
   <tr><td>12:15–13:30</td><td><input type="checkbox" class="checkbox">🍜 <strong><a class="place" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=Banh+Canh+Cua+87+Tran+Khac+Chan+Quan+1">Bánh Canh Cua 87</a></strong> 蟹肉粿條 🌟 4.5（GMaps）
     <div class="must-list"><strong>必點：</strong>Bánh Canh Cua Đặc Biệt（綜合蟹肉粿條）— 含蟹鉗、蟹肉、鵪鶉蛋、蝦、豬肉｜加點 Giò Heo（豬腳）</div>
+    <details class="intro"><summary>ℹ️ 介紹</summary><p>老闆娘 Tuyết（51 歲）家族 40 年蟹肉粿條傳承，凌晨 5 點起床熬湯。<strong>Google 4.5⭐</strong>。粿條 Q 彈、蟹肉/蝦料豐富。在地客為主，無冷氣。</p></details>
   </td></tr>
   <tr><td>13:30–14:30</td><td><input type="checkbox" class="checkbox">🛍️ <a class="place" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=The+New+Playground+26+Ly+Tu+Trong+Quan+1">The New Playground</a> + Mozaic + COMPOUND + BEAT UNBEATEN</td></tr>
-  <tr class="highlight"><td>14:30–17:30</td><td><input type="checkbox" class="checkbox">🚗 <strong>黛奧司機歷史景點</strong>：<a class="place" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=War+Remnants+Museum">戰爭遺跡博物館</a> → <a class="place" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=Independence+Palace+Ho+Chi+Minh">統一宮</a> → <a class="place" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=Tan+Dinh+Church+Ho+Chi+Minh">粉紅教堂</a> → <a class="place" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=Jade+Emperor+Pagoda">玉皇殿</a></td></tr>
+  <tr class="highlight"><td>14:30–17:30</td><td><input type="checkbox" class="checkbox">🚗 <strong>黛奧司機歷史景點</strong>：<a class="place" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=War+Remnants+Museum">戰爭遺跡博物館</a> → <a class="place" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=Independence+Palace+Ho+Chi+Minh">統一宮</a> → <a class="place" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=Tan+Dinh+Church+Ho+Chi+Minh">粉紅教堂</a> → <a class="place" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=Jade+Emperor+Pagoda">玉皇殿</a> <details class="intro"><summary>ℹ️ 介紹</summary><p><strong>戰爭遺跡博物館</strong>（28 Vò Văn Tần）：越戰美軍 atrocities 展覽，含 Agent Orange 受害者照片，沉重但震撼。<br><strong>統一宮</strong>（135 Nam Kỳ Khởi Nghĩa）：原南越總統府，1975 年 4/30 北越坦克衝破大門結束越戰。<br><strong>粉紅教堂 Tân Định</strong>（289 Hai Bà Trưng）：1876 年羅馬天主教堂，1957 年漆成粉紅色至今，IG 紅。<br><strong>玉皇殿</strong>（73 Mai Thị Lựu）：1909 年華人移民建的道教廟，2016 年歐巴馬訪越時參觀。</p></details></td></tr>
   <tr class="highlight"><td>18:00–20:00</td><td><input type="checkbox" class="checkbox">🍲 <strong><a class="place" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=Nha+Tu+129%2F4+Vo+Van+Tan+Quan+3">Nhà Tú</a></strong> 越式家常料理（Michelin Bib Gourmand 2025）<span class="warn">⚠️ 建議訂位</span>
     <div class="must-list"><strong>必點：</strong>Ốc bươu nhồi thịt（釀肉田螺）⭐｜Bánh Xèo（越式煎餅）｜Lẩu cua đồng（田蟹鍋）｜Cơm cháy chà bông（鍋巴肉鬆）<br><strong>特色：</strong>藏身巷內的 3 層老屋，2025 Michelin 必比登推介；129/4 Võ Văn Tần, Q3</div>
+    <details class="intro"><summary>ℹ️ 介紹</summary><p>Q3 Võ Văn Tần 巷內的 3 層老屋越南家常菜，<strong>2025 Michelin Bib Gourmand</strong>。店主收藏越南各地生活物件做裝潢，懷舊風格。釀肉田螺 + 田蟹鍋是招牌。</p></details>
   </td></tr>
 </table>
 </details>
@@ -815,9 +865,11 @@
 <table>
   <tr><td>09:30–10:30</td><td><input type="checkbox" class="checkbox">🥐 <strong><a class="place" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=Mille+Mille+32+Tran+Cao+Van+Quan+3">Mille Mille Boutique</a></strong> 🌟 4.5（GMaps）早餐 + 咖啡 + 伴手禮（法式餅店・9:00 開）
     <div class="must-list"><strong>必點早餐：</strong>可頌｜法式吐司｜越南蛋糕｜Cà Phê Sữa Đá 冰煉乳咖啡<br><strong>必買伴手禮：</strong>椰子酥餅｜越式綠豆糕｜腰果巧克力｜咖啡糖</div>
+    <details class="intro"><summary>ℹ️ 介紹</summary><p>2024 年新開的法式餅店，Q3 Trần Cao Vân 街上的網紅店。法式 viennoiseries（可頌等）+ 越式餅乾伴手禮一站搞定。9:00 開門。</p></details>
   </td></tr>
   <tr><td>10:30–11:00</td><td><input type="checkbox" class="checkbox">🧋 <strong><a class="place" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=Phuc+Long+42+Tran+Cao+Van+Quan+3">福隆奶茶 Phúc Long Trần Cao Vân</a></strong> 🌟 4.0（GMaps，連鎖）越南最有名奶茶（Mille Mille 隔壁兩家）
     <div class="must-list"><strong>必點：</strong>Trà Sữa Phúc Long 招牌奶茶⭐｜Trà Đào Cam Sả 香茅蜜桃茶｜Trà Ô Long 烏龍茶</div>
+    <details class="intro"><summary>ℹ️ 介紹</summary><p>越南最有名的茶 / 奶茶連鎖品牌，1968 年起源於 Bảo Lộc 林同省茶園。Trà Đào Cam Sả 香茅蜜桃茶最熱銷。Trần Cao Vân 分店與 Mille Mille 同條街僅隔 5 戶。</p></details>
   </td></tr>
   <tr><td>12:00–13:30</td><td><input type="checkbox" class="checkbox">🍲 <strong><a class="place" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=Quan+An+Ngon+160+Pasteur+Quan+1">Ngon Restaurant</a></strong> 越南菜 🌟 4.0（GMaps）
     <div class="must-list"><strong>必點：</strong>Gỏi Cuốn（越式生春捲）｜Bún Chả Hà Nội（河內烤肉米線）｜Cá Kho Tộ（砂鍋焦糖魚）｜Bánh Xèo（越式煎餅）｜飯後：Chè Ba Màu（三色冰）</div>
@@ -829,6 +881,7 @@
   </td></tr>
   <tr class="highlight"><td>18:30–20:30</td><td><input type="checkbox" class="checkbox">🥖 <strong><a class="place" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=The+Refinery+74+Hai+Ba+Trung+Quan+1">鴉片工廠 The Refinery</a></strong> 法式餐酒館 🌟 4.3（GMaps）（✅ 已訂位 18:30）
     <div class="must-list"><strong>位置：</strong>74/7 Hai Bà Trưng（1881 年舊鴉片工廠改建，黃色拱門進入庭院）<br><strong>必點：</strong>French Onion Soup｜Steak Frites｜Duck Confit<br><strong>調酒：</strong>French 75｜Negroni</div>
+    <details class="intro"><summary>ℹ️ 介紹</summary><p>1881 年法國殖民時期建造的「Manufacture d'Opium」鴉片精煉工廠，2006 年改建成法式 Brasserie + Wine Bar。庭院內藏黃色拱門入口。<strong>Google 4.3⭐</strong>。已訂位 18:30（5/4）。</p></details>
   </td></tr>
 </table>
 </details>
@@ -840,10 +893,12 @@
 <table>
   <tr><td>09:30–10:45</td><td><input type="checkbox" class="checkbox">🛒 <strong><a class="place" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=Cho+Tan+Dinh+48+Ma+Lo+Quan+1">新定市場 Chợ Tân Định</a>採買伴手禮</strong>
     <div class="must-list"><strong>必買：</strong>Trung Nguyên G7 三合一咖啡｜腰果｜椰子糖｜Kẹo Dừa 椰奶糖｜榴槤餅｜綠豆糕</div>
+    <details class="intro"><summary>ℹ️ 介紹</summary><p>1926 年法國殖民時期建造的市場，外觀粉紅色拱廊建築（旁邊就是 Day 3 看的粉紅教堂）。比 Ben Thanh 在地化、價格便宜 20–30%，乾貨 / 伴手禮區集中好逛。</p></details>
   </td></tr>
   <tr><td>10:45–11:00</td><td><input type="checkbox" class="checkbox">🚕 Grab 到 Pizza 4P's</td></tr>
   <tr class="highlight"><td>11:00–12:30</td><td><input type="checkbox" class="checkbox">🍕 <strong><a class="place" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=Pizza+4Ps+8+Thu+Khoa+Huan+Quan+1">Pizza 4P's Ben Thanh</a></strong> 🌟 4.6（GMaps）（已訂位）
     <div class="must-list"><strong>必點：</strong>Burrata Parma Ham Pizza⭐（招牌）｜Salmon Teriyaki Pizza｜Four Cheese Pizza<br><strong>前菜：</strong>Burrata Caprese｜<strong>飲料：</strong>自家釀 Kombucha</div>
+    <details class="intro"><summary>ℹ️ 介紹</summary><p>2011 年由日本企業家 Yosuke Masuko 在胡志明創辦的「日式義大利薄餅」品牌，目前 32 間店在越柬印日。在 Đơn Dương 自家牧場做起司，**東南亞餐飲獨角獸**。已訂位 11:00（5/5）。</p></details>
   </td></tr>
   <tr><td>12:30–13:30</td><td><input type="checkbox" class="checkbox">🏨 回飯店收行李</td></tr>
   <tr><td>13:30–14:00</td><td><input type="checkbox" class="checkbox">🏨 Check-out + Grab 前往新山一機場</td></tr>
