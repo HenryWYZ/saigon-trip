@@ -389,6 +389,11 @@
     animation: pulse 1.5s ease-in-out infinite;
   }
   @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.35; } }
+  tr.past-row td { opacity: 0.5; }
+  tr.past-row td:first-child { text-decoration: line-through; }
+  tr.past-row.now td, tr.now.past-row td { opacity: 1; }
+  tr.past-row.now td:first-child { text-decoration: none; }
+  @media print { tr.past-row td { opacity: 1; text-decoration: none; } }
   /* === Theme toggle === */
   .theme-toggle {
     position: fixed;
@@ -489,6 +494,92 @@
   body.dark .backup-info > summary { color: #a5b8ff; }
   body.dark .backup-info > summary:hover { background: #1a2040; }
   body.dark .backup-info .note-inline { color: #b8c0d8; }
+  .prep-info { border-left-color: #14b8a6; }
+  .prep-info > summary { color: #0d9488; }
+  .prep-info > summary:hover { background: #ecfdf5; }
+  .prep-info .prep-cat {
+    margin: 12px 0 4px;
+    font-weight: bold;
+    color: #0d9488;
+    font-size: 14px;
+  }
+  .prep-info .prep-list { padding-left: 0; list-style: none; margin: 0 0 8px; }
+  .prep-info .prep-list li { padding: 3px 0; line-height: 1.45; }
+  .prep-info .prep-list label { cursor: pointer; display: inline; }
+  .prep-info .prep-cb {
+    margin-right: 6px;
+    transform: translateY(2px);
+    accent-color: #14b8a6;
+  }
+  .prep-info input.prep-cb:checked + * { color: #888; text-decoration: line-through; }
+  body.dark .prep-info { border-left-color: #2dd4bf; }
+  body.dark .prep-info > summary { color: #5eead4; }
+  body.dark .prep-info > summary:hover { background: #0f2a25; }
+  body.dark .prep-info .prep-cat { color: #5eead4; }
+  body.dark .prep-info input.prep-cb:checked + * { color: #777; }
+  .budget-box {
+    border: 1px solid #ffd0d0;
+    background: #fffafa;
+    border-left: 4px solid #f97316;
+    border-radius: 8px;
+    padding: 12px 16px;
+    margin: 12px 0;
+  }
+  .budget-box h2 { margin: 0 0 8px; font-size: 16px; color: #ea580c; }
+  .budget-day { display: flex; gap: 8px; align-items: center; margin: 4px 0; flex-wrap: wrap; }
+  .budget-day label { font-size: 13px; min-width: 64px; color: #444; font-weight: bold; }
+  .budget-day input[type="number"] {
+    flex: 1;
+    min-width: 100px;
+    padding: 4px 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 13px;
+    text-align: right;
+    -moz-appearance: textfield;
+  }
+  .budget-day input::-webkit-outer-spin-button,
+  .budget-day input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+  .budget-day .budget-twd { font-size: 12px; color: #666; min-width: 90px; text-align: right; }
+  .budget-total { margin-top: 8px; padding-top: 8px; border-top: 1px dashed #ffcc99; font-weight: bold; color: #ea580c; }
+  body.dark .budget-box { background: #2a1f15; border-color: #5a3a20; border-left-color: #fb923c; }
+  body.dark .budget-box h2 { color: #fdba74; }
+  body.dark .budget-day label { color: #d8d0c8; }
+  body.dark .budget-day input[type="number"] { background: #1a1410; border-color: #5a3a20; color: #f0e0d0; }
+  body.dark .budget-day .budget-twd { color: #b8a890; }
+  body.dark .budget-total { color: #fdba74; border-color: #5a3a20; }
+  .open-now { display: inline-block; font-size: 11px; padding: 1px 6px; border-radius: 8px; margin-left: 4px; vertical-align: middle; font-weight: bold; }
+  .open-now.now { background: #d1fae5; color: #047857; }
+  .open-now.upcoming { background: #fef3c7; color: #b45309; }
+  .open-now.past { background: #f3f4f6; color: #6b7280; }
+  body.dark .open-now.now { background: #064e3b; color: #6ee7b7; }
+  body.dark .open-now.upcoming { background: #4a3010; color: #fdba74; }
+  body.dark .open-now.past { background: #2a2a2a; color: #888; }
+  .ios-install-hint {
+    background: #e0f2fe;
+    border-left: 4px solid #0284c7;
+    padding: 10px 14px;
+    margin: 12px 0;
+    border-radius: 6px;
+    font-size: 13px;
+    line-height: 1.5;
+    position: relative;
+  }
+  .ios-install-hint .close-hint {
+    position: absolute;
+    top: 6px;
+    right: 8px;
+    background: none;
+    border: none;
+    font-size: 18px;
+    cursor: pointer;
+    color: #0284c7;
+    line-height: 1;
+    padding: 2px 6px;
+  }
+  body.dark .ios-install-hint { background: #0c2a3a; border-left-color: #38bdf8; color: #cce7f5; }
+  body.dark .ios-install-hint .close-hint { color: #38bdf8; }
+  @media print { .open-now, .ios-install-hint, .budget-box { display: none !important; } }
   .travel-badge {
     display: inline-block;
     font-size: 10px;
@@ -630,6 +721,25 @@
   <div class="progress-bg"><div class="progress-bar-fill" id="progress-bar"></div></div>
   <div class="progress-text" id="progress-text" aria-live="polite" aria-atomic="true">已完成 0 / 0</div>
 </div>
+<div class="ios-install-hint" id="ios-install-hint" hidden>
+  <button type="button" class="close-hint" id="close-ios-hint" aria-label="關閉提示">×</button>
+  <strong>📲 加到主畫面就能離線使用</strong><br>
+  Safari 點下方 <strong>分享 ⬆️</strong>（中央方塊+箭頭）→ 滑到「加入主畫面」→ 加入。下次開就像 app 一樣，飛機上沒網路也能看完整手冊。
+</div>
+<details class="collapsible-info budget-tracker" id="budget-tracker">
+  <summary>💵 每日花費紀錄（隨手記）</summary>
+  <div class="collapsible-content">
+    <div class="budget-box">
+      <h2>每日支出（VND）</h2>
+      <div class="budget-day"><label>Day 1 5/1</label><input type="number" class="budget-input" data-day="1" inputmode="numeric" placeholder="0" min="0" step="1000"><span class="budget-twd" data-twd="1">≈ TWD 0</span></div>
+      <div class="budget-day"><label>Day 2 5/2</label><input type="number" class="budget-input" data-day="2" inputmode="numeric" placeholder="0" min="0" step="1000"><span class="budget-twd" data-twd="2">≈ TWD 0</span></div>
+      <div class="budget-day"><label>Day 3 5/3</label><input type="number" class="budget-input" data-day="3" inputmode="numeric" placeholder="0" min="0" step="1000"><span class="budget-twd" data-twd="3">≈ TWD 0</span></div>
+      <div class="budget-day"><label>Day 4 5/4</label><input type="number" class="budget-input" data-day="4" inputmode="numeric" placeholder="0" min="0" step="1000"><span class="budget-twd" data-twd="4">≈ TWD 0</span></div>
+      <div class="budget-day"><label>Day 5 5/5</label><input type="number" class="budget-input" data-day="5" inputmode="numeric" placeholder="0" min="0" step="1000"><span class="budget-twd" data-twd="5">≈ TWD 0</span></div>
+      <div class="budget-total" id="budget-total">合計 ：VND 0 ≈ TWD 0</div>
+    </div>
+  </div>
+</details>
 <div class="info-box">
   <h2>🏨 住宿</h2>
   <ul>
@@ -652,6 +762,70 @@
     <li>✅ Pizza 4P's Ben Thanh（Day 5 11:00 已訂）</li>
   </ul>
 </div>
+<details class="collapsible-info prep-info" open>
+  <summary>🧳 行前 checklist（出發前 1 週 → 當天）</summary>
+  <div class="collapsible-content">
+    <p class="prep-cat">📄 證件 / 文件</p>
+    <ul class="prep-list">
+      <li><label><input type="checkbox" class="prep-cb" data-id="passport"> 護照效期 ≥ 6 個月（2026/11 後到期）</label></li>
+      <li><label><input type="checkbox" class="prep-cb" data-id="evisa"> 越南 e-visa 已申請 + 列印 2 份（<a href="https://evisa.gov.vn/" target="_blank" rel="noopener">evisa.gov.vn</a>，US$25 / 5 天送）</label></li>
+      <li><label><input type="checkbox" class="prep-cb" data-id="ticket"> CI9027（5/1）+ CI9026（5/5）電子機票 / 登機證 app（華航）</label></li>
+      <li><label><input type="checkbox" class="prep-cb" data-id="hotel"> Signature（5/1）+ Liberty Central（5/2–5/4）訂房確認信</label></li>
+      <li><label><input type="checkbox" class="prep-cb" data-id="insure"> 旅平險 + 不便險（建議涵蓋醫療 200 萬+）</label></li>
+      <li><label><input type="checkbox" class="prep-cb" data-id="copy"> 護照影本 / 大頭照 2 張（萬一遺失補辦用）</label></li>
+    </ul>
+    <p class="prep-cat">💰 現金 / 信用卡</p>
+    <ul class="prep-list">
+      <li><label><input type="checkbox" class="prep-cb" data-id="usd"> US$300–500 新鈔（2013 後版本，無摺痕，到 Ha Tam Jewelry 換 VND）</label></li>
+      <li><label><input type="checkbox" class="prep-cb" data-id="twd-cash"> 台幣 2,000–3,000 應急（機場接送 / 第一天交通）</label></li>
+      <li><label><input type="checkbox" class="prep-cb" data-id="cc-notify"> 信用卡海外刷卡通知（每張至少 1 張可海外，Visa / Master）</label></li>
+      <li><label><input type="checkbox" class="prep-cb" data-id="cc-pin"> 預借現金 PIN 碼確認（萬一現金不足）</label></li>
+    </ul>
+    <p class="prep-cat">📱 通訊 / 電子</p>
+    <ul class="prep-list">
+      <li><label><input type="checkbox" class="prep-cb" data-id="esim"> 越南 eSIM / 漫遊（Airalo / Klook 5 天約 NT$200–400）</label></li>
+      <li><label><input type="checkbox" class="prep-cb" data-id="grab"> Grab app 已下載 + 綁卡（信用卡或現金都可）</label></li>
+      <li><label><input type="checkbox" class="prep-cb" data-id="gtrans"> Google 翻譯 app + 越文離線包（防斷網用）</label></li>
+      <li><label><input type="checkbox" class="prep-cb" data-id="plug"> 萬用轉接頭（越南用 A / C / F，台灣兩腳直插也通）</label></li>
+      <li><label><input type="checkbox" class="prep-cb" data-id="powerbank"> 行動電源 ≤100Wh（手提；不可托運）</label></li>
+      <li><label><input type="checkbox" class="prep-cb" data-id="charger"> 手機 / 相機充電器 + 線材</label></li>
+    </ul>
+    <p class="prep-cat">💊 健康 / 藥品</p>
+    <ul class="prep-list">
+      <li><label><input type="checkbox" class="prep-cb" data-id="anti-d"> 止瀉藥（樂必寧 Imodium）+ 腸胃藥（吃壞肚子常見）</label></li>
+      <li><label><input type="checkbox" class="prep-cb" data-id="bug"> 防蚊液（含 DEET 30%+，越南登革熱季節要小心）</label></li>
+      <li><label><input type="checkbox" class="prep-cb" data-id="sun"> 防曬 SPF 50+（5 月日均 33°C / UV 11+）</label></li>
+      <li><label><input type="checkbox" class="prep-cb" data-id="cold"> 感冒藥 + 退燒藥（普拿疼）+ OK 繃</label></li>
+      <li><label><input type="checkbox" class="prep-cb" data-id="motion"> 暈車藥（Grab 司機開很猛 + 越式按摩可能會頭暈）</label></li>
+      <li><label><input type="checkbox" class="prep-cb" data-id="rx"> 個人處方藥（帶足旅程天數 +3 天備份）</label></li>
+    </ul>
+    <p class="prep-cat">👕 衣物 / 隨身</p>
+    <ul class="prep-list">
+      <li><label><input type="checkbox" class="prep-cb" data-id="clothes"> 短袖 ×6 / 短褲 ×3 / 內衣襪子 ×6（5 月雨季尾，會悶熱出汗）</label></li>
+      <li><label><input type="checkbox" class="prep-cb" data-id="jacket"> 薄外套 / 防曬外套（餐廳 / 計程車冷氣很強）</label></li>
+      <li><label><input type="checkbox" class="prep-cb" data-id="shoes"> 好走的鞋（會走很多路）+ 拖鞋 / 涼鞋</label></li>
+      <li><label><input type="checkbox" class="prep-cb" data-id="umbrella"> 折傘（5 月午後可能 30 分鐘陣雨）</label></li>
+      <li><label><input type="checkbox" class="prep-cb" data-id="swimsuit"> 泳衣（Liberty Central 有頂樓泳池）</label></li>
+      <li><label><input type="checkbox" class="prep-cb" data-id="church"> 過膝褲 / 有袖上衣 ×1 套（玉皇殿 / 教堂禮儀）</label></li>
+    </ul>
+    <p class="prep-cat">🛍️ 雜物</p>
+    <ul class="prep-list">
+      <li><label><input type="checkbox" class="prep-cb" data-id="tissue"> 濕紙巾 + 衛生紙（路邊攤通常不附）</label></li>
+      <li><label><input type="checkbox" class="prep-cb" data-id="bag"> 自封袋 / 保鮮夾鏈袋（伴手禮分裝、防漏、裝濕衣物）</label></li>
+      <li><label><input type="checkbox" class="prep-cb" data-id="empty"> 空摺疊袋（伴手禮裝回家用）</label></li>
+      <li><label><input type="checkbox" class="prep-cb" data-id="pen"> 原子筆（飛機上填入境卡 / 海關卡）</label></li>
+    </ul>
+    <p class="prep-cat">🚪 出發前一晚 / 當天</p>
+    <ul class="prep-list">
+      <li><label><input type="checkbox" class="prep-cb" data-id="weather"> 看當週天氣（雨衣 / 防曬調整）</label></li>
+      <li><label><input type="checkbox" class="prep-cb" data-id="bag-weight"> 行李重量 ≤ 23 kg 託運 + 7 kg 手提（華航經濟艙）</label></li>
+      <li><label><input type="checkbox" class="prep-cb" data-id="lock"> 行李上鎖 + 拍照（萬一遺失備案）</label></li>
+      <li><label><input type="checkbox" class="prep-cb" data-id="phone-store"> 把本手冊「加到主畫面」（離線可用 PWA）</label></li>
+      <li><label><input type="checkbox" class="prep-cb" data-id="airport"> 5/1 04:30 出門 → 小港機場 05:30 報到（CI9027 07:30 起飛）</label></li>
+    </ul>
+    <div class="note">⏳ 進度自動存在這支手機（localStorage）；跨裝置不會同步。</div>
+  </div>
+</details>
 <div class="info-box">
   <h2>💰 預算 / 匯率參考</h2>
   <p><strong>匯率（2026/4 參考，實際以當日為準）：</strong>1 USD ≈ 25,000 VND｜1 TWD ≈ 780 VND｜100,000 VND ≈ 128 TWD</p>
@@ -673,17 +847,17 @@
       <li>🌃 <a class="place" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=Ben+Thanh+Night+Market">濱城夜市 Ben Thanh Night Market</a>｜原 21:00–22:00<br><span class="note-inline">必吃：烤鮮蝦/烤墨魚｜Nem Nướng｜Bánh Tráng Trộn｜榴槤冰淇淋｜紀念品殺價 40–50%</span></li>
       <li>🌃 <a class="place" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=Bui+Vien+Walking+Street">Bui Vien 范五老街</a>｜原 22:00–23:00（背包客派對街）</li>
       <li>🍨 <a class="place" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=Dau+Hu+Co+Thuy+Bui+Vien">Đậu Hủ Bùi Viện 豆腐甜品</a>｜原 23:00<br><span class="note-inline">必點：椰奶豆花｜薑汁豆花｜加料珍珠、花生、芋圓</span></li>
-    </ul>+
+    </ul>
     <p>Day 2（5/2）備用</p>
     <ul>
       <li>🥐 <a class="place" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=Bo+Ne+Ba+Nui+94+Nguyen+Thai+Binh+Quan+1">Bò Né Bà Nũi</a>｜94 Nguyễn Thái Bình, Q1（越式鐵板牛排早餐）<br><span class="note-inline">必點：Bò Né Đặc Biệt 招牌綜合鐵板｜Bánh Mì Pâté 沾蛋黃；想坐著吃熱早餐時可換</span></li>
       <li>🌆 河畔散步 / Liberty 頂樓泳池｜原 21:30（飯店設施，任何時段都能用）</li>
-    </ul>+
+    </ul>
     <p>Day 3（5/3）備用</p>
     <ul>
       <li>🛍️ <a class="place" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=FRAGILE+CLUB+Thao+Dien+Thu+Duc">FRAGILE CLUB</a>｜原 11:30–12:00（在 Thảo Điền，要過橋 20+ 分車程）</li>
       <li>☕ <a class="place" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=Cafe+Mien+Thao+Moc+554E+Minh+Phung+Quan+11">Cafe Mien Thao Moc</a>｜原 18:00–18:45（在 Q11，離主行程 20+ 分車程）<br><span class="note-inline">必點：Trà Đào 蜜桃茶｜Cà Phê Cốt Dừa 椰奶咖啡｜Matcha Latte｜樹林造景必拍</span></li>
-    </ul>+
+    </ul>
     <p>Day 4（5/4）備用</p>
     <ul>
       <li>🌟 <a class="place" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=CieL+Dining+Thao+Dien+Thu+Duc">CieL Dining</a> ⭐ <em>Michelin 1 Star</em>｜Thảo Điền, Thủ Đức（正式晚餐，需提前 1 週訂）<br><span class="note-inline">想吃高級 tasting menu 時的選項，但跨橋到 Thảo Điền 單程 30 分</span></li>
@@ -692,7 +866,7 @@
       <li>🌃 <a class="place" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=Ho+Thi+Ky+Food+Street+Quan+10">Ho Thi Ky 花市夜市</a>｜原 21:30–22:30（Q10）<br><span class="note-inline">必吃：Bánh Tráng Nướng 越式披薩｜各式螺（椰奶蟹 / 炒蜆 / 辣炒螺）｜Bánh Canh Ghẹ 螃蟹粿條｜Chè Khmer 柬埔寨甜湯</span></li>
       <li>🍨 <a class="place" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=Che+Ha+Ky+138+Chau+Van+Liem+Quan+5">Ha Ky Sweet Soup</a>｜原 22:30–23:00（Q5 Chợ Lớn）<br><span class="note-inline">必點：什錦甜湯｜清補涼｜杏仁豆花</span></li>
       <li>💆 <a class="place" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=Ha+Spa+Massage+49+Pham+Viet+Chanh+Quan+1">MASSAGE HẠ SPA QUẬN 1</a>｜原 23:30（夜間全身按摩）</li>
-    </ul>+
+    </ul>
     <p>🛍️ 服飾店備選（看當天順路再塞）</p>
     <ul>
       <li>🛍️ 11 Garmentory｜地址未確認<br><span class="note-inline">出發前用 Google Maps 確認後再決定塞哪天；可能是 IG 上的小店</span></li>
@@ -708,7 +882,7 @@
     <p>🍜 餐廳備選（不限特定天，可任一餐替換）</p>
     <ul>
       <li>🍲 <a class="place" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=Bep+Me+In+165%2F50+Nguyen+Thai+Binh+Quan+1">Bếp Mẹ Ỉn</a> 🍴 <em>Michelin Bib Gourmand 2025</em>｜165/50 Nguyễn Thái Bình, Bến Thành, Q1<br><span class="note-inline">越式家常菜巷弄老店。可替換 Day 4 Ngon Restaurant 午餐（都是經典越菜），或塞進任一晚餐代替原本排程。</span></li>
-    </ul>+
+    </ul>
     <p>Day 5（5/5）備用</p>
     <ul>
       <li>🍳 <a class="place" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=Dong+Nguyen+Chicken+Rice+801+Nguyen+Trai+Quan+5">東源雞飯</a>｜801 Nguyễn Trãi, Q5 Chợ Lớn（海南雞飯，跨區到華人區，單程 Grab 20 分）<br><span class="note-inline">必點：Cơm Gà Xối Mỡ 炸雞飯⭐｜Cơm Gà Hấp 蒸雞飯；想體驗 Chợ Lớn 老華人區早餐時換上</span></li>
@@ -729,7 +903,7 @@
       <li><strong>Dạ / Vâng</strong>（呀 / 問）— 是 / 好的</li>
       <li><strong>Không</strong>（空）— 不</li>
       <li><strong>Bạn nói tiếng Anh được không?</strong> — 你會說英文嗎？</li>
-    </ul>+
+    </ul>
     <p>🛒 買東西 / 殺價</p>
     <ul>
       <li><strong>Bao nhiêu?</strong>（包妞）— 多少錢？</li>
@@ -738,7 +912,7 @@
       <li><strong>Cho tôi cái này</strong>（招東蓋奈）— 我要這個</li>
       <li><strong>Tính tiền</strong>（頂典）— 結帳</li>
       <li><strong>Có thẻ được không?</strong> — 可以刷卡嗎？</li>
-    </ul>+
+    </ul>
     <p>🍜 點餐 / 飲食要求</p>
     <ul>
       <li><strong>Ngon quá!</strong>（雍瓜）— 好吃！</li>
@@ -747,7 +921,7 @@
       <li><strong>Không đá</strong>（空達）— 去冰</li>
       <li><strong>Ít đường</strong>（依登）— 少糖</li>
       <li><strong>Cho xin hoá đơn</strong> — 請給我收據</li>
-    </ul>+
+    </ul>
     <p>🚗 交通 / 問路</p>
     <ul>
       <li><strong>Sân bay</strong>（三拜）— 機場</li>
@@ -755,7 +929,7 @@
       <li><strong>Nhà vệ sinh ở đâu?</strong>（呀衛辛俄都）— 廁所在哪？</li>
       <li><strong>Dừng lại đây</strong>（永來呆）— 停這裡</li>
       <li><strong>Đi thẳng / rẽ trái / rẽ phải</strong> — 直走 / 左轉 / 右轉</li>
-    </ul>+
+    </ul>
     <p>🆘 求救 / 意外</p>
     <ul>
       <li><strong>Cứu tôi!</strong>（鳩東）— 救命！</li>
@@ -763,13 +937,13 @@
       <li><strong>Gọi xe cứu thương</strong> — 叫救護車</li>
       <li><strong>Tôi bị mất hộ chiếu / ví</strong> — 我掉了護照 / 錢包</li>
       <li><strong>Tôi cần bác sĩ</strong>（東根拔席）— 我需要醫生</li>
-    </ul>+
+    </ul>
     <p>🔢 數字</p>
     <ul>
       <li>0 không｜1 một｜2 hai｜3 ba｜4 bốn｜5 năm</li>
       <li>6 sáu｜7 bảy｜8 tám｜9 chín｜10 mười</li>
       <li>百 trăm｜千 nghìn / ngàn｜1 萬 = 10 nghìn</li>
-    </ul>+
+    </ul>
     <div class="note">💡 括弧內為粗略中文諧音。南方口音 d / v / gi 常念 /y/，r 念 /z/。聽不懂時點菜單/比手畫腳通常都能通。建議出發前下載 Google Translate 越南文離線包。</div>
   </div>
 </details>
@@ -785,13 +959,13 @@
     <div class="must-list"><strong>必點：</strong>Phở Bò Tái（生牛肉河粉）｜Chả Giò（炸春捲）｜越南冰煉乳咖啡</div>
     <details class="intro"><summary>ℹ️ 介紹</summary><p>1971 年阮文雙先生創立的越式河粉老店，<strong>2025 Michelin Bib Gourmand</strong>。湯頭以牛骨熬數小時，配 Phở Bò Tái 生牛肉與九層塔。距 Signature 飯店步行 7 分鐘。</p></details>
   </td></tr>
-  <tr><td>13:00–13:45</td><td><input type="checkbox" class="checkbox">💱 <a class="place" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=Ha+Tam+Jewelry+2+Nguyen+An+Ninh">Ha Tam Jewelry</a> 換越南盾 + 看金飾</td></tr>
+  <tr><td>13:00–13:45</td><td><input type="checkbox" class="checkbox">💱 <a class="place" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=Ha+Tam+Jewelry+2+Nguyen+An+Ninh">Ha Tam Jewelry</a> 換越南盾 + 看金飾 <details class="intro"><summary>ℹ️ 介紹</summary><p>濱城市場北門斜對面（2 Nguyễn An Ninh）的金行兼換匯老店，當地人換 USD/VND 多來這。匯率通常比銀行好 3–5%、比機場好 8–10%；務必帶護照、當場數鈔確認。同時可看 24K 金飾。</p></details></td></tr>
   <tr><td>13:45–14:15</td><td><input type="checkbox" class="checkbox">🛒 <a class="place" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=Ben+Thanh+Market">濱城市場</a>白天外圍認環境（純逛拍照，採買改在 D5 新定市場） <details class="intro"><summary>ℹ️ 介紹</summary><p>1914 年法國殖民政府建造，胡志明市最具代表性的傳統市場。白天賣紀念品 + 衣服 + 食材，晚上轉成熱鬧夜市。鐘樓地標 600 多間攤位。</p></details></td></tr>
   <tr><td>14:15–15:00</td><td><input type="checkbox" class="checkbox">📮 <a class="place" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=Saigon+Central+Post+Office">西貢中心郵政局</a> <details class="intro"><summary>ℹ️ 介紹</summary><p>1891 年完工的法國殖民地郵政總局，新文藝復興 + Belle Époque 風格。常被誤傳為 Eiffel 設計，實為 Marie-Alfred Foulhoux。內部拱頂大廳 + 古老地圖牆必拍。仍在運作的郵局。</p></details></td></tr>
   <tr><td>15:00–15:30</td><td><input type="checkbox" class="checkbox">⛪ <a class="place" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=Notre+Dame+Cathedral+Basilica+of+Saigon">西貢聖母聖殿主教座堂</a>（粉紅外觀拍照） <details class="intro"><summary>ℹ️ 介紹</summary><p>1880 年法國殖民時期建造的天主教堂，紅磚由法國馬賽進口運抵越南。雙塔 60m 高的新羅馬式建築。目前正在大規模整修，外觀可拍但無法入內。</p></details></td></tr>
-  <tr><td>15:30–16:00</td><td><input type="checkbox" class="checkbox">📚 <a class="place" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=Book+Street+Saigon">Book Street 書街</a></td></tr>
+  <tr><td>15:30–16:00</td><td><input type="checkbox" class="checkbox">📚 <a class="place" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=Book+Street+Saigon">Book Street 書街</a> <details class="intro"><summary>ℹ️ 介紹</summary><p>正式名 Đường Sách Nguyễn Văn Bình，2016 年開的步行書街，連接郵政局與大教堂後方。兩側 20+ 家獨立書店 + 文創 + 越南風咖啡座，是當地文青週末聚集地。</p></details></td></tr>
   <tr><td>16:00–16:45</td><td><input type="checkbox" class="checkbox">🎭 <a class="place" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=Saigon+Opera+House">胡志明市大劇院</a> 
- <a class="place" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=Nguyen+Hue+Walking+Street">阮惠步行街</a></td></tr>
+ <a class="place" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=Nguyen+Hue+Walking+Street">阮惠步行街</a> <details class="intro"><summary>ℹ️ 介紹</summary><p>正名 Théâtre Municipal de Saïgon，1900 年法國殖民時期完工，仿巴黎 Petit Palais 巴洛克風格。800 座，現今晚間多演出 AO Show（越式雜技 + 蓮花/竹編道具，類太陽劇團）。阮惠步行街北端地標。</p></details></td></tr>
   <tr><td>16:45–17:45</td><td><input type="checkbox" class="checkbox">☕ <strong><a class="place" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=42+Nguyen+Hue+Cafe+Apartment+Quan+1">The Cafe Apartment</a></strong> 咖啡公寓
     <div class="must-list"><strong>推薦樓層：</strong>Thinker & Dreamer Coffee（4F）｜Partea 英式下午茶｜Saigon Ơi Cafe<br><strong>必點：</strong>Cà Phê Sữa Đá（冰煉乳咖啡）｜Bạc Xỉu（白咖啡）｜Cà Phê Trứng（雞蛋咖啡）</div>
     <details class="intro"><summary>ℹ️ 介紹</summary><p>1960 年代越戰時期建的住宅大樓，2014 年起整棟改造成「咖啡公寓」，9 層樓 30+ 家咖啡店 / 工作室 / 服飾店。電梯 3,000 VND 自助投幣（樓梯免費）。每層風格獨立。</p></details>
@@ -815,15 +989,15 @@
     <div class="must-list"><strong>必點：</strong>Bánh Mì Đặc Biệt（招牌綜合：pâté + 火腿 + 肝醬）｜配 Cà Phê Sữa Đá<br><strong>注意：</strong>排隊 20–40 分鐘很常見，外帶為主；50–65k VND；跟 CULCAT（9 Lê Thị Riêng）同條街，吃完直接走過去</div>
     <details class="intro"><summary>ℹ️ 介紹</summary><p>1989 年開的越南最有名 Bánh Mì 老店，35+ 年歷史。13 種冷肉 + pâté + 黃油 + 越式醃菜。一個 73,000 VND（約 100 台幣），是西貢最貴的 Bánh Mì，但永遠排隊。</p></details>
   </td></tr>
-  <tr><td>11:00–11:30</td><td><input type="checkbox" class="checkbox">🛍️ <a class="place" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=CULCAT+9+Le+Thi+Rieng+Quan+1">CULCAT Lê Thị Riêng</a>（5.0⭐）</td></tr>
-  <tr><td>11:30–12:00</td><td><input type="checkbox" class="checkbox">🛍️ <a class="place" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=CULCAT+96+Ho+Tung+Mau+Quan+1">CULCAT & THRIFT MAMA</a></td></tr>
-  <tr><td>12:00–12:30</td><td><input type="checkbox" class="checkbox">🛍️ <a class="place" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=STRESSMAMA+214+Hai+Ba+Trung+Tan+Dinh">STRESSMAMA</a></td></tr>
-  <tr><td>12:30–13:00</td><td><input type="checkbox" class="checkbox">🛍️ <a class="place" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=Push+Push+20+Nguyen+Van+Nguyen+Tan+Dinh">Push Push</a>（Tân Định，500m 順路）</td></tr>
-  <tr><td>13:00–13:30</td><td><input type="checkbox" class="checkbox">🛍️ <a class="place" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=Rue+Miche+9B+Phung+Khac+Khoan+Quan+1">Rue Miche Boutique</a></td></tr>
+  <tr><td>11:00–11:30</td><td><input type="checkbox" class="checkbox">🛍️ <a class="place" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=CULCAT+9+Le+Thi+Rieng+Quan+1">CULCAT Lê Thị Riêng</a>（5.0⭐） <details class="intro"><summary>ℹ️ 介紹</summary><p>越南本土設計師品牌，主打日系工裝（workwear）+ 中性簡約剪裁。Lê Thị Riêng 旗艦店與 Bánh Mì Huỳnh Hoa 同條街只隔幾戶，吃完法包順路。Google 5.0⭐。</p></details></td></tr>
+  <tr><td>11:30–12:00</td><td><input type="checkbox" class="checkbox">🛍️ <a class="place" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=CULCAT+96+Ho+Tung+Mau+Quan+1">CULCAT & THRIFT MAMA</a> <details class="intro"><summary>ℹ️ 介紹</summary><p>96 Hồ Tùng Mậu (Q1) 共構店面：CULCAT 工裝風新品 + THRIFT MAMA 二手選品店。THRIFT MAMA 是西貢知名 Y2K / 90s 美式古著二手店，挖寶要早去。</p></details></td></tr>
+  <tr><td>12:00–12:30</td><td><input type="checkbox" class="checkbox">🛍️ <a class="place" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=STRESSMAMA+214+Hai+Ba+Trung+Tan+Dinh">STRESSMAMA</a> <details class="intro"><summary>ℹ️ 介紹</summary><p>Tân Định 區（粉紅教堂後方）的越南本土街頭品牌，主打大版型 T-shirt + graphic 印花 + 帽款配件。年輕設計師品牌，IG 上 @stressmama 活躍。</p></details></td></tr>
+  <tr><td>12:30–13:00</td><td><input type="checkbox" class="checkbox">🛍️ <a class="place" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=Push+Push+20+Nguyen+Van+Nguyen+Tan+Dinh">Push Push</a>（Tân Định，500m 順路） <details class="intro"><summary>ℹ️ 介紹</summary><p>Tân Định 巷內的 vintage 二手 + 自家設計選品店（@pushpush.sg）。強項在 90s 美式古著 / 軍裝 / 運動服改造。店面小但精選度高。</p></details></td></tr>
+  <tr><td>13:00–13:30</td><td><input type="checkbox" class="checkbox">🛍️ <a class="place" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=Rue+Miche+9B+Phung+Khac+Khoan+Quan+1">Rue Miche Boutique</a> <details class="intro"><summary>ℹ️ 介紹</summary><p>9B Phùng Khắc Khoan, Q1 的法式風越南本地女裝店（店名 Rue Miche = 米歇兒街）。日法簡約混搭、配件 + 香氛多。Tân Định 採購最後一站順路。</p></details></td></tr>
   <tr><td>13:30–14:00</td><td><input type="checkbox" class="checkbox">🍲 <strong><a class="place" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=Quan+Thuy+94+Mien+Cua+84+Dinh+Tien+Hoang">Quán Thuý 94 - Miến Cua</a></strong> 蟹肉粉絲 📗 <em>Michelin Selected 2024</em>（30 分快速吃完，200m 走到 Forest Spa）
     <div class="must-list"><strong>招牌：</strong>Miến Xào Cua（蟹肉炒冬粉）<br><strong>必點：</strong>Súp Cua（蟹肉羹）｜Cua Rang Me（羅望子炒蟹）｜Càng Cua Rang Muối（椒鹽蟹鉗）</div>
     <details class="intro"><summary>ℹ️ 介紹</summary><p>蟹肉粉絲老店。店名「94」是舊地址，實際店面已搬到 84 號（Đinh Tiên Hoàng 街）。<strong>Michelin Selected 2024</strong>。Cà Mau 軟殼蟹炒粉絲是招牌。價格平實 100k–240k VND/份。</p></details>
-  </td></tr>+
+  </td></tr>
   <tr class="highlight"><td>14:00–16:30</td><td><input type="checkbox" class="checkbox">💆 <strong><a class="place" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=Forest+Spa+Dinh+Tien+Hoang+Quan+1">Forest Spa 森流水療館</a></strong>（77 Đinh Tiên Hoàng）完整療程（✅ 已訂位 14:00） <details class="intro"><summary>ℹ️ 介紹</summary><p>Đa Kao 區的水療館，2.5hr 完整療程包含越式按摩 + 草本洗頭 + 腳底 + 頭部。木質森林系裝潢風格。已訂位 14:00（5/2）。</p></details></td></tr>
   <tr><td>16:30–17:30</td><td><input type="checkbox" class="checkbox">🚶 自由時間（Liberty Check-in / 河畔散步）</td></tr>
   <tr class="highlight"><td>18:30–20:30</td><td><input type="checkbox" class="checkbox">🦀 <strong><a class="place" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=Chai+Village+99+Nguyen+Hue+Quan+1">Chài Village</a></strong> 海鮮餐廳 🌟 4.9（GMaps）（✅ 已訂位 18:30）
@@ -842,14 +1016,14 @@
     <div class="must-list"><strong>必點：</strong>Bún Bò Huế Đặc Biệt（招牌綜合）— 牛肉+牛腱+豬血+豬腳，湯頭特色是浮油辣香</div>
     <details class="intro"><summary>ℹ️ 介紹</summary><p>越南順化（Huế）地區的牛肉米線，<strong>2025 Michelin Bib Gourmand</strong>。湯頭加蝦醬 + 香茅 + 辣油，比河內 Phở 重口味。Cô Như 阿姨家三代傳承的招牌。</p></details>
   </td></tr>
-  <tr><td>10:30–11:00</td><td><input type="checkbox" class="checkbox">🛍️ <a class="place" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=A+A+A+Concept+Store+246+Nguyen+Thi+Minh+Khai+Quan+3">A Ă Â CONCEPT STORE</a></td></tr>
-  <tr><td>11:00–11:30</td><td><input type="checkbox" class="checkbox">🛍️ <a class="place" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=LIDER+07+Ton+That+Thiep+Quan+1">LIDER</a></td></tr>
-  <tr><td>11:30–12:00</td><td><input type="checkbox" class="checkbox">🛍️ <a class="place" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=Kiem+La+Mot+26+Ton+That+Thiep+Quan+1">Kiếm Là Mốt Kiemlamot</a></td></tr>
+  <tr><td>10:30–11:00</td><td><input type="checkbox" class="checkbox">🛍️ <a class="place" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=A+A+A+Concept+Store+246+Nguyen+Thi+Minh+Khai+Quan+3">A Ă Â CONCEPT STORE</a> <details class="intro"><summary>ℹ️ 介紹</summary><p>名稱取越南字母前 3 個（A Ă Â），246 Nguyễn Thị Minh Khai (Q3) 整棟法式老屋改裝。集合越南本土設計師服飾 + 香氛 + 文具 + 雜貨，逛起來像迷你 LOFT。</p></details></td></tr>
+  <tr><td>11:00–11:30</td><td><input type="checkbox" class="checkbox">🛍️ <a class="place" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=LIDER+07+Ton+That+Thiep+Quan+1">LIDER</a> <details class="intro"><summary>ℹ️ 介紹</summary><p>Tôn Thất Thiệp 巷內的越南本土 streetwear / 美式古著選店，與 Kiếm Là Mốt 同巷僅隔幾戶。藏在老公寓 2F，需找門牌進巷。</p></details></td></tr>
+  <tr><td>11:30–12:00</td><td><input type="checkbox" class="checkbox">🛍️ <a class="place" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=Kiem+La+Mot+26+Ton+That+Thiep+Quan+1">Kiếm Là Mốt Kiemlamot</a> <details class="intro"><summary>ℹ️ 介紹</summary><p>店名越南文 Kiếm Là Mốt 意為「尋找時尚」。26 Tôn Thất Thiệp Q1 的選品 / vintage / 配件店，與 LIDER 同巷可一起逛。</p></details></td></tr>
   <tr><td>12:15–13:30</td><td><input type="checkbox" class="checkbox">🍜 <strong><a class="place" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=Banh+Canh+Cua+87+Tran+Khac+Chan+Quan+1">Bánh Canh Cua 87</a></strong> 蟹肉粿條 🌟 4.5（GMaps）
     <div class="must-list"><strong>必點：</strong>Bánh Canh Cua Đặc Biệt（綜合蟹肉粿條）— 含蟹鉗、蟹肉、鵪鶉蛋、蝦、豬肉｜加點 Giò Heo（豬腳）</div>
     <details class="intro"><summary>ℹ️ 介紹</summary><p>老闆娘 Tuyết（51 歲）家族 40 年蟹肉粿條傳承，凌晨 5 點起床熬湯。<strong>Google 4.5⭐</strong>。粿條 Q 彈、蟹肉/蝦料豐富。在地客為主，無冷氣。</p></details>
   </td></tr>
-  <tr><td>13:30–14:30</td><td><input type="checkbox" class="checkbox">🛍️ <a class="place" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=The+New+Playground+26+Ly+Tu+Trong+Quan+1">The New Playground</a> + Mozaic + COMPOUND + BEAT UNBEATEN</td></tr>
+  <tr><td>13:30–14:30</td><td><input type="checkbox" class="checkbox">🛍️ <a class="place" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=The+New+Playground+26+Ly+Tu+Trong+Quan+1">The New Playground</a> + Mozaic + COMPOUND + BEAT UNBEATEN <details class="intro"><summary>ℹ️ 介紹</summary><p>26 Lý Tự Trọng (Q1) 地下街，越南最有名的本土潮牌集市，60+ 個品牌（Mozaic / COMPOUND / BEAT UNBEATEN / DirtyCoins 等）一站逛完。週末年輕人朝聖地。</p></details></td></tr>
   <tr class="highlight"><td>14:30–17:30</td><td><input type="checkbox" class="checkbox">🚗 <strong>黛奧司機歷史景點</strong>：<a class="place" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=War+Remnants+Museum">戰爭遺跡博物館</a> → <a class="place" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=Independence+Palace+Ho+Chi+Minh">統一宮</a> → <a class="place" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=Tan+Dinh+Church+Ho+Chi+Minh">粉紅教堂</a> → <a class="place" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=Jade+Emperor+Pagoda">玉皇殿</a> <details class="intro"><summary>ℹ️ 介紹</summary><p><strong>戰爭遺跡博物館</strong>（28 Vò Văn Tần）：越戰美軍 atrocities 展覽，含 Agent Orange 受害者照片，沉重但震撼。<br><strong>統一宮</strong>（135 Nam Kỳ Khởi Nghĩa）：原南越總統府，1975 年 4/30 北越坦克衝破大門結束越戰。<br><strong>粉紅教堂 Tân Định</strong>（289 Hai Bà Trưng）：1876 年羅馬天主教堂，1957 年漆成粉紅色至今，IG 紅。<br><strong>玉皇殿</strong>（73 Mai Thị Lựu）：1909 年華人移民建的道教廟，2016 年歐巴馬訪越時參觀。</p></details></td></tr>
   <tr class="highlight"><td>18:00–20:00</td><td><input type="checkbox" class="checkbox">🍲 <strong><a class="place" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=Nha+Tu+129%2F4+Vo+Van+Tan+Quan+3">Nhà Tú</a></strong> 越式家常料理（Michelin Bib Gourmand 2025）<span class="warn">⚠️ 建議訂位</span>
     <div class="must-list"><strong>必點：</strong>Ốc bươu nhồi thịt（釀肉田螺）⭐｜Bánh Xèo（越式煎餅）｜Lẩu cua đồng（田蟹鍋）｜Cơm cháy chà bông（鍋巴肉鬆）<br><strong>特色：</strong>藏身巷內的 3 層老屋，2025 Michelin 必比登推介；129/4 Võ Văn Tần, Q3</div>
@@ -873,12 +1047,12 @@
   </td></tr>
   <tr><td>12:00–13:30</td><td><input type="checkbox" class="checkbox">🍲 <strong><a class="place" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=Quan+An+Ngon+160+Pasteur+Quan+1">Ngon Restaurant</a></strong> 越南菜 🌟 4.0（GMaps）
     <div class="must-list"><strong>必點：</strong>Gỏi Cuốn（越式生春捲）｜Bún Chả Hà Nội（河內烤肉米線）｜Cá Kho Tộ（砂鍋焦糖魚）｜Bánh Xèo（越式煎餅）｜飯後：Chè Ba Màu（三色冰）</div>
-  </td></tr>
-  <tr class="highlight"><td>14:00–15:00</td><td><input type="checkbox" class="checkbox">💆 <a class="place" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=Rose+Spa+Dakao+19A+Mai+Thi+Luu+Quan+1">Rose Spa DAKAO</a> 漢方洗頭 + 全身/腳底按摩｜19A Mai Thị Lựu, Đa Kao, Q1</td></tr>
-  <tr><td>15:30–16:30</td><td><input type="checkbox" class="checkbox">🛍️ <a class="place" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=72+Tran+Dinh+Xu+Co+Giang+Quan+1">72 Trần Đình Xu</a> 概念店（南 Q1 Cô Giang，距 ThiBa 7 分走路）</td></tr>
+   <details class="intro"><summary>ℹ️ 介紹</summary><p>正名 Quán Ăn Ngon，1999 年開於 160 Pasteur (Q1) 的法式殖民老別墅。把越南各地街邊小吃集中一間做，是「越南菜大集合」首選，菜單 100+ 道。中午前去無排隊。</p></details></td></tr>
+  <tr class="highlight"><td>14:00–15:00</td><td><input type="checkbox" class="checkbox">💆 <a class="place" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=Rose+Spa+Dakao+19A+Mai+Thi+Luu+Quan+1">Rose Spa DAKAO</a> 漢方洗頭 + 全身/腳底按摩｜19A Mai Thị Lựu, Đa Kao, Q1 <details class="intro"><summary>ℹ️ 介紹</summary><p>Đa Kao Q1（玉皇殿斜對面）的越式洗頭專門店，漢方藥草洗頭 + 肩頸按摩是招牌；全身 / 腳底按摩另點。1hr 套餐約 250–400k VND，4.7⭐ 中文 OK。</p></details></td></tr>
+  <tr><td>15:30–16:30</td><td><input type="checkbox" class="checkbox">🛍️ <a class="place" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=72+Tran+Dinh+Xu+Co+Giang+Quan+1">72 Trần Đình Xu</a> 概念店（南 Q1 Cô Giang，距 ThiBa 7 分走路） <details class="intro"><summary>ℹ️ 介紹</summary><p>南 Q1 Cô Giang 區的舊公寓改裝選品集合場（門牌 72 Trần Đình Xu）。整棟多家越南設計師服飾 + 香氛 + 咖啡角 + 工作室共構。一站逛多家 indie 品牌。</p></details></td></tr>
   <tr><td>16:30–17:15</td><td><input type="checkbox" class="checkbox">☕ <strong><a class="place" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=ThiBa+Cafe+68+Suong+Nguyet+Anh+Quan+1">ThiBa Coffee Bar</a></strong>
     <div class="must-list"><strong>必點：</strong>Espresso Tonic｜Cold Brew｜Cà Phê Muối（鹹奶油咖啡）⭐｜Cold Brew Tonic</div>
-  </td></tr>
+   <details class="intro"><summary>ℹ️ 介紹</summary><p>68 Sương Nguyệt Ánh (Q1) 的越南本土 specialty coffee 名店，自家烘豆。鹹奶油咖啡 Cà Phê Muối + Espresso Tonic + cold brew 是招牌。工業風 + 老屋改裝。</p></details></td></tr>
   <tr class="highlight"><td>18:30–20:30</td><td><input type="checkbox" class="checkbox">🥖 <strong><a class="place" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=The+Refinery+74+Hai+Ba+Trung+Quan+1">鴉片工廠 The Refinery</a></strong> 法式餐酒館 🌟 4.3（GMaps）（✅ 已訂位 18:30）
     <div class="must-list"><strong>位置：</strong>74/7 Hai Bà Trưng（1881 年舊鴉片工廠改建，黃色拱門進入庭院）<br><strong>必點：</strong>French Onion Soup｜Steak Frites｜Duck Confit<br><strong>調酒：</strong>French 75｜Negroni</div>
     <details class="intro"><summary>ℹ️ 介紹</summary><p>1881 年法國殖民時期建造的「Manufacture d'Opium」鴉片精煉工廠，2006 年改建成法式 Brasserie + Wine Bar。庭院內藏黃色拱門入口。<strong>Google 4.3⭐</strong>。已訂位 18:30（5/4）。</p></details>
@@ -900,10 +1074,11 @@
     <div class="must-list"><strong>必點：</strong>Burrata Parma Ham Pizza⭐（招牌）｜Salmon Teriyaki Pizza｜Four Cheese Pizza<br><strong>前菜：</strong>Burrata Caprese｜<strong>飲料：</strong>自家釀 Kombucha</div>
     <details class="intro"><summary>ℹ️ 介紹</summary><p>2011 年由日本企業家 Yosuke Masuko 在胡志明創辦的「日式義大利薄餅」品牌，目前 32 間店在越柬印日。在 Đơn Dương 自家牧場做起司，**東南亞餐飲獨角獸**。已訂位 11:00（5/5）。</p></details>
   </td></tr>
-  <tr><td>12:30–13:30</td><td><input type="checkbox" class="checkbox">🏨 回飯店收行李</td></tr>
-  <tr><td>13:30–14:00</td><td><input type="checkbox" class="checkbox">🏨 Check-out + Grab 前往新山一機場</td></tr>
-  <tr class="highlight"><td>14:00–15:30</td><td><input type="checkbox" class="checkbox">🛂 <strong><a class="place" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=Tan+Son+Nhat+International+Airport">新山一機場</a>報到</strong>（CI9026）+ 出境 + 免稅店</td></tr>
-  <tr><td>15:30–</td><td><input type="checkbox" class="checkbox">✈️ CI9026 飛回高雄小港</td></tr>
+  <tr><td>12:30–13:00</td><td><input type="checkbox" class="checkbox">🏨 回 Liberty Central 拿寄存行李 + 最後整理（早上 9:30 出門前先把行李寄存櫃台 + 跟 reception 確認晚退房／late checkout 至 13:30，多數 Liberty 等級飯店免費延到 14:00；超時可付半日房費）</td></tr>
+  <tr><td>13:00–13:30</td><td><input type="checkbox" class="checkbox">🚕 <strong>Grab 叫車到 SGN 機場</strong>（建議叫 GrabCar 4 人座；費用 250,000–350,000 VND，平日 25–35 分、尖峰 1hr+）<br><span class="note-inline">⚠️ 17 Tôn Đức Thắng 飯店門口窄，請司機停在 Liberty 大廳前；走 ASEAN Highway → 新山一機場 T2 國際航廈下車（不要下到 T1 國內！）</span></td></tr>
+  <tr class="highlight"><td>13:30–15:00</td><td><input type="checkbox" class="checkbox">🛂 <strong><a class="place" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=Tan+Son+Nhat+International+Airport+Terminal+2">新山一機場 T2 報到</a></strong>（CI9026）<br><span class="note-inline">📍 China Airlines 櫃檯通常在 Row Q–S（看當日電子看板）；報到截止＝起飛前 50 分；託運需上鎖；領退稅單請在過海關前找 VAT Refund 櫃檯（在 Row D 旁）</span> <details class="intro"><summary>ℹ️ 介紹</summary><p>正名 Sân bay Quốc tế Tân Sơn Nhất (SGN)，距 Liberty Central 約 8km。Grab 平日 25–35 分、尖峰可達 1 hr+。CI9026 在 T2 國際航廈報到，建議起飛前 2.5–3hr 抵達。國際線退稅 ≥2,000,000 VND 含 VAT 才符合資格，要保留收據 + 商品。</p></details></td></tr>
+  <tr><td>15:00–15:30</td><td><input type="checkbox" class="checkbox">🛃 出境 + 安檢（脫鞋／拿出筆電平板；液體 ≤100ml）→ 免稅店 / Lotte Duty Free / 越式咖啡 / Phở 24（管制區內）</td></tr>
+  <tr><td>15:30–</td><td><input type="checkbox" class="checkbox">✈️ CI9026 飛回高雄小港（飛行約 3.5 hr，請以登機證實際時間為準）</td></tr>
 </table>
 </details>
 <details class="collapsible-info">
@@ -913,7 +1088,7 @@
     <ul>
       <li>警察：<code>113</code>｜火警：<code>114</code>｜救護車：<code>115</code></li>
       <li>交通事故：<code>+84-28-3920-1747</code>（胡志明市交警）</li>
-    </ul>+
+    </ul>
     <p>🇹🇼 駐胡志明市台北經濟文化辦事處（TECO HCMC）</p>
     <ul>
       <li>地址：336 Nguyễn Tri Phương, Phường 4, Quận 10, TP. Hồ Chí Minh</li>
@@ -922,35 +1097,35 @@
       <li>傳真：<code>+84-28-3834-9166</code></li>
       <li>網站：roc-taiwan.org/vnsgn</li>
       <li>辦公時間：週一至週五 09:00–12:00 / 14:00–17:00（越南時間，台灣 –1h）</li>
-    </ul>+
+    </ul>
     <p>📞 台灣外交部（Taiwan MOFA）</p>
     <ul>
       <li>旅外急難救助全球免付費：<code>+800-0885-0885</code>（境外直撥，諧音「您幫幫我、您幫幫我」）</li>
       <li>台灣境內免付費：<code>0800-085-095</code>（「您幫我、您救我」）</li>
       <li>海外付費專線：<code>+886-2-2348-2999</code>（24h）</li>
-    </ul>+
+    </ul>
     <p>✈️ 華航 China Airlines（CI9027 / CI9026）</p>
     <ul>
       <li>胡志明市辦公室：<code>+84-28-3910-6333</code></li>
       <li>台灣 24h 客服：<code>+886-412-9000</code>（手機前加 02）</li>
       <li>新山一機場 CI 櫃檯：T2 國際航廈</li>
-    </ul>+
+    </ul>
     <p>🏥 醫療（外籍友好醫院）</p>
     <ul>
       <li>FV Hospital 法越醫院（D7，24h 英語服務）：<code>+84-28-5411-3333</code></li>
       <li>Columbia Asia Saigon（Bình Thạnh）：<code>+84-28-3803-0678</code></li>
       <li>Family Medical Practice（D1）：<code>+84-28-3822-7848</code></li>
-    </ul>+
+    </ul>
     <p>💳 證件 / 財物</p>
     <ul>
       <li>旅平險理賠專線：____________</li>
       <li>護照遺失：先報當地警察 → 拿報案證明 → 到 TECO 補發入國證明</li>
-    </ul>+
+    </ul>
     <div class="note">⚠️ 出發前建議再次確認以上電話（尤其 TECO 急難專線），以 <code>roc-taiwan.org</code> 與各官網公告為準。建議把重要電話存進手機通訊錄並截圖備份。</div>
   </div>
 </details>
-<footer>+  🇻🇳 胡志明五日行程 ｜ 2026/5/1–5/5 ｜ Chúc chuyến đi vui vẻ!+</footer>
+<footer>  🇻🇳 胡志明五日行程 ｜ 2026/5/1–5/5 ｜ Chúc chuyến đi vui vẻ!</footer>
 </main>
 <script defer src="app.js"></script>
 </body>
-</html>+
+</html>

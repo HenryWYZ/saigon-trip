@@ -367,9 +367,10 @@
       { drive: 8 },
       { drive: 10 },
       null,
-      { walk: 10 },
+      { walk: 10, note: 'Pizza → Liberty' },
       null,
-      { drive: 30 },
+      { drive: 30, note: 'Liberty → SGN T2' },
+      null,
       null,
     ],
   };
@@ -396,4 +397,115 @@
       timeTd.appendChild(badge);
     });
   });
+
+  // === Pre-trip checklist (separate persistence from itinerary) ===
+  const PREP_KEY = 'saigon-trip-prep-v1';
+  const prepBoxes = document.querySelectorAll('input.prep-cb');
+  if (prepBoxes.length) {
+    let prepState = {};
+    try { prepState = JSON.parse(localStorage.getItem(PREP_KEY) || '{}'); } catch (e) {}
+    prepBoxes.forEach((cb) => {
+      const id = cb.dataset.id;
+      if (id && prepState[id]) cb.checked = true;
+      cb.addEventListener('change', () => {
+        prepState[cb.dataset.id] = cb.checked;
+        try { localStorage.setItem(PREP_KEY, JSON.stringify(prepState)); } catch (e) {}
+      });
+    });
+  }
+
+  // === Daily budget tracker ===
+  const BUDGET_KEY = 'saigon-trip-budget-v1';
+  const budgetInputs = document.querySelectorAll('.budget-input');
+  const budgetTotal = document.getElementById('budget-total');
+  function getRate() {
+    if (typeof rate === 'number' && rate > 0) return rate;
+    try {
+      const cached = JSON.parse(localStorage.getItem(FX_KEY) || 'null');
+      if (cached && cached.rate > 0) return cached.rate;
+    } catch (e) {}
+    return 0.00128; // fallback ≈ 1 VND = 0.00128 TWD
+  }
+  function formatTwdShort(n) {
+    if (n >= 10000) return n.toLocaleString('en-US', { maximumFractionDigits: 0 });
+    if (n >= 100) return n.toFixed(0);
+    if (n >= 10) return n.toFixed(1);
+    return n.toFixed(2);
+  }
+  function recalcBudget() {
+    let totalVnd = 0;
+    const r = getRate();
+    let saved = {};
+    try { saved = JSON.parse(localStorage.getItem(BUDGET_KEY) || '{}'); } catch (e) {}
+    budgetInputs.forEach((inp) => {
+      const day = inp.dataset.day;
+      const v = parseFloat(inp.value) || 0;
+      saved[day] = v;
+      totalVnd += v;
+      const twdSpan = document.querySelector('.budget-twd[data-twd="' + day + '"]');
+      if (twdSpan) twdSpan.textContent = '≈ TWD ' + formatTwdShort(v * r);
+    });
+    if (budgetTotal) {
+      budgetTotal.innerHTML =
+        '合計：VND ' + totalVnd.toLocaleString('en-US') +
+        ' ≈ TWD ' + formatTwdShort(totalVnd * r);
+    }
+    try { localStorage.setItem(BUDGET_KEY, JSON.stringify(saved)); } catch (e) {}
+  }
+  if (budgetInputs.length) {
+    let saved = {};
+    try { saved = JSON.parse(localStorage.getItem(BUDGET_KEY) || '{}'); } catch (e) {}
+    budgetInputs.forEach((inp) => {
+      const day = inp.dataset.day;
+      if (saved[day] != null && saved[day] !== 0) inp.value = saved[day];
+      inp.addEventListener('input', recalcBudget);
+    });
+    recalcBudget();
+    // Recalc again once FX rate loads (rate var assigned async)
+    setTimeout(recalcBudget, 1500);
+  }
+
+  // === Dim past rows on current trip day ===
+  function updatePastRows() {
+    const now = new Date();
+    const y = now.getFullYear();
+    const mo = String(now.getMonth() + 1).padStart(2, '0');
+    const d = String(now.getDate()).padStart(2, '0');
+    const localDate = y + '-' + mo + '-' + d;
+    const nowMin = now.getHours() * 60 + now.getMinutes();
+    const day = document.querySelector('details[data-date="' + localDate + '"]');
+    if (!day) return;
+    day.querySelectorAll('table tr').forEach((tr) => tr.classList.remove('past-row'));
+    const rows = day.querySelectorAll('table tr');
+    rows.forEach((tr) => {
+      const td = tr.querySelector('td');
+      if (!td) return;
+      const t = parseTimeCell(td.textContent);
+      if (t && nowMin >= t.end) tr.classList.add('past-row');
+    });
+  }
+  updatePastRows();
+  setInterval(updatePastRows, 60000);
+
+  // === iOS Safari "add to home screen" hint ===
+  (function () {
+    const hint = document.getElementById('ios-install-hint');
+    const close = document.getElementById('close-ios-hint');
+    if (!hint || !close) return;
+    const HINT_KEY = 'saigon-trip-ios-hint-dismissed';
+    const ua = navigator.userAgent || '';
+    const isIOS = /iPhone|iPad|iPod/.test(ua) && !window.MSStream;
+    const isSafari = /^((?!chrome|crios|fxios|edgios).)*safari/i.test(ua);
+    const isStandalone = window.matchMedia('(display-mode: standalone)').matches ||
+      window.navigator.standalone === true;
+    let dismissed = false;
+    try { dismissed = localStorage.getItem(HINT_KEY) === '1'; } catch (e) {}
+    if (isIOS && isSafari && !isStandalone && !dismissed) {
+      hint.hidden = false;
+    }
+    close.addEventListener('click', () => {
+      hint.hidden = true;
+      try { localStorage.setItem(HINT_KEY, '1'); } catch (e) {}
+    });
+  })();
 })();
