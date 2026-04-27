@@ -15,3 +15,8 @@ desktop.ini
 
 # Logs
 *.log
+
+# Test deps (jsdom for ad-hoc Node testing — no build step in prod)
+node_modules/
+package.json
+package-lock.json
