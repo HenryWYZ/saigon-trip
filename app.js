@@ -175,6 +175,9 @@
     if (typeof renderSpending === 'function' && document.getElementById('spending-list')) {
       try { renderSpending(); } catch (e) {}
     }
+    if (typeof updateAmountTwdPreview === 'function') {
+      try { updateAmountTwdPreview(); } catch (e) {}
+    }
   }
 
   async function fetchRate() {
@@ -667,13 +670,34 @@
   }
   function renderPayerSelect() {
     const sel = document.getElementById('sp-payer');
+    const chipWrap = document.getElementById('sp-payer-chips');
     if (!sel) return;
     const prev = sel.value;
     sel.innerHTML = members.map((m) =>
-      '<option value="' + escapeHtml(m.id) + '">👤 ' + escapeHtml(m.name) + (m.isSelf ? '' : '') + '</option>'
-    ).join('') + (members.length >= 2 ? '<option value="__multi__">🎯 多人付（自訂）</option>' : '');
+      '<option value="' + escapeHtml(m.id) + '">' + escapeHtml(m.name) + '</option>'
+    ).join('') + (members.length >= 2 ? '<option value="__multi__">🎯 多人付</option>' : '');
     if (prev && Array.from(sel.options).some((o) => o.value === prev)) sel.value = prev;
     else sel.value = getSelfMember().id;
+
+    if (chipWrap) {
+      const cur = sel.value;
+      let html = members.map((m) =>
+        '<button type="button" class="sp-chip" data-payer="' + escapeHtml(m.id) + '">👤 ' + escapeHtml(m.name) + '</button>'
+      ).join('');
+      if (members.length >= 2) {
+        html += '<button type="button" class="sp-chip" data-payer="__multi__">🎯 多人付</button>';
+      }
+      chipWrap.innerHTML = html;
+      chipWrap.querySelectorAll('button').forEach((btn) => {
+        if (btn.dataset.payer === cur) btn.classList.add('active');
+        btn.addEventListener('click', () => {
+          sel.value = btn.dataset.payer;
+          chipWrap.querySelectorAll('button').forEach((b) => b.classList.remove('active'));
+          btn.classList.add('active');
+          updateMultiPayVisibility();
+        });
+      });
+    }
   }
   function renderMultiPayInputs() {
     const list = document.getElementById('sp-mp-list');
@@ -695,6 +719,7 @@
     const sum = Array.from(inputs).reduce((s, i) => s + (parseInt(i.value, 10) || 0), 0);
     const amtEl = document.getElementById('sp-amount');
     if (amtEl) amtEl.value = sum > 0 ? String(sum) : '';
+    if (typeof updateAmountTwdPreview === 'function') updateAmountTwdPreview();
     const status = document.getElementById('sp-mp-status');
     if (!status) return;
     if (sum > 0) {
@@ -870,6 +895,13 @@
     const payerSel = document.getElementById('sp-payer');
     if (e.payer === '__multi__' && e.paid) {
       if (payerSel) payerSel.value = '__multi__';
+      // Activate the multi-pay chip
+      const pchips = document.getElementById('sp-payer-chips');
+      if (pchips) {
+        pchips.querySelectorAll('button').forEach((b) => b.classList.remove('active'));
+        const mb = pchips.querySelector('button[data-payer="__multi__"]');
+        if (mb) mb.classList.add('active');
+      }
       updateMultiPayVisibility();
       Object.keys(e.paid).forEach((memberId) => {
         const inp = document.querySelector('#sp-mp-list input[data-mp-id="' + memberId + '"]');
@@ -877,9 +909,13 @@
       });
       updateMultiPayStatus();
     } else {
-      if (payerSel) payerSel.value = resolvePayerToMemberId(e.payer);
+      const memberId = resolvePayerToMemberId(e.payer);
+      if (payerSel) payerSel.value = memberId;
+      activateChipByValue('sp-payer-chips', 'data-payer', memberId);
       updateMultiPayVisibility();
     }
+    syncChipsFromValues();
+    updateAmountTwdPreview();
     const submitBtn = document.getElementById('sp-submit');
     if (submitBtn) {
       submitBtn.textContent = '💾 儲存修改';
@@ -901,11 +937,119 @@
     const cancelBtn = document.getElementById('sp-cancel-edit');
     if (cancelBtn) cancelBtn.hidden = true;
   }
+  // === Chip group setup ===
+  function activateChipByValue(groupId, attr, value) {
+    const g = document.getElementById(groupId);
+    if (!g) return false;
+    const dsKey = attr.replace(/^data-/, '').replace(/-([a-z])/g, (_, c) => c.toUpperCase());
+    const buttons = Array.from(g.querySelectorAll('button'));
+    buttons.forEach((b) => b.classList.remove('active'));
+    const target = String(value == null ? '' : value);
+    const match = buttons.find((b) => b.dataset && b.dataset[dsKey] === target);
+    if (match) { match.classList.add('active'); return true; }
+    return false;
+  }
+  function setupDayChips() {
+    const wrap = document.getElementById('sp-day-chips');
+    const sel = document.getElementById('sp-day');
+    if (!wrap || !sel) return;
+    wrap.querySelectorAll('button').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        sel.value = btn.dataset.day;
+        wrap.querySelectorAll('button').forEach((b) => b.classList.remove('active'));
+        btn.classList.add('active');
+      });
+    });
+  }
+  function setupCategoryChips() {
+    const wrap = document.getElementById('sp-cat-chips');
+    const input = document.getElementById('sp-category');
+    const customBtn = document.getElementById('sp-cat-custom-toggle');
+    if (!wrap || !input) return;
+    wrap.querySelectorAll('button:not(.sp-chip-custom)').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        input.value = btn.dataset.cat;
+        wrap.querySelectorAll('button').forEach((b) => b.classList.remove('active'));
+        btn.classList.add('active');
+        input.hidden = true;
+      });
+    });
+    if (customBtn) {
+      customBtn.addEventListener('click', () => {
+        wrap.querySelectorAll('button').forEach((b) => b.classList.remove('active'));
+        customBtn.classList.add('active');
+        input.hidden = false;
+        input.value = '';
+        try { input.focus(); } catch (e) {}
+      });
+    }
+    input.addEventListener('input', () => {
+      // typing in custom input → match against chips
+      const v = input.value.trim();
+      let matched = false;
+      wrap.querySelectorAll('button').forEach((b) => {
+        b.classList.remove('active');
+        if (b.dataset.cat === v) { b.classList.add('active'); matched = true; }
+      });
+      if (!matched && customBtn) customBtn.classList.add('active');
+    });
+  }
+  function setupSplitChips() {
+    const wrap = document.getElementById('sp-split-chips');
+    const input = document.getElementById('sp-split');
+    if (!wrap || !input) return;
+    wrap.querySelectorAll('button').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        input.value = btn.dataset.split;
+        wrap.querySelectorAll('button').forEach((b) => b.classList.remove('active'));
+        btn.classList.add('active');
+      });
+    });
+  }
+  function syncChipsFromValues() {
+    const daySel = document.getElementById('sp-day');
+    const catInput = document.getElementById('sp-category');
+    const customBtn = document.getElementById('sp-cat-custom-toggle');
+    const splitInput = document.getElementById('sp-split');
+    if (daySel) activateChipByValue('sp-day-chips', 'data-day', daySel.value);
+    if (catInput) {
+      const matched = activateChipByValue('sp-cat-chips', 'data-cat', catInput.value);
+      if (catInput.value && !matched) {
+        if (customBtn) customBtn.classList.add('active');
+        catInput.hidden = false;
+      } else {
+        catInput.hidden = true;
+      }
+    }
+    if (splitInput) activateChipByValue('sp-split-chips', 'data-split', splitInput.value);
+  }
+  function updateAmountTwdPreview() {
+    const amt = parseInt((document.getElementById('sp-amount') || {}).value, 10) || 0;
+    const span = document.getElementById('sp-amount-twd');
+    if (!span) return;
+    if (amt > 0 && typeof rate === 'number' && rate) {
+      span.textContent = '≈ NT$ ' + Math.round(amt * rate).toLocaleString('en-US');
+    } else {
+      span.textContent = '';
+    }
+  }
+  function updateSyncConfigVisibility() {
+    const cfg = document.getElementById('sp-sync-config');
+    const pill = document.getElementById('sp-sync-pill');
+    const enabled = !!(syncPat && syncGistId);
+    if (cfg) cfg.hidden = enabled;
+    if (pill) pill.hidden = !enabled;
+  }
   const spForm = document.getElementById('spending-form');
   if (spForm) {
+    setupDayChips();
+    setupCategoryChips();
+    setupSplitChips();
     const tdy = todayStr();
     const dayEl = document.getElementById('sp-day');
     if (dayEl && DAYS.indexOf(tdy) !== -1) dayEl.value = tdy;
+    if (dayEl && !dayEl.value) dayEl.value = DAYS[0];
+    syncChipsFromValues();
     spForm.addEventListener('submit', (ev) => {
       ev.preventDefault();
       const amtEl = document.getElementById('sp-amount');
@@ -955,7 +1099,12 @@
       if (noteEl) noteEl.value = '';
       // Reset payer to self for next entry, hide multi-pay panel
       const ps = document.getElementById('sp-payer');
-      if (ps) { ps.value = getSelfMember().id; updateMultiPayVisibility(); }
+      if (ps) {
+        ps.value = getSelfMember().id;
+        activateChipByValue('sp-payer-chips', 'data-payer', getSelfMember().id);
+        updateMultiPayVisibility();
+      }
+      updateAmountTwdPreview();
       renderSpending();
       schedulePush();
     });
@@ -966,13 +1115,19 @@
         document.getElementById('sp-amount').value = '';
         const ne = document.getElementById('sp-note'); if (ne) ne.value = '';
         const ps = document.getElementById('sp-payer');
-        if (ps) { ps.value = getSelfMember().id; updateMultiPayVisibility(); }
+        if (ps) {
+          ps.value = getSelfMember().id;
+          activateChipByValue('sp-payer-chips', 'data-payer', getSelfMember().id);
+          updateMultiPayVisibility();
+        }
+        updateAmountTwdPreview();
         renderSpending();
       });
     }
-    // Re-validate multi-pay status when amount changes
+    // Re-validate multi-pay status + live TWD preview when amount changes
     const amtChange = document.getElementById('sp-amount');
     if (amtChange) amtChange.addEventListener('input', () => {
+      updateAmountTwdPreview();
       const ps = document.getElementById('sp-payer');
       if (ps && ps.value === '__multi__') updateMultiPayStatus();
     });
@@ -1191,10 +1346,8 @@
         const shareBtn = document.getElementById('sp-sync-share');
         if (disableBtn) disableBtn.hidden = false;
         if (shareBtn) shareBtn.hidden = false;
+        updateSyncConfigVisibility();
         startSyncPoll();
-        // Open the sync details so user sees status
-        const cfg = document.getElementById('sp-sync-config');
-        if (cfg) cfg.open = true;
       } catch (err) {
         setSyncStatus('❌ 套用失敗：' + err.message, 'err');
         syncPat = ''; syncGistId = '';
@@ -1212,6 +1365,12 @@
     const shareBtn = document.getElementById('sp-sync-share');
     const patInput = document.getElementById('sp-sync-pat');
     if (shareBtn) shareBtn.addEventListener('click', copySetupLink);
+    const pillShare = document.getElementById('sp-sync-pill-share');
+    const pillDisable = document.getElementById('sp-sync-pill-disable');
+    if (pillShare) pillShare.addEventListener('click', copySetupLink);
+    if (pillDisable) pillDisable.addEventListener('click', () => {
+      if (disableBtn) disableBtn.click();
+    });
     if (enableBtn) {
       enableBtn.addEventListener('click', async () => {
         const pat = (patInput && patInput.value || '').trim();
@@ -1248,6 +1407,7 @@
           if (disableBtn) disableBtn.hidden = false;
           const sb = document.getElementById('sp-sync-share');
           if (sb) sb.hidden = false;
+          updateSyncConfigVisibility();
           startSyncPoll();
         } catch (e) {
           setSyncStatus('❌ 啟用失敗：' + e.message + '（請確認 PAT 有 gist 權限）', 'err');
@@ -1270,6 +1430,7 @@
         disableBtn.hidden = true;
         const sb = document.getElementById('sp-sync-share');
         if (sb) sb.hidden = true;
+        updateSyncConfigVisibility();
         setSyncStatus('已停用同步（本地資料保留）', 'warn');
       });
     }
@@ -1281,6 +1442,7 @@
       return;
     }
     // 2. Existing PAT in localStorage → auto-pull + start poll
+    updateSyncConfigVisibility();
     if (syncPat && syncGistId) {
       if (disableBtn) disableBtn.hidden = false;
       if (shareBtn) shareBtn.hidden = false;

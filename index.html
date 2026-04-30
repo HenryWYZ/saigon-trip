@@ -705,39 +705,150 @@
   .spending-form {
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 14px;
     margin-bottom: 12px;
   }
-  .sp-row {
-    display: grid;
-    gap: 8px;
+  .sp-field {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
   }
-  .sp-row-1 { grid-template-columns: 1.6fr 1.4fr 0.8fr; }
-  .sp-row-2 { grid-template-columns: 1fr 84px auto; align-items: center; }
-  .sp-split-label { font-size: 13px; color: #666; padding: 0 4px; white-space: nowrap; }
+  .sp-label {
+    font-size: 12px;
+    font-weight: 700;
+    color: #4a8050;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    margin-left: 2px;
+    line-height: 1;
+  }
   .spending-form input, .spending-form select {
-    height: 42px;
-    padding: 0 12px;
+    height: 44px;
+    padding: 0 14px;
     font-size: 15px;
     border: 1.5px solid #e8d8b8;
-    border-radius: 9px;
+    border-radius: 10px;
     font-family: inherit;
     background: #fff;
     color: #001858;
     transition: border-color 0.15s ease, box-shadow 0.15s ease;
     box-sizing: border-box;
+    width: 100%;
   }
   .spending-form input:focus, .spending-form select:focus {
     outline: none;
     border-color: #4a8050;
     box-shadow: 0 0 0 3px rgba(74, 128, 80, 0.15);
   }
-  .spending-form input::placeholder { color: #b0a890; }
-  .spending-form #sp-amount {
-    font-size: 17px;
-    font-weight: 600;
-    letter-spacing: 0.02em;
+  .spending-form input::placeholder { color: #c0b8a0; }
+
+  /* Amount field — hero treatment */
+  .sp-field-amount .sp-amount-wrap {
+    position: relative;
+    display: flex;
+    align-items: center;
+    background: #fff;
+    border: 1.5px solid #e8d8b8;
+    border-radius: 12px;
+    padding: 0 16px 0 18px;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+    height: 64px;
   }
+  .sp-field-amount .sp-amount-wrap:focus-within {
+    border-color: #4a8050;
+    box-shadow: 0 0 0 3px rgba(74, 128, 80, 0.15);
+  }
+  .spending-form #sp-amount {
+    flex: 1;
+    border: none;
+    background: transparent;
+    height: auto;
+    padding: 0;
+    font-size: 28px;
+    font-weight: 700;
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.01em;
+    color: #001858;
+  }
+  .spending-form #sp-amount:focus { box-shadow: none; }
+  .sp-amount-suffix {
+    font-size: 13px;
+    color: #888;
+    font-weight: 600;
+    margin-left: 8px;
+    letter-spacing: 0.05em;
+  }
+  .sp-amount-twd {
+    font-size: 13px;
+    color: #4a8050;
+    font-weight: 700;
+    margin-left: 12px;
+    padding-left: 12px;
+    border-left: 1px solid #e8d8b8;
+    white-space: nowrap;
+    min-width: 0;
+  }
+  .sp-amount-twd:empty { display: none; }
+
+  /* Chip groups */
+  .sp-chip-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .sp-chip {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1px;
+    background: #fff;
+    border: 1.5px solid #e8d8b8;
+    border-radius: 22px;
+    padding: 9px 14px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #001858;
+    cursor: pointer;
+    font-family: inherit;
+    transition: transform 0.08s ease, border-color 0.15s ease, background 0.15s ease, box-shadow 0.15s ease;
+    line-height: 1.2;
+    min-height: 40px;
+    box-sizing: border-box;
+  }
+  .sp-chip:hover { border-color: #4a8050; background: #f7f9f5; }
+  .sp-chip:active { transform: scale(0.96); }
+  .sp-chip.active {
+    background: linear-gradient(135deg, #4a8050 0%, #5fa067 100%);
+    color: white;
+    border-color: #4a8050;
+    box-shadow: 0 2px 8px rgba(74, 128, 80, 0.3);
+  }
+  .sp-chip-custom {
+    border-style: dashed;
+    color: #888;
+    background: transparent;
+  }
+  .sp-chip-custom:hover { color: #4a8050; border-color: #4a8050; background: #f7f9f5; }
+  .sp-chip-custom.active {
+    background: linear-gradient(135deg, #4a8050 0%, #5fa067 100%);
+    color: white;
+    border-color: #4a8050;
+    border-style: solid;
+  }
+  /* Day chips: equal-width, two lines */
+  .sp-chip-day .sp-chip {
+    flex: 1 1 0;
+    min-width: 52px;
+    padding: 8px 4px;
+    border-radius: 12px;
+  }
+  .sp-chip-day .sp-chip .d { font-size: 14px; font-weight: 700; line-height: 1.1; }
+  .sp-chip-day .sp-chip .w { font-size: 11px; opacity: 0.7; font-weight: 500; line-height: 1; margin-top: 2px; }
+  .sp-chip-day .sp-chip.active .w { opacity: 0.9; }
+  /* Split chips: smaller */
+  .sp-chip-split .sp-chip { padding: 7px 12px; font-size: 13px; min-height: 36px; border-radius: 18px; }
   .spending-form #sp-split { text-align: center; padding: 8px 4px; }
   .spending-form input.sp-amount-locked {
     background: #fff8d8;
@@ -746,6 +857,49 @@
     cursor: not-allowed;
   }
   body.dark .spending-form input.sp-amount-locked { background: #3a2f1a; color: #d6843e; }
+  body.dark .sp-label { color: #88c894; }
+  body.dark .sp-chip { background: #2a3550; border-color: #3d4a6e; color: #d0d8ee; }
+  body.dark .sp-chip:hover { background: #1e2a4a; border-color: #5fa067; }
+  body.dark .sp-chip-custom { background: transparent; color: #98a4be; }
+  body.dark .sp-chip.active, body.dark .sp-chip-custom.active {
+    background: linear-gradient(135deg, #4a8050 0%, #5fa067 100%);
+    border-color: #5fa067;
+    color: white;
+  }
+  body.dark .sp-field-amount .sp-amount-wrap { background: #2a3550; border-color: #3d4a6e; }
+  body.dark .sp-field-amount .sp-amount-wrap:focus-within { border-color: #5fa067; }
+  body.dark .spending-form #sp-amount { color: #d0d8ee; }
+  body.dark .sp-amount-suffix { color: #98a4be; }
+  body.dark .sp-amount-twd { color: #88c894; border-left-color: #3d4a6e; }
+  /* Sync status pill — shown when sync enabled, replaces the full sync-config UI */
+  .sp-sync-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 14px;
+    background: #e8f5ec;
+    border: 1px solid #a8d8b8;
+    border-radius: 18px;
+    font-size: 12px;
+    font-weight: 600;
+    color: #2d6a3a;
+    margin: 4px 0 12px;
+    line-height: 1.3;
+  }
+  .sp-sync-pill .sp-sync-pill-link {
+    color: #888;
+    text-decoration: underline dotted;
+    cursor: pointer;
+    font-weight: 500;
+    background: none;
+    border: none;
+    padding: 0;
+    font-family: inherit;
+    font-size: 11px;
+  }
+  .sp-sync-pill .sp-sync-pill-link:hover { color: #d33; }
+  body.dark .sp-sync-pill { background: #1e3a2a; border-color: #3d6a48; color: #88c894; }
+  body.dark .sp-sync-pill .sp-sync-pill-link { color: #98a4be; }
   .spending-form .sp-note { width: 100%; }
   .spending-form .sp-submit {
     width: 100%;
@@ -1348,6 +1502,12 @@
         <button type="submit">+ 加入</button>
       </form>
     </details>
+    <div class="sp-sync-pill" id="sp-sync-pill" hidden>
+      <span>☁️ 跨裝置同步：已啟用</span>
+      <button type="button" class="sp-sync-pill-link" id="sp-sync-pill-share">複製設定連結</button>
+      <span aria-hidden="true">·</span>
+      <button type="button" class="sp-sync-pill-link" id="sp-sync-pill-disable">停用</button>
+    </div>
     <details class="sp-sync-config" id="sp-sync-config">
       <summary id="sp-sync-summary">☁️ 跨裝置同步（未設定）</summary>
       <div class="sp-sync-body">
@@ -1363,10 +1523,27 @@
       </div>
     </details>
     <form id="spending-form" autocomplete="off">
-      <div class="sp-row sp-row-1">
-        <input type="number" id="sp-amount" placeholder="金額 VND" min="1" step="1" inputmode="numeric" required>
-        <input type="text" id="sp-category" list="sp-cat-list" placeholder="類別（自訂）" maxlength="20" required>
-        <select id="sp-day" required>
+      <!-- Amount with live TWD preview -->
+      <div class="sp-field sp-field-amount">
+        <label class="sp-label" for="sp-amount">💰 金額</label>
+        <div class="sp-amount-wrap">
+          <input type="number" id="sp-amount" placeholder="0" min="1" step="1" inputmode="numeric" required>
+          <span class="sp-amount-suffix">VND</span>
+          <span class="sp-amount-twd" id="sp-amount-twd"></span>
+        </div>
+      </div>
+
+      <!-- Day chip selector -->
+      <div class="sp-field">
+        <label class="sp-label">📅 哪一天</label>
+        <div class="sp-chip-group sp-chip-day" id="sp-day-chips" role="radiogroup">
+          <button type="button" class="sp-chip" data-day="2026-05-01"><span class="d">5/1</span><span class="w">五</span></button>
+          <button type="button" class="sp-chip" data-day="2026-05-02"><span class="d">5/2</span><span class="w">六</span></button>
+          <button type="button" class="sp-chip" data-day="2026-05-03"><span class="d">5/3</span><span class="w">日</span></button>
+          <button type="button" class="sp-chip" data-day="2026-05-04"><span class="d">5/4</span><span class="w">一</span></button>
+          <button type="button" class="sp-chip" data-day="2026-05-05"><span class="d">5/5</span><span class="w">二</span></button>
+        </div>
+        <select id="sp-day" required hidden>
           <option value="2026-05-01">5/1</option>
           <option value="2026-05-02">5/2</option>
           <option value="2026-05-03">5/3</option>
@@ -1374,28 +1551,60 @@
           <option value="2026-05-05">5/5</option>
         </select>
       </div>
-      <div class="sp-row sp-row-2">
-        <select id="sp-payer" required aria-label="付款人"></select>
-        <input type="number" id="sp-split" min="1" max="20" step="1" value="1" inputmode="numeric" aria-label="分攤人數" title="分攤人數">
-        <span class="sp-split-label" aria-hidden="true">人分</span>
+
+      <!-- Category chip selector -->
+      <div class="sp-field">
+        <label class="sp-label">🏷️ 類別</label>
+        <div class="sp-chip-group" id="sp-cat-chips" role="radiogroup">
+          <button type="button" class="sp-chip" data-cat="🍜 餐">🍜 餐</button>
+          <button type="button" class="sp-chip" data-cat="🚕 交通">🚕 交通</button>
+          <button type="button" class="sp-chip" data-cat="🛍️ 購物">🛍️ 購物</button>
+          <button type="button" class="sp-chip" data-cat="🏛️ 景點">🏛️ 景點</button>
+          <button type="button" class="sp-chip" data-cat="💆 Spa">💆 Spa</button>
+          <button type="button" class="sp-chip" data-cat="☕ 咖啡">☕ 咖啡</button>
+          <button type="button" class="sp-chip" data-cat="🍺 酒吧">🍺 酒吧</button>
+          <button type="button" class="sp-chip sp-chip-custom" id="sp-cat-custom-toggle">＋ 其他</button>
+        </div>
+        <input type="text" id="sp-category" placeholder="自訂類別名稱" maxlength="20" required hidden>
       </div>
+
+      <!-- Payer chip selector (dynamic from members) -->
+      <div class="sp-field">
+        <label class="sp-label">👤 誰付的</label>
+        <div class="sp-chip-group" id="sp-payer-chips" role="radiogroup"></div>
+        <select id="sp-payer" required hidden></select>
+      </div>
+
+      <!-- Multi-pay panel (only when 多人付 selected) -->
       <div id="sp-multi-pay" hidden>
         <div class="sp-mp-list" id="sp-mp-list"></div>
-        <div class="sp-mp-status" id="sp-mp-status">請先輸入總金額</div>
+        <div class="sp-mp-status" id="sp-mp-status">請至少輸入一個人付的金額</div>
       </div>
-      <input type="text" id="sp-note" class="sp-note" placeholder="備註 (店名 / 品項，選填)" maxlength="60">
+
+      <!-- Split count chips -->
+      <div class="sp-field" id="sp-split-section">
+        <label class="sp-label">✂️ 幾個人分攤</label>
+        <div class="sp-chip-group sp-chip-split" id="sp-split-chips" role="radiogroup">
+          <button type="button" class="sp-chip" data-split="1">1 人</button>
+          <button type="button" class="sp-chip" data-split="2">2 人</button>
+          <button type="button" class="sp-chip" data-split="3">3 人</button>
+          <button type="button" class="sp-chip" data-split="4">4 人</button>
+          <button type="button" class="sp-chip" data-split="5">5 人</button>
+          <button type="button" class="sp-chip" data-split="6">6 人</button>
+          <button type="button" class="sp-chip" data-split="8">8 人</button>
+          <button type="button" class="sp-chip" data-split="10">10 人</button>
+        </div>
+        <input type="number" id="sp-split" min="1" max="20" step="1" value="1" hidden>
+      </div>
+
+      <!-- Note -->
+      <div class="sp-field">
+        <label class="sp-label" for="sp-note">📝 備註</label>
+        <input type="text" id="sp-note" class="sp-note" placeholder="店名、品項、其他細節（選填）" maxlength="60">
+      </div>
+
       <button type="submit" class="sp-submit" id="sp-submit">✚ 新增記錄</button>
       <button type="button" class="sp-cancel" id="sp-cancel-edit" hidden>取消編輯</button>
-      <datalist id="sp-cat-list">
-        <option value="🍜 餐"></option>
-        <option value="🚕 交通"></option>
-        <option value="🛍️ 購物"></option>
-        <option value="🏛️ 景點"></option>
-        <option value="💆 Spa"></option>
-        <option value="☕ 咖啡"></option>
-        <option value="🍺 酒吧"></option>
-        <option value="📌 其他"></option>
-      </datalist>
     </form>
     <div class="spending-summary" id="spending-summary"></div>
     <div class="spending-totals" id="spending-totals"></div>
