@@ -751,6 +751,17 @@
   .sp-add-member-form input::placeholder,
   .sp-mp-row input::placeholder,
   .sp-sync-form input::placeholder { color: #c0b8a0; }
+  /* hide native number-spinner so type="number" matches type="text" visually */
+  .spending-form input[type="number"]::-webkit-inner-spin-button,
+  .spending-form input[type="number"]::-webkit-outer-spin-button,
+  .sp-mp-row input[type="number"]::-webkit-inner-spin-button,
+  .sp-mp-row input[type="number"]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    appearance: none;
+    margin: 0;
+  }
+  .spending-form input[type="number"],
+  .sp-mp-row input[type="number"] { -moz-appearance: textfield; appearance: textfield; }
 
   /* Amount field — same shell as other inputs, with VND suffix + TWD line below */
   .sp-amount-wrap { position: relative; }
