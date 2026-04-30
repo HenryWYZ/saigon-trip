@@ -105,7 +105,9 @@
     rows.forEach((tr) => {
       const td = tr.querySelector('td');
       if (!td) return;
-      const t = parseTimeCell(td.textContent);
+      // td.firstChild is the time text node before the appended <br>+travel-badge
+      const timeTxt = td.firstChild && td.firstChild.nodeType === 3 ? td.firstChild.textContent : td.textContent;
+      const t = parseTimeCell(timeTxt);
       if (t && nowMin >= t.start && nowMin < t.end) matched = tr;
     });
     if (matched) {
@@ -264,6 +266,9 @@
   const IG_LINKS = {
     'MZ COFFEE': 'https://www.instagram.com/mzcoffee.hcm/',
     'STRESSMAMA': 'https://www.instagram.com/stressmamaworldwide/',
+    'Little HaNoi Egg Coffee': 'https://www.instagram.com/littlehanoieggcoffee/',
+    "L'Entrecôte – Social Meating": 'https://www.instagram.com/lentrecotevietnam/',
+    'Izakaya Matsuki': 'https://www.instagram.com/izakaya_matsuki_vn/',
     // 範例：填入你看過的特定 Reel/Post URL
     // 'Phở Việt Nam': 'https://www.instagram.com/reel/XXXXXX/',
     // 'Chài Village': 'https://www.instagram.com/p/XXXXXX/',
@@ -352,13 +357,13 @@
       { drive: 9 },
       { drive: 7 },
       { walk: 2, note: '步行 2 分到郵局' },
-      { drive: 5, note: '黛奧車' },
-      { drive: 4 },
-      { drive: 8 },
-      { drive: 5 },
-      { drive: 3 },
+      { drive: 10, note: '黛奧車・Q1→Q3' },
+      { drive: 6, note: 'Q3→Q1 Đa Kao' },
+      { drive: 10, note: 'Q1→Q3' },
+      { drive: 10, note: 'Q3→Q1 折返' },
+      { drive: 10, note: 'Q1→Q3 折返' },
       null,
-      { drive: 10, note: '司機直送 Q3' },
+      { drive: 8, note: '司機直送 Q3' },
     ],
     'day-4': [
       { drive: 12 },
@@ -375,7 +380,8 @@
       null,
       { walk: 10 },
       null,
-      { drive: 30 },
+      { drive: 30, note: 'Q1→TSN T2 尖峰 buffer' },
+      null,
       null,
     ],
   };
