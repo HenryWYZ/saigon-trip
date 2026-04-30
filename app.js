@@ -693,21 +693,16 @@
   function updateMultiPayStatus() {
     const inputs = document.querySelectorAll('#sp-mp-list input[data-mp-id]');
     const sum = Array.from(inputs).reduce((s, i) => s + (parseInt(i.value, 10) || 0), 0);
-    const total = parseInt((document.getElementById('sp-amount') || {}).value, 10) || 0;
+    const amtEl = document.getElementById('sp-amount');
+    if (amtEl) amtEl.value = sum > 0 ? String(sum) : '';
     const status = document.getElementById('sp-mp-status');
     if (!status) return;
-    if (total === 0) {
-      status.textContent = '請先填上方總金額';
-      status.className = 'sp-mp-status warning';
-      return;
-    }
-    if (sum === total) {
-      status.textContent = '✓ 已平衡：' + sum.toLocaleString('en-US') + ' / ' + total.toLocaleString('en-US') + ' VND';
+    if (sum > 0) {
+      const twd = (typeof rate === 'number' && rate) ? ' ≈ NT$ ' + Math.round(sum * rate).toLocaleString('en-US') : '';
+      status.textContent = '✓ 自動加總：' + sum.toLocaleString('en-US') + ' VND' + twd;
       status.className = 'sp-mp-status ok';
     } else {
-      const diff = total - sum;
-      status.textContent = (diff > 0 ? '尚差 ' : '超出 ') + Math.abs(diff).toLocaleString('en-US') +
-        ' VND（總和 ' + sum.toLocaleString('en-US') + ' / ' + total.toLocaleString('en-US') + '）';
+      status.textContent = '請至少輸入一個人付的金額';
       status.className = 'sp-mp-status warning';
     }
   }
@@ -716,11 +711,23 @@
     const wrap = document.getElementById('sp-multi-pay');
     const split = document.getElementById('sp-split');
     const label = document.querySelector('.sp-split-label');
+    const amtEl = document.getElementById('sp-amount');
     if (!sel || !wrap) return;
     const multi = sel.value === '__multi__';
     wrap.hidden = !multi;
     if (split) split.style.display = multi ? 'none' : '';
     if (label) label.style.display = multi ? 'none' : '';
+    if (amtEl) {
+      if (multi) {
+        amtEl.readOnly = true;
+        amtEl.classList.add('sp-amount-locked');
+        amtEl.placeholder = '自動加總（下方輸入）';
+      } else {
+        amtEl.readOnly = false;
+        amtEl.classList.remove('sp-amount-locked');
+        amtEl.placeholder = '金額 VND';
+      }
+    }
     if (multi) renderMultiPayInputs();
   }
   function refreshAllUI() {
@@ -728,6 +735,48 @@
     renderPayerSelect();
     updateMultiPayVisibility();
     renderSpending();
+  }
+  function entryCardHtml(realIdx) {
+    const e = spending[realIdx];
+    const amt = +e.amount || 0;
+    const split = Math.max(1, +e.splitCount || 1);
+    let payerHtml;
+    if (e.payer === '__multi__' && e.paid) {
+      const pieces = Object.keys(e.paid).map((id) => {
+        const m = getMember(id);
+        const name = m ? m.name : id;
+        return escapeHtml(name) + ' ' + fmtVnd(e.paid[id]);
+      });
+      payerHtml = '<span class="sp-payer-chip multi">🎯 ' + pieces.join(' + ') + '</span>';
+    } else {
+      payerHtml = '<span class="sp-payer-chip">👤 ' + escapeHtml(payerLabel(e.payer)) + '付</span>';
+    }
+    const splitInfo = split > 1
+      ? '<span class="sp-split-mini">÷' + split + '人＝' + fmtVnd(Math.round(amt / split)) + '／人</span>'
+      : '';
+    const noteHtml = e.note ? '<span class="sp-note-mini">＃' + escapeHtml(e.note) + '</span>' : '';
+    const editingCls = realIdx === editingIdx ? ' sp-card-editing' : '';
+    const twdLine = (typeof rate === 'number' && rate && amt)
+      ? '<div class="sp-card-twd">NT$ ' + Math.round(amt * rate).toLocaleString('en-US') + '</div>'
+      : '';
+    return '<div class="sp-entry-card' + editingCls + '">' +
+      '<div class="sp-card-top">' +
+        '<span class="sp-cat-badge">' + escapeHtml(e.category || '') + '</span>' +
+        '<div class="sp-card-amount">' +
+          '<strong>' + fmtVnd(amt) + '</strong><span class="vnd">VND</span>' +
+          twdLine +
+        '</div>' +
+        '<div class="sp-card-actions">' +
+          '<button class="edit" data-idx="' + realIdx + '" aria-label="編輯" title="編輯">✏️</button>' +
+          '<button class="delete" data-idx="' + realIdx + '" aria-label="刪除" title="刪除">✕</button>' +
+        '</div>' +
+      '</div>' +
+      '<div class="sp-card-meta">' +
+        payerHtml +
+        splitInfo +
+        noteHtml +
+      '</div>' +
+    '</div>';
   }
   function renderSpending() {
     const summary = document.getElementById('spending-summary');
@@ -760,47 +809,39 @@
     totals.innerHTML =
       '<strong>5 日累計：</strong>' + fmtVnd(total) + ' VND' + (totalTwd != null ? ' (NT$ ' + totalTwd.toLocaleString('en-US') + ')' : '') +
       '｜<strong>我的份額：</strong>' + fmtVnd(Math.round(myShare)) + ' VND' + (myShareTwd != null ? ' (NT$ ' + myShareTwd.toLocaleString('en-US') + ')' : '');
-    list.innerHTML = spending.length === 0
-      ? '<li style="grid-template-columns:1fr;justify-items:center;color:#888;">尚無記錄。新增第一筆 ↑</li>'
-      : spending.slice().reverse().map((_, ridx) => {
-          const realIdx = spending.length - 1 - ridx;
-          const e = spending[realIdx];
-          const amt = +e.amount || 0;
-          const split = Math.max(1, +e.splitCount || 1);
-          const noteHtml = e.note ? '<span class="sp-note-tag">＃' + escapeHtml(e.note) + '</span>' : '';
-          let payerHtml;
-          if (e.payer === '__multi__' && e.paid) {
-            const pieces = Object.keys(e.paid).map((id) => {
-              const m = getMember(id);
-              const name = m ? m.name : id;
-              return escapeHtml(name) + ' ' + fmtVnd(e.paid[id]);
-            });
-            payerHtml = '<span class="sp-payer">🎯 ' + pieces.join(' + ') + '</span>';
-          } else {
-            payerHtml = '<span class="sp-payer">' + escapeHtml(payerLabel(e.payer)) + '付</span>';
-          }
-          const splitInfo = split > 1
-            ? '<span class="sp-split-info">÷ ' + split + ' 人 → ' + fmtVnd(Math.round(amt / split)) + ' VND' + vndToTwdLabel(amt / split) + '／人</span>'
-            : '';
-          const editingCls = realIdx === editingIdx ? ' sp-editing' : '';
-          return '<li class="' + editingCls.trim() + '">' +
-            '<div class="sp-line1">' +
-              '<span>' + DAY_LABELS[e.day] + '</span>' +
-              '<span>' + escapeHtml(e.category) + '</span>' +
-              '<span>' + fmtVnd(amt) + ' VND</span>' +
-              '<span class="sp-twd">' + (vndToTwdLabel(amt) || '') + '</span>' +
-            '</div>' +
-            '<div class="sp-line2">' +
-              payerHtml +
-              splitInfo +
-              noteHtml +
-            '</div>' +
-            '<div class="sp-actions">' +
-              '<button class="edit" data-idx="' + realIdx + '" aria-label="編輯" title="編輯">✏️</button>' +
-              '<button class="delete" data-idx="' + realIdx + '" aria-label="刪除" title="刪除">✕</button>' +
-            '</div>' +
-          '</li>';
-        }).join('');
+    if (spending.length === 0) {
+      list.innerHTML = '<li class="sp-empty">尚無記錄 · 新增第一筆 ↑</li>';
+    } else {
+      const ZH_WD = ['日', '一', '二', '三', '四', '五', '六'];
+      const byDay = {};
+      DAYS.forEach((d) => { byDay[d] = []; });
+      spending.forEach((_, idx) => {
+        const e = spending[idx];
+        if (byDay[e.day]) byDay[e.day].push(idx);
+      });
+      Object.keys(byDay).forEach((d) => {
+        byDay[d].sort((a, b) => (spending[b].ts || 0) - (spending[a].ts || 0));
+      });
+      const dayGroupHtml = (d) => {
+        const idxs = byDay[d];
+        if (!idxs || idxs.length === 0) return '';
+        const dayTotal = idxs.reduce((s, i) => s + (+spending[i].amount || 0), 0);
+        const twdTotal = (typeof rate === 'number' && rate) ? Math.round(dayTotal * rate) : null;
+        const parts = d.split('-').map(Number);
+        const dow = ZH_WD[new Date(parts[0], parts[1] - 1, parts[2]).getDay()];
+        return '<li class="sp-day-group">' +
+          '<div class="sp-day-header">' +
+            '<span class="sp-dh-label">📅 ' + DAY_LABELS[d] + '（' + dow + '）</span>' +
+            '<span class="sp-dh-count">' + idxs.length + ' 筆</span>' +
+            '<span class="sp-dh-total">' + fmtVnd(dayTotal) + ' VND' +
+              (twdTotal != null ? ' <span class="sp-dh-twd">(NT$ ' + twdTotal.toLocaleString('en-US') + ')</span>' : '') +
+            '</span>' +
+          '</div>' +
+          idxs.map((idx) => entryCardHtml(idx)).join('') +
+        '</li>';
+      };
+      list.innerHTML = DAYS.map(dayGroupHtml).join('');
+    }
     list.querySelectorAll('button.delete').forEach((b) => {
       b.addEventListener('click', () => {
         const idx = +b.dataset.idx;
@@ -882,6 +923,7 @@
       if (!cat) return;
 
       let paid = null;
+      let amtFinal = amt;
       if (payer === '__multi__') {
         paid = {};
         let sum = 0;
@@ -889,7 +931,7 @@
           const v = parseInt(inp.value, 10) || 0;
           if (v > 0) { paid[inp.dataset.mpId] = v; sum += v; }
         });
-        if (sum !== amt) {
+        if (sum <= 0) {
           const status = document.getElementById('sp-mp-status');
           if (status) {
             updateMultiPayStatus();
@@ -898,14 +940,15 @@
           }
           return;
         }
+        amtFinal = sum;
       }
 
       if (editingIdx >= 0 && spending[editingIdx]) {
         const origTs = spending[editingIdx].ts;
-        spending[editingIdx] = { amount: amt, category: cat, day: day, payer: payer, paid: paid, splitCount: split, note: note, ts: origTs };
+        spending[editingIdx] = { amount: amtFinal, category: cat, day: day, payer: payer, paid: paid, splitCount: split, note: note, ts: origTs };
         exitSpendingEditMode();
       } else {
-        spending.push({ amount: amt, category: cat, day: day, payer: payer, paid: paid, splitCount: split, note: note, ts: Date.now() });
+        spending.push({ amount: amtFinal, category: cat, day: day, payer: payer, paid: paid, splitCount: split, note: note, ts: Date.now() });
       }
       saveSpending();
       amtEl.value = '';
@@ -1065,10 +1108,110 @@
       } catch (e) { /* silent on poll */ }
     }, 30000);
   }
+  function buildSetupLink() {
+    if (!syncPat || !syncGistId) return '';
+    const base = window.location.origin + window.location.pathname;
+    // Pack PAT + gist id into base64-encoded fragment so it isn't trivially scraped by GitHub secret scanning
+    const payload = btoa(syncPat + '|' + syncGistId);
+    return base + '#setup=' + payload;
+  }
+  async function copySetupLink() {
+    const link = buildSetupLink();
+    if (!link) { setSyncStatus('❌ 請先啟用同步', 'err'); return; }
+    let copied = false;
+    try {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        await navigator.clipboard.writeText(link);
+        copied = true;
+      }
+    } catch (e) {}
+    if (!copied) {
+      try {
+        const ta = document.createElement('textarea');
+        ta.value = link;
+        ta.style.position = 'fixed';
+        ta.style.opacity = '0';
+        document.body.appendChild(ta);
+        ta.focus(); ta.select();
+        copied = document.execCommand && document.execCommand('copy');
+        document.body.removeChild(ta);
+      } catch (e) {}
+    }
+    if (copied) setSyncStatus('✅ 連結已複製 — 在其他裝置開啟即可自動套用（請只給自己的裝置）', 'ok');
+    else setSyncStatus('❌ 複製失敗，請手動長按下方連結：' + link, 'err');
+  }
+  function parseSetupFragment() {
+    const m = /#setup=([A-Za-z0-9+/=_-]+)/.exec(window.location.hash || '');
+    if (!m) return null;
+    try {
+      const decoded = atob(m[1]);
+      const sep = decoded.indexOf('|');
+      if (sep < 0) return null;
+      const pat = decoded.slice(0, sep);
+      const gistId = decoded.slice(sep + 1);
+      if (!pat || !gistId) return null;
+      return { pat: pat, gistId: gistId };
+    } catch (e) { return null; }
+  }
+  function clearSetupFragment() {
+    try { history.replaceState(null, '', window.location.pathname + window.location.search); } catch (e) {}
+  }
+  function maskPat(pat) {
+    if (!pat || pat.length < 12) return pat;
+    return pat.slice(0, 7) + '...' + pat.slice(-4);
+  }
+  function showImportBanner(parsed) {
+    const banner = document.getElementById('sp-sync-import-banner');
+    const display = document.getElementById('sp-sync-banner-pat-display');
+    if (!banner) return;
+    if (display) display.textContent = maskPat(parsed.pat);
+    banner.hidden = false;
+    const yes = document.getElementById('sp-sync-import-yes');
+    const no  = document.getElementById('sp-sync-import-no');
+    if (yes) yes.onclick = async () => {
+      banner.hidden = true;
+      clearSetupFragment();
+      syncPat = parsed.pat;
+      syncGistId = parsed.gistId;
+      try {
+        localStorage.setItem(SYNC_PAT_KEY, syncPat);
+        localStorage.setItem(SYNC_GIST_KEY, syncGistId);
+      } catch (e) {}
+      setSyncStatus('⏳ 套用設定...', 'warn');
+      try {
+        const cloud = await cloudPull();
+        if (cloud && cloud.savedAt && cloud.savedAt > lastCloudSavedAt) {
+          applyCloudData(cloud);
+          setSyncStatus('✅ 已從雲端載入並啟用 ' + timeNow(), 'ok');
+        } else {
+          await cloudPush();
+          setSyncStatus('✅ 已啟用同步 ' + timeNow(), 'ok');
+        }
+        const disableBtn = document.getElementById('sp-sync-disable');
+        const shareBtn = document.getElementById('sp-sync-share');
+        if (disableBtn) disableBtn.hidden = false;
+        if (shareBtn) shareBtn.hidden = false;
+        startSyncPoll();
+        // Open the sync details so user sees status
+        const cfg = document.getElementById('sp-sync-config');
+        if (cfg) cfg.open = true;
+      } catch (err) {
+        setSyncStatus('❌ 套用失敗：' + err.message, 'err');
+        syncPat = ''; syncGistId = '';
+        try { localStorage.removeItem(SYNC_PAT_KEY); localStorage.removeItem(SYNC_GIST_KEY); } catch (e) {}
+      }
+    };
+    if (no) no.onclick = () => {
+      banner.hidden = true;
+      clearSetupFragment();
+    };
+  }
   function setupCloudSync() {
     const enableBtn = document.getElementById('sp-sync-enable');
     const disableBtn = document.getElementById('sp-sync-disable');
+    const shareBtn = document.getElementById('sp-sync-share');
     const patInput = document.getElementById('sp-sync-pat');
+    if (shareBtn) shareBtn.addEventListener('click', copySetupLink);
     if (enableBtn) {
       enableBtn.addEventListener('click', async () => {
         const pat = (patInput && patInput.value || '').trim();
@@ -1103,6 +1246,8 @@
           }
           if (patInput) patInput.value = '';
           if (disableBtn) disableBtn.hidden = false;
+          const sb = document.getElementById('sp-sync-share');
+          if (sb) sb.hidden = false;
           startSyncPoll();
         } catch (e) {
           setSyncStatus('❌ 啟用失敗：' + e.message + '（請確認 PAT 有 gist 權限）', 'err');
@@ -1123,13 +1268,22 @@
         clearInterval(syncPollTimer);
         clearTimeout(syncPushTimer);
         disableBtn.hidden = true;
+        const sb = document.getElementById('sp-sync-share');
+        if (sb) sb.hidden = true;
         setSyncStatus('已停用同步（本地資料保留）', 'warn');
       });
     }
     setSyncStatus('');
+    // 1. Setup-link auto-import (URL fragment) takes priority — show banner
+    const parsed = parseSetupFragment();
+    if (parsed) {
+      showImportBanner(parsed);
+      return;
+    }
+    // 2. Existing PAT in localStorage → auto-pull + start poll
     if (syncPat && syncGistId) {
       if (disableBtn) disableBtn.hidden = false;
-      // Pull on load if newer
+      if (shareBtn) shareBtn.hidden = false;
       cloudPull().then((cloud) => {
         if (cloud && cloud.savedAt && cloud.savedAt > lastCloudSavedAt) {
           applyCloudData(cloud);

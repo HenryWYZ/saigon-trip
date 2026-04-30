@@ -705,31 +705,47 @@
   .spending-form {
     display: flex;
     flex-direction: column;
-    gap: 6px;
-    margin-bottom: 10px;
+    gap: 8px;
+    margin-bottom: 12px;
   }
   .sp-row {
     display: grid;
-    gap: 6px;
+    gap: 8px;
   }
-  .sp-row-1 { grid-template-columns: 2fr 1.2fr 0.8fr; }
-  .sp-row-2 { grid-template-columns: 1fr 80px auto; align-items: center; }
+  .sp-row-1 { grid-template-columns: 1.6fr 1.4fr 0.8fr; }
+  .sp-row-2 { grid-template-columns: 1fr 84px auto; align-items: center; }
   .sp-split-label { font-size: 13px; color: #666; padding: 0 4px; white-space: nowrap; }
   .spending-form input, .spending-form select {
-    padding: 8px 10px;
-    font-size: 14px;
-    border: 1.5px solid #f3d2c1;
-    border-radius: 6px;
+    height: 42px;
+    padding: 0 12px;
+    font-size: 15px;
+    border: 1.5px solid #e8d8b8;
+    border-radius: 9px;
     font-family: inherit;
-    background: #fef6e4;
+    background: #fff;
     color: #001858;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+    box-sizing: border-box;
   }
   .spending-form input:focus, .spending-form select:focus {
     outline: none;
     border-color: #4a8050;
-    background: #fff;
+    box-shadow: 0 0 0 3px rgba(74, 128, 80, 0.15);
+  }
+  .spending-form input::placeholder { color: #b0a890; }
+  .spending-form #sp-amount {
+    font-size: 17px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
   }
   .spending-form #sp-split { text-align: center; padding: 8px 4px; }
+  .spending-form input.sp-amount-locked {
+    background: #fff8d8;
+    color: #001858;
+    font-weight: 600;
+    cursor: not-allowed;
+  }
+  body.dark .spending-form input.sp-amount-locked { background: #3a2f1a; color: #d6843e; }
   .spending-form .sp-note { width: 100%; }
   .spending-form .sp-submit {
     width: 100%;
@@ -797,74 +813,129 @@
   .spending-list {
     list-style: none;
     padding: 0;
-    margin-top: 8px;
-    max-height: 280px;
+    margin: 12px 0 0;
+    max-height: 65vh;
     overflow-y: auto;
   }
-  .spending-list li {
-    display: grid;
-    grid-template-columns: 1fr auto;
-    gap: 2px 8px;
-    padding: 8px 10px;
-    border-bottom: 1px solid #f3d2c1;
-    font-size: 13px;
-    align-items: start;
+  .spending-list > li.sp-empty {
+    padding: 32px 20px;
+    text-align: center;
+    color: #888;
+    font-size: 14px;
+    border: 1.5px dashed #e8d8b8;
+    border-radius: 12px;
+    background: #fefcf6;
   }
-  .spending-list .sp-line1 {
+  .sp-day-group {
+    display: block;
+    background: #fff;
+    border-radius: 12px;
+    margin-bottom: 12px;
+    overflow: hidden;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    border: 1px solid #e8d8b8;
+  }
+  .sp-day-header {
     display: flex;
-    flex-wrap: wrap;
-    gap: 4px 8px;
+    justify-content: space-between;
     align-items: baseline;
-  }
-  .spending-list .sp-line2 {
-    grid-column: 1 / 2;
-    display: flex;
+    padding: 10px 14px;
+    background: linear-gradient(135deg, #fdf5e6 0%, #f7eed5 100%);
+    border-bottom: 1px solid #e8d8b8;
+    gap: 8px;
     flex-wrap: wrap;
-    gap: 4px 10px;
-    font-size: 12px;
-    color: #666;
   }
-  .spending-list .sp-twd {
+  .sp-dh-label { font-size: 14px; font-weight: 700; color: #001858; }
+  .sp-dh-count { font-size: 12px; color: #888; font-weight: 500; }
+  .sp-dh-total { font-size: 13px; color: #4a8050; font-weight: 700; margin-left: auto; }
+  .sp-dh-twd { color: #888; font-weight: 500; font-size: 11px; }
+  .sp-entry-card {
+    padding: 12px 14px;
+    border-bottom: 1px solid #f3e6c7;
+  }
+  .sp-entry-card:last-child { border-bottom: none; }
+  .sp-card-top {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    gap: 10px;
+    align-items: center;
+    margin-bottom: 8px;
+  }
+  .sp-cat-badge {
+    display: inline-block;
+    padding: 5px 11px;
+    background: #fdf9f1;
+    border: 1.5px solid #e8d8b8;
+    border-radius: 14px;
+    font-size: 13px;
+    font-weight: 600;
+    color: #001858;
+    white-space: nowrap;
+    max-width: 140px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .sp-card-amount {
+    text-align: right;
+    line-height: 1.2;
+  }
+  .sp-card-amount strong {
+    font-size: 18px;
+    font-weight: 700;
+    color: #001858;
+    font-variant-numeric: tabular-nums;
+  }
+  .sp-card-amount .vnd { font-size: 11px; color: #888; margin-left: 2px; }
+  .sp-card-twd {
+    font-size: 12px;
     color: #4a8050;
     font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    margin-top: 2px;
   }
-  .spending-list .sp-payer {
-    background: #fef6e4;
-    padding: 1px 6px;
-    border-radius: 3px;
-    border: 1px solid #f3d2c1;
-    color: #4a8050;
-    font-weight: 600;
-  }
-  .spending-list .sp-split-info { color: #888; }
-  .spending-list .sp-note-tag {
-    color: #4a8050;
-    font-size: 12px;
-    font-style: italic;
-  }
-  .spending-list .sp-actions {
-    grid-row: 1 / 3;
-    align-self: center;
+  .sp-card-actions {
     display: flex;
     flex-direction: column;
     gap: 2px;
+    margin-left: 4px;
   }
-  .spending-list .edit, .spending-list .delete {
+  .sp-card-actions button {
     background: none;
     border: none;
     cursor: pointer;
-    padding: 3px 6px;
+    padding: 4px 7px;
+    border-radius: 6px;
     line-height: 1;
-    border-radius: 4px;
   }
-  .spending-list .edit { color: #4a8050; font-size: 14px; }
-  .spending-list .edit:hover { background: #f3f8f4; }
-  .spending-list .delete { color: #d33; font-size: 16px; }
-  .spending-list .delete:hover { background: #fee8e8; }
-  .spending-list li.sp-editing {
+  .sp-card-actions .edit { color: #4a8050; font-size: 14px; }
+  .sp-card-actions .edit:hover { background: #f3f8f4; }
+  .sp-card-actions .delete { color: #d33; font-size: 16px; }
+  .sp-card-actions .delete:hover { background: #fee8e8; }
+  .sp-card-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 10px;
+    font-size: 12px;
+    color: #666;
+    align-items: center;
+    line-height: 1.5;
+  }
+  .sp-payer-chip {
+    background: #f3f8f4;
+    color: #4a8050;
+    padding: 2px 9px;
+    border-radius: 11px;
+    font-size: 12px;
+    font-weight: 600;
+    border: 1px solid #d4ead8;
+  }
+  .sp-payer-chip.multi { background: #fff8d8; color: #c46e2c; border-color: #f3d6a8; }
+  .sp-split-mini { color: #888; font-style: italic; }
+  .sp-note-mini { color: #2d6a3a; font-style: italic; }
+  .sp-entry-card.sp-card-editing {
     background: #fff8d8;
     border-left: 3px solid #c46e2c;
-    padding-left: 7px;
+    padding-left: 11px;
   }
   body.dark .spending-form input, body.dark .spending-form select { background: #2a3550; border-color: #3d4a6e; color: #d0d8ee; }
   body.dark .spending-form input:focus, body.dark .spending-form select:focus { background: #2f3a5a; border-color: #5fa067; }
@@ -872,8 +943,20 @@
   body.dark .day-total .value-twd { color: #88c894; }
   body.dark .day-total.over { background: #4a2a2a; color: #ff8888; }
   body.dark .spending-totals { background: #1e2a4a; color: #d0d8ee; }
-  body.dark .spending-list li { border-bottom-color: #3d4a6e; }
-  body.dark .spending-list li.sp-editing { background: #3a2f1a; border-left-color: #d6843e; }
+  body.dark .spending-list > li.sp-empty { background: #1e2a4a; border-color: #3d4a6e; color: #98a4be; }
+  body.dark .sp-day-group { background: #1e2a4a; border-color: #3d4a6e; }
+  body.dark .sp-day-header { background: linear-gradient(135deg, #2a3550 0%, #1e2a4a 100%); border-bottom-color: #3d4a6e; }
+  body.dark .sp-dh-label { color: #d0d8ee; }
+  body.dark .sp-dh-total { color: #88c894; }
+  body.dark .sp-entry-card { border-bottom-color: #3d4a6e; }
+  body.dark .sp-entry-card.sp-card-editing { background: #3a2f1a; border-left-color: #d6843e; }
+  body.dark .sp-cat-badge { background: #2a3550; border-color: #3d4a6e; color: #d0d8ee; }
+  body.dark .sp-card-amount strong { color: #d0d8ee; }
+  body.dark .sp-card-twd { color: #88c894; }
+  body.dark .sp-payer-chip { background: #2a3a30; color: #88c894; border-color: #3d6a48; }
+  body.dark .sp-payer-chip.multi { background: #3a2f1a; color: #d6843e; border-color: #6a4a2a; }
+  body.dark .sp-card-actions .edit:hover { background: #2a3550; }
+  body.dark .sp-card-actions .delete:hover { background: #4a2a2a; }
   /* === Members config === */
   .sp-members-config, .sp-sync-config {
     margin-bottom: 12px;
@@ -1029,6 +1112,67 @@
   body.dark .sp-members-list .sp-member-name { color: #d0d8ee; }
   body.dark .sp-add-member-form input, body.dark .sp-sync-form input { background: #2a3550; border-color: #3d4a6e; color: #d0d8ee; }
   body.dark .sp-sync-help, body.dark .sp-sync-fineprint { color: #98a4be; }
+  .sp-sync-share {
+    width: 100%;
+    margin-top: 8px;
+    padding: 8px 12px;
+    font-size: 13px;
+    font-weight: 600;
+    color: #2563eb;
+    background: #fff;
+    border: 1.5px dashed #2563eb;
+    border-radius: 6px;
+    cursor: pointer;
+    font-family: inherit;
+  }
+  .sp-sync-share:hover { background: #eff6ff; }
+  body.dark .sp-sync-share { background: #2a3550; color: #6f9eff; border-color: #3d6cdc; }
+  body.dark .sp-sync-share:hover { background: #1e2a4a; }
+  /* Auto-import banner */
+  #sp-sync-import-banner {
+    position: fixed;
+    top: 16px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 1000;
+    background: #fef6e4;
+    border: 2px solid #2563eb;
+    border-radius: 12px;
+    padding: 16px 20px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.18);
+    max-width: 420px;
+    width: calc(100% - 32px);
+    color: #001858;
+  }
+  #sp-sync-import-banner h3 { font-size: 15px; margin: 0 0 8px 0; }
+  #sp-sync-import-banner p { font-size: 13px; margin: 4px 0; line-height: 1.5; }
+  #sp-sync-import-banner code {
+    background: #fff;
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-size: 12px;
+    color: #2563eb;
+    border: 1px solid #d4c8b0;
+  }
+  #sp-sync-import-banner .banner-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 12px;
+  }
+  #sp-sync-import-banner button {
+    flex: 1;
+    padding: 8px 14px;
+    font-size: 14px;
+    font-weight: 700;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-family: inherit;
+  }
+  #sp-sync-import-banner #sp-sync-import-yes { background: #2563eb; color: white; }
+  #sp-sync-import-banner #sp-sync-import-no { background: #888; color: white; }
+  body.dark #sp-sync-import-banner { background: #1e2a4a; color: #d0d8ee; }
+  body.dark #sp-sync-import-banner code { background: #2a3550; color: #6f9eff; border-color: #3d4a6e; }
   body.dark #sp-multi-pay { background: #3a2f1a; border-color: #d6843e; }
   body.dark .sp-mp-row input { background: #2a3550; border-color: #3d4a6e; color: #d0d8ee; }
   body.dark .sp-mp-name { color: #d0d8ee; }
@@ -1107,6 +1251,15 @@
 <a href="#main" class="skip-link">跳至主要內容</a>
 <button class="font-toggle" id="font-toggle" type="button" aria-label="切換大字模式">Aa</button>
 <button class="theme-toggle" id="theme-toggle" type="button" aria-label="切換深色模式">🌙</button>
+<div id="sp-sync-import-banner" hidden role="dialog" aria-labelledby="sp-sync-import-title">
+  <h3 id="sp-sync-import-title">🔑 偵測到同步設定連結</h3>
+  <p>從另一台裝置分享的同步金鑰。要在此裝置啟用跨裝置同步嗎？</p>
+  <p>PAT：<code id="sp-sync-banner-pat-display"></code></p>
+  <div class="banner-actions">
+    <button type="button" id="sp-sync-import-yes">✓ 啟用</button>
+    <button type="button" id="sp-sync-import-no">✕ 取消</button>
+  </div>
+</div>
 <main class="container" id="main">
 <header>
   <h1>🇻🇳 胡志明五日行程</h1>
@@ -1204,8 +1357,9 @@
           <button type="button" id="sp-sync-enable">啟用</button>
           <button type="button" id="sp-sync-disable" hidden>停用</button>
         </div>
+        <button type="button" id="sp-sync-share" class="sp-sync-share" hidden>🔗 複製多裝置設定連結</button>
         <p class="sp-sync-status" id="sp-sync-status"></p>
-        <p class="sp-sync-help sp-sync-fineprint">PAT 只存在這台裝置 localStorage，不上傳任何伺服器（除 api.github.com）。Token 範圍只有 gist，無法存取你的程式碼。多裝置同步：每台裝置都要貼同一個 PAT。</p>
+        <p class="sp-sync-help sp-sync-fineprint">PAT 只存在這台裝置 localStorage，不上傳任何伺服器（除 api.github.com）。Token 範圍只有 gist，無法存取你的程式碼。<strong>多裝置：</strong>第一台啟用後按上方「複製設定連結」，在其他裝置開該連結即自動套用，不必再貼 PAT。</p>
       </div>
     </details>
     <form id="spending-form" autocomplete="off">
