@@ -1176,6 +1176,12 @@
     }
     const sum = document.getElementById('sp-sync-summary');
     if (sum) sum.textContent = '☁️ 跨裝置同步' + (syncPat && syncGistId ? '（已啟用）' : '（未設定）');
+    // Mirror status into the always-visible pill so users see push/pull state without opening config
+    const pillStatus = document.getElementById('sp-sync-pill-status');
+    if (pillStatus) {
+      pillStatus.textContent = text || '已啟用';
+      pillStatus.className = 'sp-sync-pill-status' + (cls ? ' ' + cls : '');
+    }
   }
   function timeNow() {
     return new Date().toLocaleTimeString('zh-TW', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
@@ -1359,6 +1365,22 @@
       clearSetupFragment();
     };
   }
+  async function manualResync() {
+    if (!syncPat || !syncGistId) { setSyncStatus('未啟用同步', 'warn'); return; }
+    setSyncStatus('⏳ 立即同步中...', 'warn');
+    try {
+      const cloud = await cloudPull();
+      if (cloud && cloud.savedAt && cloud.savedAt > lastCloudSavedAt) {
+        applyCloudData(cloud);
+        setSyncStatus('✅ 已從雲端拉取最新資料 ' + timeNow(), 'ok');
+      } else {
+        await cloudPush();
+        // cloudPush sets its own status on success / fail
+      }
+    } catch (e) {
+      setSyncStatus('❌ 立即同步失敗：' + e.message, 'err');
+    }
+  }
   function setupCloudSync() {
     const enableBtn = document.getElementById('sp-sync-enable');
     const disableBtn = document.getElementById('sp-sync-disable');
@@ -1367,10 +1389,12 @@
     if (shareBtn) shareBtn.addEventListener('click', copySetupLink);
     const pillShare = document.getElementById('sp-sync-pill-share');
     const pillDisable = document.getElementById('sp-sync-pill-disable');
+    const pillResync = document.getElementById('sp-sync-pill-resync');
     if (pillShare) pillShare.addEventListener('click', copySetupLink);
     if (pillDisable) pillDisable.addEventListener('click', () => {
       if (disableBtn) disableBtn.click();
     });
+    if (pillResync) pillResync.addEventListener('click', manualResync);
     if (enableBtn) {
       enableBtn.addEventListener('click', async () => {
         const pat = (patInput && patInput.value || '').trim();

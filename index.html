@@ -722,35 +722,34 @@
     margin-left: 2px;
     line-height: 1;
   }
-  /* Unified input shell — used across spending form, add-member form, multi-pay rows, sync form */
+  /* Unified input shell — matches .fx-group input page palette (cream bg, peach border, pink focus) */
   .spending-form input, .spending-form select,
   .sp-add-member-form input,
   .sp-mp-row input,
   .sp-sync-form input {
-    height: 44px;
-    padding: 0 14px;
-    font-size: 15px;
-    border: 1.5px solid #e8d8b8;
-    border-radius: 10px;
-    font-family: inherit;
-    background: #fff;
-    color: #001858;
-    transition: border-color 0.15s ease, box-shadow 0.15s ease;
-    box-sizing: border-box;
     width: 100%;
+    padding: 9px 12px;
+    font-size: 16px;
+    border: 2px solid #f3d2c1;
+    border-radius: 6px;
+    background: #fef6e4;
+    color: #001858;
+    font-family: inherit;
+    box-sizing: border-box;
+    transition: border-color 0.15s ease, background 0.15s ease;
   }
   .spending-form input:focus, .spending-form select:focus,
   .sp-add-member-form input:focus,
   .sp-mp-row input:focus,
   .sp-sync-form input:focus {
     outline: none;
-    border-color: #4a8050;
-    box-shadow: 0 0 0 3px rgba(74, 128, 80, 0.15);
+    border-color: #f582ae;
+    background: white;
   }
   .spending-form input::placeholder,
   .sp-add-member-form input::placeholder,
   .sp-mp-row input::placeholder,
-  .sp-sync-form input::placeholder { color: #c0b8a0; }
+  .sp-sync-form input::placeholder { color: #c0b0a0; }
   /* hide native number-spinner so type="number" matches type="text" visually */
   .spending-form input[type="number"]::-webkit-inner-spin-button,
   .spending-form input[type="number"]::-webkit-outer-spin-button,
@@ -805,8 +804,8 @@
     align-items: center;
     justify-content: center;
     gap: 1px;
-    background: #fff;
-    border: 1.5px solid #e8d8b8;
+    background: #fef6e4;
+    border: 2px solid #f3d2c1;
     border-radius: 22px;
     padding: 9px 14px;
     font-size: 14px;
@@ -819,24 +818,24 @@
     min-height: 40px;
     box-sizing: border-box;
   }
-  .sp-chip:hover { border-color: #4a8050; background: #f7f9f5; }
+  .sp-chip:hover { border-color: #f582ae; background: white; }
   .sp-chip:active { transform: scale(0.96); }
   .sp-chip.active {
-    background: linear-gradient(135deg, #4a8050 0%, #5fa067 100%);
+    background: #f582ae;
     color: white;
-    border-color: #4a8050;
-    box-shadow: 0 2px 8px rgba(74, 128, 80, 0.3);
+    border-color: #f582ae;
+    box-shadow: 0 2px 8px rgba(245, 130, 174, 0.3);
   }
   .sp-chip-custom {
     border-style: dashed;
     color: #888;
     background: transparent;
   }
-  .sp-chip-custom:hover { color: #4a8050; border-color: #4a8050; background: #f7f9f5; }
+  .sp-chip-custom:hover { color: #f582ae; border-color: #f582ae; background: #fef6e4; }
   .sp-chip-custom.active {
-    background: linear-gradient(135deg, #4a8050 0%, #5fa067 100%);
+    background: #f582ae;
     color: white;
-    border-color: #4a8050;
+    border-color: #f582ae;
     border-style: solid;
   }
   /* Day chips: equal-width, two lines */
@@ -861,11 +860,11 @@
   body.dark .spending-form input.sp-amount-locked { background: #3a2f1a; color: #d6843e; }
   body.dark .sp-label { color: #88c894; }
   body.dark .sp-chip { background: #2a3550; border-color: #3d4a6e; color: #d0d8ee; }
-  body.dark .sp-chip:hover { background: #1e2a4a; border-color: #5fa067; }
+  body.dark .sp-chip:hover { background: #1e2a4a; border-color: #f582ae; }
   body.dark .sp-chip-custom { background: transparent; color: #98a4be; }
   body.dark .sp-chip.active, body.dark .sp-chip-custom.active {
-    background: linear-gradient(135deg, #4a8050 0%, #5fa067 100%);
-    border-color: #5fa067;
+    background: #f582ae;
+    border-color: #f582ae;
     color: white;
   }
   body.dark .sp-field-amount .sp-amount-wrap { background: #2a3550; border-color: #3d4a6e; }
@@ -873,6 +872,8 @@
   body.dark .spending-form #sp-amount { color: #d0d8ee; }
   body.dark .sp-amount-suffix { color: #98a4be; }
   body.dark .sp-amount-twd { color: #88c894; border-left-color: #3d4a6e; }
+  /* Belt-and-suspenders: ensure hidden attr always wins on details / pill blocks */
+  .sp-sync-config[hidden], .sp-sync-pill[hidden], .sp-members-config[hidden] { display: none !important; }
   /* Sync status pill — shown when sync enabled, replaces the full sync-config UI */
   .sp-sync-pill {
     display: inline-flex;
@@ -902,45 +903,52 @@
   .sp-sync-pill .sp-sync-pill-link:hover { color: #d33; }
   body.dark .sp-sync-pill { background: #1e3a2a; border-color: #3d6a48; color: #88c894; }
   body.dark .sp-sync-pill .sp-sync-pill-link { color: #98a4be; }
+  .sp-sync-pill-status { font-size: 11px; padding: 2px 8px; border-radius: 10px; background: rgba(0,0,0,0.05); }
+  .sp-sync-pill-status.ok { background: #d4f4dd; color: #2d6a3a; }
+  .sp-sync-pill-status.warn { background: #fff3d4; color: #c46e2c; }
+  .sp-sync-pill-status.err { background: #fee; color: #c33; }
+  body.dark .sp-sync-pill-status { background: rgba(255,255,255,0.05); }
+  body.dark .sp-sync-pill-status.ok { background: #2a3a30; color: #88c894; }
+  body.dark .sp-sync-pill-status.warn { background: #3a2f1a; color: #d6843e; }
+  body.dark .sp-sync-pill-status.err { background: #4a2a2a; color: #ff8888; }
   .spending-form .sp-note { width: 100%; }
   .spending-form .sp-submit {
     width: 100%;
-    margin-top: 6px;
-    height: 52px;
-    padding: 0 24px;
+    margin-top: 8px;
+    padding: 14px 24px;
     font-size: 16px;
-    font-weight: 700;
-    letter-spacing: 0.04em;
-    color: #fef6e4;
-    background: #001858;
+    font-weight: bold;
+    color: white;
+    background: #f582ae;
     border: none;
-    border-radius: 14px;
-    box-shadow: 0 2px 8px rgba(0, 24, 88, 0.22);
+    border-radius: 24px;
+    box-shadow: 0 2px 8px rgba(245, 130, 174, 0.25);
     cursor: pointer;
     font-family: inherit;
-    transition: transform 0.1s ease, box-shadow 0.15s ease, filter 0.15s ease;
+    transition: background 0.15s ease, box-shadow 0.15s ease, transform 0.1s ease;
   }
-  .spending-form .sp-submit:hover { filter: brightness(1.18); box-shadow: 0 4px 14px rgba(0, 24, 88, 0.32); }
-  .spending-form .sp-submit:active { transform: translateY(1px) scale(0.99); box-shadow: 0 1px 4px rgba(0, 24, 88, 0.3); }
+  .spending-form .sp-submit:hover { background: #d85c8b; box-shadow: 0 4px 12px rgba(245, 130, 174, 0.4); }
+  .spending-form .sp-submit:active { transform: translateY(1px) scale(0.99); }
   .spending-form .sp-submit.editing {
     background: #c46e2c;
-    box-shadow: 0 2px 8px rgba(196, 110, 44, 0.28);
+    box-shadow: 0 2px 8px rgba(196, 110, 44, 0.25);
   }
-  .spending-form .sp-submit.editing:hover { filter: brightness(1.12); box-shadow: 0 4px 14px rgba(196, 110, 44, 0.4); }
+  .spending-form .sp-submit.editing:hover { background: #a85a1f; box-shadow: 0 4px 12px rgba(196, 110, 44, 0.4); }
   .spending-form .sp-cancel {
     width: 100%;
     margin-top: 6px;
-    padding: 10px 12px;
+    padding: 9px 16px;
     font-size: 13px;
+    font-weight: 600;
     color: #888;
     background: transparent;
-    border: 1.5px solid #e8d8b8;
-    border-radius: 10px;
+    border: 2px solid #f3d2c1;
+    border-radius: 20px;
     cursor: pointer;
     font-family: inherit;
     transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
   }
-  .spending-form .sp-cancel:hover { background: #fef6e4; color: #444; border-color: #d4b88a; }
+  .spending-form .sp-cancel:hover { background: #fef6e4; color: #444; border-color: #f582ae; }
   .spending-summary {
     display: grid;
     grid-template-columns: repeat(5, 1fr);
@@ -1102,21 +1110,22 @@
   body.dark .spending-form input:focus, body.dark .spending-form select:focus,
   body.dark .sp-add-member-form input:focus,
   body.dark .sp-mp-row input:focus,
-  body.dark .sp-sync-form input:focus { background: #2f3a5a; border-color: #5fa067; }
+  body.dark .sp-sync-form input:focus { background: #2f3a5a; border-color: #f582ae; }
   body.dark .spending-form input::placeholder,
   body.dark .sp-add-member-form input::placeholder,
   body.dark .sp-mp-row input::placeholder,
   body.dark .sp-sync-form input::placeholder { color: #6f7a99; }
-  body.dark .spending-form .sp-submit { background: #4a6fc4; color: #fef6e4; box-shadow: 0 2px 8px rgba(74, 111, 196, 0.35); }
-  body.dark .spending-form .sp-submit:hover { filter: brightness(1.15); box-shadow: 0 4px 14px rgba(74, 111, 196, 0.5); }
+  body.dark .spending-form .sp-submit { background: #f582ae; color: white; box-shadow: 0 2px 8px rgba(245, 130, 174, 0.35); }
+  body.dark .spending-form .sp-submit:hover { background: #d85c8b; box-shadow: 0 4px 14px rgba(245, 130, 174, 0.5); }
   body.dark .spending-form .sp-submit.editing { background: #d6843e; box-shadow: 0 2px 8px rgba(214, 132, 62, 0.4); }
   body.dark .spending-form .sp-cancel { border-color: #3d4a6e; color: #98a4be; }
-  body.dark .spending-form .sp-cancel:hover { background: #2a3550; color: #d0d8ee; border-color: #5d6a8e; }
-  body.dark .sp-add-member-form button { background: #4a6fc4; color: #fef6e4; }
-  body.dark .sp-add-member-form button:hover { filter: brightness(1.15); box-shadow: 0 2px 6px rgba(74, 111, 196, 0.4); }
-  body.dark .sp-sync-form button { background: #4a6fc4; color: #fef6e4; }
-  body.dark .sp-sync-form button:hover { filter: brightness(1.15); box-shadow: 0 2px 6px rgba(74, 111, 196, 0.4); }
+  body.dark .spending-form .sp-cancel:hover { background: #2a3550; color: #d0d8ee; border-color: #f582ae; }
+  body.dark .sp-add-member-form button { background: #f582ae; color: white; }
+  body.dark .sp-add-member-form button:hover { background: #d85c8b; box-shadow: 0 2px 6px rgba(245, 130, 174, 0.4); }
+  body.dark .sp-sync-form button { background: #f582ae; color: white; }
+  body.dark .sp-sync-form button:hover { background: #d85c8b; box-shadow: 0 2px 6px rgba(245, 130, 174, 0.4); }
   body.dark .sp-sync-form button#sp-sync-disable { background: #5a6478; }
+  body.dark .sp-sync-form button#sp-sync-disable:hover { background: #6f7a99; }
   body.dark .day-total { background: #1e2a4a; color: #d0d8ee; }
   body.dark .day-total .value-twd { color: #88c894; }
   body.dark .day-total.over { background: #4a2a2a; color: #ff8888; }
@@ -1190,46 +1199,45 @@
     gap: 8px;
     margin-top: 10px;
     margin-bottom: 4px;
-    align-items: stretch;
+    align-items: center;
   }
   .sp-add-member-form input { flex: 1; }
   .sp-add-member-form button {
-    padding: 0 18px;
-    height: 44px;
-    font-size: 14px;
-    font-weight: 700;
-    background: #001858;
-    color: #fef6e4;
+    padding: 9px 18px;
+    font-size: 13px;
+    font-weight: bold;
+    background: #f582ae;
+    color: white;
     border: none;
-    border-radius: 10px;
+    border-radius: 20px;
     cursor: pointer;
     font-family: inherit;
     white-space: nowrap;
-    transition: filter 0.15s ease, box-shadow 0.15s ease;
+    transition: background 0.15s ease, box-shadow 0.15s ease;
   }
-  .sp-add-member-form button:hover { filter: brightness(1.15); box-shadow: 0 2px 6px rgba(0, 24, 88, 0.3); }
+  .sp-add-member-form button:hover { background: #d85c8b; box-shadow: 0 2px 6px rgba(245, 130, 174, 0.35); }
   /* === Sync config === */
   .sp-sync-help { font-size: 12px; color: #666; margin: 6px 0; line-height: 1.5; }
   .sp-sync-help a { color: #2563eb; }
   .sp-sync-fineprint { font-size: 11px; color: #888; margin-top: 8px; }
-  .sp-sync-form { display: flex; gap: 8px; margin: 8px 0; flex-wrap: wrap; align-items: stretch; }
+  .sp-sync-form { display: flex; gap: 8px; margin: 8px 0; flex-wrap: wrap; align-items: center; }
   .sp-sync-form input { flex: 1; min-width: 180px; font-family: monospace; font-size: 13px; }
   .sp-sync-form button {
-    padding: 0 18px;
-    height: 44px;
-    font-size: 14px;
-    font-weight: 700;
-    background: #001858;
-    color: #fef6e4;
+    padding: 9px 18px;
+    font-size: 13px;
+    font-weight: bold;
+    background: #f582ae;
+    color: white;
     border: none;
-    border-radius: 10px;
+    border-radius: 20px;
     cursor: pointer;
     font-family: inherit;
     white-space: nowrap;
-    transition: filter 0.15s ease, box-shadow 0.15s ease;
+    transition: background 0.15s ease, box-shadow 0.15s ease;
   }
-  .sp-sync-form button:hover { filter: brightness(1.15); box-shadow: 0 2px 6px rgba(0, 24, 88, 0.3); }
-  .sp-sync-form button#sp-sync-disable { background: #888; }
+  .sp-sync-form button:hover { background: #d85c8b; box-shadow: 0 2px 6px rgba(245, 130, 174, 0.35); }
+  .sp-sync-form button#sp-sync-disable { background: #999; }
+  .sp-sync-form button#sp-sync-disable:hover { background: #666; }
   .sp-sync-status { font-size: 12px; margin: 6px 0; min-height: 1em; font-weight: 500; }
   .sp-sync-status.ok { color: #4a8050; }
   .sp-sync-status.warn { color: #c46e2c; }
@@ -1508,8 +1516,11 @@
       </form>
     </details>
     <div class="sp-sync-pill" id="sp-sync-pill" hidden>
-      <span>☁️ 跨裝置同步：已啟用</span>
-      <button type="button" class="sp-sync-pill-link" id="sp-sync-pill-share">複製設定連結</button>
+      <span id="sp-sync-pill-label">☁️ 跨裝置同步</span>
+      <span class="sp-sync-pill-status" id="sp-sync-pill-status">已啟用</span>
+      <button type="button" class="sp-sync-pill-link" id="sp-sync-pill-resync" title="立即拉取雲端 + 推送本地">🔄 立即同步</button>
+      <span aria-hidden="true">·</span>
+      <button type="button" class="sp-sync-pill-link" id="sp-sync-pill-share">複製連結</button>
       <span aria-hidden="true">·</span>
       <button type="button" class="sp-sync-pill-link" id="sp-sync-pill-disable">停用</button>
     </div>
@@ -1527,7 +1538,7 @@
         <p class="sp-sync-help sp-sync-fineprint">PAT 只存在這台裝置 localStorage，不上傳任何伺服器（除 api.github.com）。Token 範圍只有 gist，無法存取你的程式碼。<strong>多裝置：</strong>第一台啟用後按上方「複製設定連結」，在其他裝置開該連結即自動套用，不必再貼 PAT。</p>
       </div>
     </details>
-    <form id="spending-form" autocomplete="off">
+    <form id="spending-form" class="spending-form" autocomplete="off">
       <!-- Amount with live TWD preview -->
       <div class="sp-field sp-field-amount">
         <label class="sp-label" for="sp-amount">💰 金額</label>
