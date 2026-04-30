@@ -1,0 +1,197 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>iOS Native 卡片風 — Saigon Trip Demo</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+  :root{
+    --bg:#f2f2f7; --card:#ffffff; --ink:#0f172a; --muted:#6b7280;
+    --line:#e5e7eb; --primary:#2563eb; --accent:#f59e0b;
+    --success:#10b981; --danger:#ef4444;
+  }
+  body{font-family:-apple-system,'SF Pro Display','Segoe UI',system-ui,'Microsoft JhengHei',sans-serif;background:var(--bg);color:var(--ink);line-height:1.5;font-size:15px;min-height:100vh;padding-bottom:40px;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:560px;margin:0 auto;padding:0 16px}
+
+  .nav-back{display:inline-flex;align-items:center;gap:4px;color:var(--primary);font-size:15px;text-decoration:none;padding:14px 4px;font-weight:500}
+
+  /* Big header */
+  .hero{padding:8px 4px 22px}
+  .hero .label{font-size:13px;color:var(--muted);font-weight:600;letter-spacing:.02em;text-transform:uppercase;margin-bottom:6px}
+  .hero h1{font-size:34px;font-weight:800;letter-spacing:-.02em;line-height:1.1;margin-bottom:6px}
+  .hero .clocks{display:flex;gap:16px;margin-top:14px;align-items:center}
+  .hero .clocks .c{display:flex;align-items:baseline;gap:6px}
+  .hero .clocks .flag{font-size:18px}
+  .hero .clocks .t{font-size:22px;font-weight:700;font-variant-numeric:tabular-nums;letter-spacing:-.01em}
+  .hero .clocks .lbl{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
+
+  h2{font-size:13px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin:24px 4px 10px}
+
+  .card{background:var(--card);border-radius:14px;padding:16px;box-shadow:0 1px 2px rgba(0,0,0,.04),0 0 0 1px rgba(0,0,0,.03);margin-bottom:10px}
+
+  /* Weather strip */
+  .weather{display:grid;grid-template-columns:repeat(5,1fr);gap:0;padding:14px 8px}
+  .day{text-align:center;padding:0 4px}
+  .day .d{font-size:11px;color:var(--muted);font-weight:600;margin-bottom:4px}
+  .day .ic{font-size:24px;line-height:1;margin:6px 0}
+  .day .hi{font-size:14px;font-weight:700}
+  .day .lo{font-size:12px;color:var(--muted)}
+  .day .r{font-size:10px;color:var(--primary);font-weight:600;margin-top:3px}
+
+  /* FX */
+  .fx{display:flex;align-items:center;gap:14px;padding:18px 16px}
+  .fx .left{flex:1}
+  .fx .label{font-size:12px;color:var(--muted);margin-bottom:2px}
+  .fx .val{font-size:24px;font-weight:700;letter-spacing:-.02em}
+  .fx .arrow{color:var(--primary);font-size:18px;font-weight:700}
+  .fx .right{flex:1;text-align:right}
+  .fx .right .val{color:var(--accent)}
+  .fx-rate{padding:0 16px 14px;font-size:11px;color:var(--muted)}
+
+  /* Booking */
+  .booking{padding:0;overflow:hidden}
+  .booking .item{display:flex;align-items:center;padding:14px 16px;border-bottom:1px solid var(--line);gap:14px}
+  .booking .item:last-child{border-bottom:none}
+  .booking .ico{width:40px;height:40px;border-radius:10px;background:#fef3c7;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
+  .booking .ico.ok{background:#d1fae5}
+  .booking .body{flex:1;min-width:0}
+  .booking .body .title{font-size:16px;font-weight:600;margin-bottom:2px}
+  .booking .body .meta{font-size:13px;color:var(--muted)}
+  .booking .pill{font-size:11px;font-weight:700;padding:4px 8px;border-radius:6px;background:var(--danger);color:#fff;letter-spacing:.02em}
+  .booking .pill.ok{background:var(--success)}
+
+  /* Itinerary */
+  .item-row{display:flex;gap:14px;padding:14px 16px;border-bottom:1px solid var(--line);align-items:center}
+  .item-row:last-child{border-bottom:none}
+  .item-row .time{min-width:54px;font-size:13px;font-weight:700;color:var(--primary);font-variant-numeric:tabular-nums}
+  .item-row .title{flex:1;font-size:15px;font-weight:500}
+  .item-row .title small{display:block;font-size:12px;color:var(--muted);font-weight:400;margin-top:2px}
+  .item-row .badge{font-size:11px;color:var(--muted);background:var(--bg);padding:3px 8px;border-radius:8px;font-weight:600}
+  .item-row.now{background:#eff6ff}
+  .item-row.now .time{color:var(--accent)}
+
+  /* CTA */
+  .cta{display:flex;gap:10px;margin-top:14px}
+  .cta button{flex:1;border:none;border-radius:12px;padding:14px;font-size:15px;font-weight:600;font-family:inherit;cursor:pointer}
+  .cta .pri{background:var(--primary);color:#fff}
+  .cta .sec{background:var(--card);color:var(--primary);box-shadow:0 0 0 1px var(--line)}
+
+  .colophon{padding:20px 4px;font-size:12px;color:var(--muted);text-align:center}
+  .palette{display:flex;justify-content:center;gap:8px;margin-top:8px}
+  .palette span{width:22px;height:22px;border-radius:6px;display:block;box-shadow:0 0 0 1px var(--line)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <a class="nav-back" href="./index.html">‹ 風格選擇</a>
+
+  <div class="hero">
+    <div class="label">DAY 1 · 5月1日 五</div>
+    <h1>Saigon Trip</h1>
+    <div class="clocks">
+      <div class="c"><span class="flag">🇻🇳</span><span class="t">09:50</span><span class="lbl">SGN</span></div>
+      <div class="c"><span class="flag">🇹🇼</span><span class="t">10:50</span><span class="lbl">TPE</span></div>
+    </div>
+  </div>
+
+  <h2>五日天氣</h2>
+  <div class="card weather">
+    <div class="day"><div class="d">5/1</div><div class="ic">⛅</div><div class="hi">33°</div><div class="lo">26°</div><div class="r">30%</div></div>
+    <div class="day"><div class="d">5/2</div><div class="ic">🌦️</div><div class="hi">32°</div><div class="lo">25°</div><div class="r">60%</div></div>
+    <div class="day"><div class="d">5/3</div><div class="ic">☀️</div><div class="hi">34°</div><div class="lo">26°</div><div class="r">20%</div></div>
+    <div class="day"><div class="d">5/4</div><div class="ic">⛅</div><div class="hi">33°</div><div class="lo">26°</div><div class="r">40%</div></div>
+    <div class="day"><div class="d">5/5</div><div class="ic">🌧️</div><div class="hi">31°</div><div class="lo">25°</div><div class="r">70%</div></div>
+  </div>
+
+  <h2>匯率換算</h2>
+  <div class="card" style="padding:0">
+    <div class="fx">
+      <div class="left">
+        <div class="label">VND</div>
+        <div class="val">100,000</div>
+      </div>
+      <span class="arrow">⇌</span>
+      <div class="right">
+        <div class="label">TWD</div>
+        <div class="val">$124</div>
+      </div>
+    </div>
+    <div class="fx-rate">1 TWD = 805 VND · 更新於 09:48</div>
+  </div>
+
+  <h2>必訂位</h2>
+  <div class="card booking">
+    <div class="item">
+      <div class="ico">🍜</div>
+      <div class="body">
+        <div class="title">An Cua Saigon</div>
+        <div class="meta">5/1 18:00 · Quận 1</div>
+      </div>
+      <span class="pill">未訂</span>
+    </div>
+    <div class="item">
+      <div class="ico">🥘</div>
+      <div class="body">
+        <div class="title">Nhà Tú</div>
+        <div class="meta">5/3 18:00 · 雞湯 / 紅燒肉招牌</div>
+      </div>
+      <span class="pill">未訂</span>
+    </div>
+    <div class="item">
+      <div class="ico ok">💆</div>
+      <div class="body">
+        <div class="title">Forest Spa</div>
+        <div class="meta">5/2 19:00 · 90 分鐘 spa 套裝</div>
+      </div>
+      <span class="pill ok">已訂</span>
+    </div>
+  </div>
+
+  <h2>Day 1 行程</h2>
+  <div class="card" style="padding:0">
+    <div class="item-row">
+      <div class="time">14:30</div>
+      <div class="title">VN 581 起飛<small>桃園 → SGN · 3h</small></div>
+    </div>
+    <div class="item-row">
+      <div class="time">17:35</div>
+      <div class="title">Tan Son Nhat 抵達<small>入境 / SIM / Grab</small></div>
+    </div>
+    <div class="item-row now">
+      <div class="time">18:30</div>
+      <div class="title">飯店 Check-in<small>Liberty Central Riverside</small></div>
+      <span class="badge">🚶 8m</span>
+    </div>
+    <div class="item-row">
+      <div class="time">19:00</div>
+      <div class="title">An Cua Saigon<small>晚餐 · 必訂位</small></div>
+    </div>
+    <div class="item-row">
+      <div class="time">20:30</div>
+      <div class="title">Saigon Opera House<small>路過拍照</small></div>
+      <span class="badge">🚶 5m</span>
+    </div>
+    <div class="item-row">
+      <div class="time">21:30</div>
+      <div class="title">Bitexco Tower 49F<small>夜景 · 200 k VND</small></div>
+    </div>
+  </div>
+
+  <div class="cta">
+    <button class="sec">📍 地圖</button>
+    <button class="pri">📅 看完整行程</button>
+  </div>
+
+  <div class="colophon">
+    SF Pro · iOS Travel app inspired
+    <div class="palette">
+      <span style="background:#ffffff"></span>
+      <span style="background:#2563eb"></span>
+      <span style="background:#f59e0b"></span>
+      <span style="background:#0f172a"></span>
+    </div>
+  </div>
+</div>
+</body>
+</html>

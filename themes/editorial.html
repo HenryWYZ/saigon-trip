@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>編輯雜誌風 — Saigon Trip Demo</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  :root{
+    --bg:#f5efe6; --paper:#fdf9f1; --ink:#2c2417; --muted:#7d6e54;
+    --sage:#7a8b6c; --gold:#b89554; --line:#d4c8b0;
+  }
+  body{font-family:Georgia,'Times New Roman','Songti TC','PMingLiU',serif;background:var(--bg);color:var(--ink);line-height:1.7;font-size:16px;min-height:100vh}
+  .page{max-width:760px;margin:0 auto;padding:32px 28px 64px;background:var(--paper);box-shadow:0 0 0 1px var(--line)}
+
+  /* nav back */
+  .nav-back{font-size:12px;letter-spacing:.15em;text-transform:uppercase;color:var(--muted);text-decoration:none;display:inline-block;margin-bottom:24px;border-bottom:1px solid var(--line);padding-bottom:4px}
+
+  /* masthead */
+  .mast{text-align:center;border-top:3px double var(--gold);border-bottom:1px solid var(--line);padding:24px 0;margin-bottom:28px;position:relative}
+  .mast .kicker{font-size:11px;letter-spacing:.4em;text-transform:uppercase;color:var(--gold);margin-bottom:10px}
+  .mast h1{font-size:42px;font-weight:400;font-style:italic;letter-spacing:.02em;line-height:1.1;margin-bottom:8px}
+  .mast .sub{font-size:14px;color:var(--muted);font-style:italic}
+  .clock{margin-top:14px;font-size:13px;color:var(--ink);letter-spacing:.1em}
+  .clock span{margin:0 10px}
+
+  /* drop cap intro */
+  .lede{font-size:17px;line-height:1.8;margin-bottom:32px;color:var(--ink)}
+  .lede::first-letter{font-size:54px;float:left;line-height:.85;margin:6px 8px 0 0;color:var(--sage);font-weight:700;font-family:'Didot','Bodoni 72',Georgia,serif}
+
+  /* section heading */
+  h2{font-size:13px;letter-spacing:.3em;text-transform:uppercase;color:var(--sage);font-weight:700;margin:36px 0 14px;padding-bottom:6px;border-bottom:1px solid var(--line);font-family:Georgia,serif}
+  h2::before{content:'§ ';color:var(--gold)}
+
+  /* weather row */
+  .weather{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:8px}
+  .day{text-align:center;border:1px solid var(--line);padding:12px 6px;background:var(--bg)}
+  .day .d{font-size:11px;letter-spacing:.15em;color:var(--muted);margin-bottom:6px}
+  .day .ic{font-size:22px;line-height:1;margin-bottom:6px}
+  .day .t{font-size:13px;color:var(--ink)}
+  .day .r{font-size:10px;color:var(--sage);margin-top:4px;font-style:italic}
+
+  /* fx */
+  .fx{display:flex;align-items:center;gap:16px;background:var(--bg);border:1px solid var(--line);padding:14px 18px;margin-top:8px;font-style:italic}
+  .fx-num{font-family:Georgia,serif;font-size:22px;color:var(--gold);font-weight:700}
+  .fx-eq{color:var(--muted);font-size:14px}
+  .fx-rate{margin-left:auto;font-size:12px;color:var(--muted)}
+
+  /* booking list */
+  .booking{margin-top:8px}
+  .booking li{list-style:none;padding:14px 0;border-bottom:1px solid var(--line);display:flex;align-items:baseline;gap:14px}
+  .booking li:last-child{border-bottom:none}
+  .booking .when{font-style:italic;color:var(--gold);font-size:14px;min-width:90px}
+  .booking .what{flex:1;font-size:16px}
+  .booking .what em{display:block;font-size:13px;color:var(--muted);margin-top:2px;font-style:normal}
+  .booking .status{font-size:11px;letter-spacing:.15em;text-transform:uppercase;color:var(--sage);border:1px solid var(--sage);padding:3px 8px}
+
+  /* itinerary */
+  .row{padding:16px 0;border-bottom:1px solid var(--line);display:grid;grid-template-columns:90px 1fr;gap:18px;align-items:start}
+  .row .t{font-style:italic;color:var(--gold);font-size:15px;letter-spacing:.05em}
+  .row .body strong{display:block;font-size:17px;margin-bottom:4px;font-weight:400;font-style:italic}
+  .row .body p{font-size:14px;color:var(--muted);line-height:1.6}
+  .row .body .tag{display:inline-block;font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:var(--sage);margin-top:4px}
+
+  /* footer */
+  .colophon{margin-top:40px;padding-top:20px;border-top:3px double var(--gold);text-align:center;font-size:12px;color:var(--muted);font-style:italic;letter-spacing:.05em}
+  .palette{display:flex;justify-content:center;gap:6px;margin-top:14px}
+  .palette span{width:24px;height:24px;border-radius:50%;display:block;border:1px solid rgba(0,0,0,.1)}
+</style>
+</head>
+<body>
+<div class="page">
+  <a class="nav-back" href="./index.html">← Style Picker</a>
+
+  <header class="mast">
+    <div class="kicker">— Voyage No. 01 — May MMXXVI —</div>
+    <h1>Saigon, en cinq jours</h1>
+    <div class="sub">A traveler's notebook · 胡志明五日</div>
+    <div class="clock"><span>🇻🇳 09:50</span>·<span>🇹🇼 10:50</span></div>
+  </header>
+
+  <p class="lede">五月一日，雨季的邊緣。我們從中山機場啟程，在 Saigon 的潮濕黃昏裡降落，把行李丟進飯店，便走向 Đồng Khởi 的法式殖民街區，赴 An Cua Saigon 的晚餐之約。這是一份按時間排序的旅程備忘 — 不為了追趕清單，而是讓記憶有跡可循。</p>
+
+  <h2>Météo · 五日天氣</h2>
+  <div class="weather">
+    <div class="day"><div class="d">5/1 五</div><div class="ic">⛅</div><div class="t">33°/26°</div><div class="r">rain 30%</div></div>
+    <div class="day"><div class="d">5/2 六</div><div class="ic">🌦️</div><div class="t">32°/25°</div><div class="r">rain 60%</div></div>
+    <div class="day"><div class="d">5/3 日</div><div class="ic">☀️</div><div class="t">34°/26°</div><div class="r">rain 20%</div></div>
+    <div class="day"><div class="d">5/4 一</div><div class="ic">⛅</div><div class="t">33°/26°</div><div class="r">rain 40%</div></div>
+    <div class="day"><div class="d">5/5 二</div><div class="ic">🌧️</div><div class="t">31°/25°</div><div class="r">rain 70%</div></div>
+  </div>
+
+  <h2>Change · 匯率</h2>
+  <div class="fx">
+    <span>100,000 VND</span>
+    <span class="fx-eq">≈</span>
+    <span class="fx-num">NT$ 124</span>
+    <span class="fx-rate">@ 1 TWD = 805 VND</span>
+  </div>
+
+  <h2>Reservations · 必訂位</h2>
+  <ul class="booking">
+    <li><span class="when">5/1 18:00</span><span class="what">An Cua Saigon<em>傳統越南菜 · Quận 1</em></span><span class="status">未訂</span></li>
+    <li><span class="when">5/3 18:00</span><span class="what">Nhà Tú<em>家常越南菜 · 雞湯紅燒肉招牌</em></span><span class="status">未訂</span></li>
+    <li><span class="when">5/2 19:00</span><span class="what">Forest Spa<em>spa 套裝 90 分鐘</em></span><span class="status">已訂</span></li>
+  </ul>
+
+  <h2>Jour I · 五月一日</h2>
+  <div class="row"><div class="t">14:00</div><div class="body"><strong>桃園機場啟程</strong><p>VN 581 起飛 14:30，預計 17:35 落地 SGN。</p></div></div>
+  <div class="row"><div class="t">17:35</div><div class="body"><strong>Tan Son Nhat 抵達</strong><p>入境、領 SIM、Grab Taxi 進市區。</p></div></div>
+  <div class="row"><div class="t">18:30</div><div class="body"><strong>Liberty Central Riverside</strong><p>飯店 Check-in，放好行李即出發。</p><span class="tag">walk 8 min →</span></div></div>
+  <div class="row"><div class="t">19:00</div><div class="body"><strong>An Cua Saigon</strong><p>必訂位 · 傳統越南菜 · 預估 750 k VND / 人。</p></div></div>
+  <div class="row"><div class="t">20:30</div><div class="body"><strong>Saigon Opera House</strong><p>路過拍照，Đồng Khởi 步行區夜景。</p></div></div>
+  <div class="row"><div class="t">21:30</div><div class="body"><strong>Bitexco Tower 49F</strong><p>Sky Deck 200 k VND，俯瞰胡志明夜景收尾。</p></div></div>
+
+  <footer class="colophon">
+    Set in Georgia & Didot. Printed in spirit on Saigon-cream stock.<br>
+    Palette · Cream · Sage · Bronze
+    <div class="palette">
+      <span style="background:#f5efe6"></span>
+      <span style="background:#7a8b6c"></span>
+      <span style="background:#b89554"></span>
+      <span style="background:#2c2417"></span>
+    </div>
+  </footer>
+</div>
+</body>
+</html>

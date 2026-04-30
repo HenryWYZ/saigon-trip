@@ -1,0 +1,171 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Tropical Pop — Saigon Trip Demo</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  :root{
+    --lime:#d6f37a; --pink:#ff3d8b; --blue:#1d4ed8;
+    --cream:#fef3c7; --black:#0a0a0a; --white:#fff;
+  }
+  body{font-family:'Helvetica Neue','Inter',-apple-system,'Microsoft JhengHei',sans-serif;background:var(--cream);color:var(--black);line-height:1.4;font-size:15px;font-weight:500;min-height:100vh;overflow-x:hidden}
+  .wrap{max-width:760px;margin:0 auto;padding:20px 16px 60px;position:relative}
+
+  /* dotted bg */
+  body::before{content:'';position:fixed;inset:0;background-image:radial-gradient(var(--black) 1px,transparent 1px);background-size:20px 20px;opacity:.06;pointer-events:none;z-index:0}
+  .wrap > *{position:relative;z-index:1}
+
+  .nav-back{display:inline-block;background:var(--black);color:var(--lime);text-decoration:none;padding:6px 14px;font-size:12px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;border-radius:20px;margin-bottom:18px;transform:rotate(-2deg)}
+
+  /* HERO */
+  .hero{background:var(--lime);border:3px solid var(--black);box-shadow:8px 8px 0 var(--black);padding:24px 22px;border-radius:8px;margin-bottom:22px;position:relative}
+  .hero .stamp{position:absolute;top:-12px;right:18px;background:var(--pink);color:var(--white);padding:6px 16px;font-size:13px;font-weight:900;letter-spacing:.1em;border:2px solid var(--black);transform:rotate(4deg);box-shadow:3px 3px 0 var(--black)}
+  .hero .kicker{font-size:13px;font-weight:800;letter-spacing:.2em;text-transform:uppercase;margin-bottom:6px}
+  .hero h1{font-size:64px;font-weight:900;line-height:.92;letter-spacing:-.04em;margin-bottom:14px;text-transform:uppercase}
+  .hero h1 .accent{color:var(--pink);font-style:italic}
+  .hero .tagline{font-size:16px;font-weight:600;background:var(--black);color:var(--lime);display:inline-block;padding:6px 12px;margin-bottom:14px}
+  .clocks{display:flex;gap:12px;margin-top:10px}
+  .clk{background:var(--black);color:var(--lime);padding:6px 12px;font-weight:800;font-size:14px;border-radius:4px;font-variant-numeric:tabular-nums;letter-spacing:.05em}
+
+  h2{font-size:28px;font-weight:900;text-transform:uppercase;letter-spacing:-.02em;margin:28px 0 14px;display:inline-block;background:var(--pink);color:var(--white);padding:4px 14px 4px 10px;transform:rotate(-1deg);box-shadow:4px 4px 0 var(--black)}
+
+  /* WEATHER */
+  .weather{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:8px}
+  .day{background:var(--white);border:3px solid var(--black);padding:10px 4px;text-align:center;box-shadow:4px 4px 0 var(--black);border-radius:6px}
+  .day:nth-child(odd){background:var(--lime)}
+  .day:nth-child(3){background:var(--pink);color:var(--white)}
+  .day .d{font-size:11px;font-weight:800;letter-spacing:.05em;margin-bottom:4px}
+  .day .ic{font-size:24px;line-height:1;margin:4px 0}
+  .day .t{font-size:13px;font-weight:800}
+  .day .r{font-size:10px;font-weight:700;margin-top:4px}
+
+  /* FX */
+  .fx{background:var(--blue);color:var(--white);border:3px solid var(--black);box-shadow:6px 6px 0 var(--black);border-radius:8px;padding:18px 20px;margin-bottom:8px;display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+  .fx .num{font-size:32px;font-weight:900;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+  .fx .arrow{font-size:26px;font-weight:900;color:var(--lime)}
+  .fx .num.alt{color:var(--lime)}
+  .fx .rate{margin-left:auto;font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;background:var(--black);padding:4px 8px;border-radius:4px}
+
+  /* BOOKING */
+  .booking{display:flex;flex-direction:column;gap:10px}
+  .booking .b{background:var(--white);border:3px solid var(--black);box-shadow:5px 5px 0 var(--black);border-radius:8px;padding:14px 16px;display:flex;align-items:center;gap:14px;position:relative}
+  .booking .b:nth-child(2){background:var(--lime);transform:rotate(.5deg)}
+  .booking .b:nth-child(3){transform:rotate(-.5deg)}
+  .booking .ico{font-size:32px;flex-shrink:0}
+  .booking .body{flex:1}
+  .booking .title{font-size:18px;font-weight:900;letter-spacing:-.01em}
+  .booking .meta{font-size:13px;font-weight:600;color:#444}
+  .booking .pill{font-size:11px;font-weight:900;background:var(--pink);color:var(--white);padding:4px 10px;letter-spacing:.1em;text-transform:uppercase;border:2px solid var(--black);transform:rotate(3deg);flex-shrink:0}
+  .booking .pill.ok{background:var(--lime);color:var(--black)}
+
+  /* DAY 1 */
+  .timeline{background:var(--white);border:3px solid var(--black);box-shadow:6px 6px 0 var(--black);border-radius:8px;padding:8px 0;overflow:hidden}
+  .row{display:flex;align-items:center;gap:14px;padding:14px 18px;border-bottom:2px dashed var(--black)}
+  .row:last-child{border-bottom:none}
+  .row .num{font-size:24px;font-weight:900;color:var(--pink);min-width:34px;font-variant-numeric:tabular-nums;line-height:1}
+  .row .time{font-size:13px;font-weight:800;background:var(--black);color:var(--lime);padding:3px 8px;border-radius:4px;font-variant-numeric:tabular-nums;flex-shrink:0}
+  .row .body{flex:1}
+  .row .title{font-size:16px;font-weight:800;letter-spacing:-.01em}
+  .row .sub{font-size:12px;font-weight:600;color:#666;margin-top:2px}
+  .row .badge{background:var(--blue);color:var(--white);font-size:11px;font-weight:800;padding:4px 8px;border-radius:4px;letter-spacing:.05em}
+
+  /* CTA */
+  .cta{display:flex;gap:10px;margin-top:18px}
+  .cta button{flex:1;border:3px solid var(--black);box-shadow:5px 5px 0 var(--black);background:var(--lime);color:var(--black);font-size:15px;font-weight:900;font-family:inherit;text-transform:uppercase;letter-spacing:.05em;padding:14px;cursor:pointer;border-radius:6px}
+  .cta button.alt{background:var(--pink);color:var(--white)}
+
+  /* footer */
+  .colophon{margin-top:26px;text-align:center;font-size:12px;font-weight:700;color:#666}
+  .palette{display:flex;justify-content:center;gap:8px;margin-top:8px}
+  .palette span{width:24px;height:24px;border:2px solid var(--black);border-radius:4px;display:block;box-shadow:2px 2px 0 var(--black)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <a class="nav-back" href="./index.html">← BACK</a>
+
+  <section class="hero">
+    <span class="stamp">DAY 01 / 05</span>
+    <div class="kicker">★ MAY 2026 — ISSUE 01 ★</div>
+    <h1>SAI<span class="accent">GON</span><br>FIVE!</h1>
+    <span class="tagline">胡志明・五日・暴走</span>
+    <div class="clocks">
+      <span class="clk">🇻🇳 09:50</span>
+      <span class="clk">🇹🇼 10:50</span>
+    </div>
+  </section>
+
+  <h2>WEATHER ☀</h2>
+  <div class="weather">
+    <div class="day"><div class="d">5/1 五</div><div class="ic">⛅</div><div class="t">33°/26°</div><div class="r">30%</div></div>
+    <div class="day"><div class="d">5/2 六</div><div class="ic">🌦️</div><div class="t">32°/25°</div><div class="r">60%</div></div>
+    <div class="day"><div class="d">5/3 日</div><div class="ic">☀️</div><div class="t">34°/26°</div><div class="r">20%</div></div>
+    <div class="day"><div class="d">5/4 一</div><div class="ic">⛅</div><div class="t">33°/26°</div><div class="r">40%</div></div>
+    <div class="day"><div class="d">5/5 二</div><div class="ic">🌧️</div><div class="t">31°/25°</div><div class="r">70%</div></div>
+  </div>
+
+  <h2>$ MONEY $</h2>
+  <div class="fx">
+    <span class="num">100K</span>
+    <span class="arrow">→</span>
+    <span class="num alt">NT$124</span>
+    <span class="rate">1 TWD = 805 VND</span>
+  </div>
+
+  <h2>必訂位 ⚠</h2>
+  <div class="booking">
+    <div class="b">
+      <span class="ico">🍜</span>
+      <div class="body">
+        <div class="title">AN CUA SAIGON</div>
+        <div class="meta">5/1 · 18:00 · Quận 1</div>
+      </div>
+      <span class="pill">CALL!!</span>
+    </div>
+    <div class="b">
+      <span class="ico">🥘</span>
+      <div class="body">
+        <div class="title">NHÀ TÚ</div>
+        <div class="meta">5/3 · 18:00 · 雞湯紅燒肉</div>
+      </div>
+      <span class="pill">CALL!!</span>
+    </div>
+    <div class="b">
+      <span class="ico">💆</span>
+      <div class="body">
+        <div class="title">FOREST SPA</div>
+        <div class="meta">5/2 · 19:00 · 90 mins</div>
+      </div>
+      <span class="pill ok">BOOKED</span>
+    </div>
+  </div>
+
+  <h2>DAY 1 →</h2>
+  <div class="timeline">
+    <div class="row"><span class="num">01</span><span class="time">14:30</span><div class="body"><div class="title">VN 581 起飛</div><div class="sub">桃園 → SGN</div></div></div>
+    <div class="row"><span class="num">02</span><span class="time">17:35</span><div class="body"><div class="title">SGN 抵達!</div><div class="sub">入境 / SIM / Grab</div></div></div>
+    <div class="row"><span class="num">03</span><span class="time">18:30</span><div class="body"><div class="title">Liberty Central Hotel</div><div class="sub">放行李→出發</div></div><span class="badge">🚶 8m</span></div>
+    <div class="row"><span class="num">04</span><span class="time">19:00</span><div class="body"><div class="title">An Cua Saigon 🔥</div><div class="sub">晚餐 · 750 k</div></div></div>
+    <div class="row"><span class="num">05</span><span class="time">20:30</span><div class="body"><div class="title">Opera House</div><div class="sub">夜拍</div></div><span class="badge">🚶 5m</span></div>
+    <div class="row"><span class="num">06</span><span class="time">21:30</span><div class="body"><div class="title">Bitexco 49F 🌃</div><div class="sub">200 k · 收尾</div></div></div>
+  </div>
+
+  <div class="cta">
+    <button>📍 MAP</button>
+    <button class="alt">📅 ALL 5 DAYS</button>
+  </div>
+
+  <div class="colophon">
+    Helvetica Bold · Riso-style print<br>
+    <div class="palette">
+      <span style="background:#d6f37a"></span>
+      <span style="background:#ff3d8b"></span>
+      <span style="background:#1d4ed8"></span>
+      <span style="background:#fef3c7"></span>
+    </div>
+  </div>
+</div>
+</body>
+</html>
