@@ -542,6 +542,7 @@
   const DAYS = ['2026-05-01', '2026-05-02', '2026-05-03', '2026-05-04', '2026-05-05'];
   const DAY_LABELS = { '2026-05-01': '5/1', '2026-05-02': '5/2', '2026-05-03': '5/3', '2026-05-04': '5/4', '2026-05-05': '5/5' };
   let spending = [];
+  let editingIdx = -1;
   try { spending = JSON.parse(localStorage.getItem(SPEND_KEY) || '[]'); } catch (e) {}
   function saveSpending() {
     try { localStorage.setItem(SPEND_KEY, JSON.stringify(spending)); } catch (e) {}
@@ -556,11 +557,24 @@
     const n = new Date();
     return n.getFullYear() + '-' + String(n.getMonth() + 1).padStart(2, '0') + '-' + String(n.getDate()).padStart(2, '0');
   }
+  function refreshSpendingDatalists() {
+    const cats = new Set(['🍜 餐', '🚕 交通', '🛍️ 購物', '🏛️ 景點', '💆 Spa', '☕ 咖啡', '🍺 酒吧', '📌 其他']);
+    const payers = new Set(['我', '同伴', '共付']);
+    spending.forEach((e) => {
+      if (e.category) cats.add(e.category);
+      if (e.payer) payers.add(e.payer);
+    });
+    const cl = document.getElementById('sp-cat-list');
+    const pl = document.getElementById('sp-payer-list');
+    if (cl) cl.innerHTML = Array.from(cats).map((c) => '<option value="' + escapeHtml(c) + '"></option>').join('');
+    if (pl) pl.innerHTML = Array.from(payers).map((p) => '<option value="' + escapeHtml(p) + '"></option>').join('');
+  }
   function renderSpending() {
     const summary = document.getElementById('spending-summary');
     const totals = document.getElementById('spending-totals');
     const list = document.getElementById('spending-list');
     if (!summary || !totals || !list) return;
+    refreshSpendingDatalists();
     const today = todayStr();
     const dayTot = {};
     DAYS.forEach((d) => { dayTot[d] = 0; });
@@ -568,7 +582,10 @@
     summary.innerHTML = DAYS.map((d) => {
       const v = dayTot[d];
       const cls = d === today ? ' today' : '';
-      return '<div class="day-total' + cls + '"><div class="label">' + DAY_LABELS[d] + '</div><div class="value">' + (v ? fmtVnd(v) : '–') + '</div></div>';
+      const twdLine = (v && rate)
+        ? '<div class="value-twd">(NT$ ' + Math.round(v * rate).toLocaleString('en-US') + ')</div>'
+        : '';
+      return '<div class="day-total' + cls + '"><div class="label">' + DAY_LABELS[d] + '</div><div class="value">' + (v ? fmtVnd(v) : '–') + '</div>' + twdLine + '</div>';
     }).join('');
     const total = spending.reduce((s, e) => s + (+e.amount || 0), 0);
     const myShare = spending.reduce((s, e) => {
@@ -595,7 +612,8 @@
           const splitInfo = split > 1
             ? '<span class="sp-split-info">÷ ' + split + ' 人 → ' + fmtVnd(Math.round(amt / split)) + ' VND' + vndToTwdLabel(amt / split) + '／人</span>'
             : '';
-          return '<li>' +
+          const editingCls = realIdx === editingIdx ? ' sp-editing' : '';
+          return '<li class="' + editingCls.trim() + '">' +
             '<div class="sp-line1">' +
               '<span>' + DAY_LABELS[e.day] + '</span>' +
               '<span>' + escapeHtml(e.category) + '</span>' +
@@ -607,16 +625,58 @@
               splitInfo +
               noteHtml +
             '</div>' +
-            '<button class="delete" data-idx="' + realIdx + '" aria-label="刪除">✕</button>' +
+            '<div class="sp-actions">' +
+              '<button class="edit" data-idx="' + realIdx + '" aria-label="編輯" title="編輯">✏️</button>' +
+              '<button class="delete" data-idx="' + realIdx + '" aria-label="刪除" title="刪除">✕</button>' +
+            '</div>' +
           '</li>';
         }).join('');
     list.querySelectorAll('button.delete').forEach((b) => {
       b.addEventListener('click', () => {
-        spending.splice(+b.dataset.idx, 1);
+        const idx = +b.dataset.idx;
+        // If deleting the row currently being edited, exit edit mode
+        if (idx === editingIdx) exitSpendingEditMode();
+        else if (editingIdx >= 0 && idx < editingIdx) editingIdx -= 1;
+        spending.splice(idx, 1);
         saveSpending();
         renderSpending();
       });
     });
+    list.querySelectorAll('button.edit').forEach((b) => {
+      b.addEventListener('click', () => enterSpendingEditMode(+b.dataset.idx));
+    });
+  }
+  function enterSpendingEditMode(idx) {
+    const e = spending[idx];
+    if (!e) return;
+    editingIdx = idx;
+    const setVal = (id, v) => { const el = document.getElementById(id); if (el) el.value = v; };
+    setVal('sp-amount',   e.amount);
+    setVal('sp-category', e.category || '');
+    setVal('sp-day',      e.day);
+    setVal('sp-payer',    e.payer || '我');
+    setVal('sp-split',    e.splitCount || 1);
+    setVal('sp-note',     e.note || '');
+    const submitBtn = document.getElementById('sp-submit');
+    if (submitBtn) {
+      submitBtn.textContent = '💾 儲存修改';
+      submitBtn.classList.add('editing');
+    }
+    const cancelBtn = document.getElementById('sp-cancel-edit');
+    if (cancelBtn) cancelBtn.hidden = false;
+    const formEl = document.getElementById('spending-form');
+    if (formEl && formEl.scrollIntoView) formEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    renderSpending();
+  }
+  function exitSpendingEditMode() {
+    editingIdx = -1;
+    const submitBtn = document.getElementById('sp-submit');
+    if (submitBtn) {
+      submitBtn.textContent = '✚ 新增記錄';
+      submitBtn.classList.remove('editing');
+    }
+    const cancelBtn = document.getElementById('sp-cancel-edit');
+    if (cancelBtn) cancelBtn.hidden = true;
   }
   const spForm = document.getElementById('spending-form');
   if (spForm) {
@@ -627,9 +687,9 @@
       ev.preventDefault();
       const amtEl = document.getElementById('sp-amount');
       const amt = parseInt(amtEl.value, 10);
-      const cat = document.getElementById('sp-category').value;
+      const cat = document.getElementById('sp-category').value.trim().slice(0, 20);
       const day = document.getElementById('sp-day').value;
-      const payer = document.getElementById('sp-payer').value;
+      const payer = (document.getElementById('sp-payer').value.trim() || '我').slice(0, 20);
       const splitEl = document.getElementById('sp-split');
       let split = parseInt(splitEl.value, 10);
       if (!split || split < 1) split = 1;
@@ -637,12 +697,28 @@
       const noteEl = document.getElementById('sp-note');
       const note = noteEl ? noteEl.value.trim().slice(0, 60) : '';
       if (!amt || amt <= 0) return;
-      spending.push({ amount: amt, category: cat, day: day, payer: payer, splitCount: split, note: note, ts: Date.now() });
+      if (!cat) return;
+      if (editingIdx >= 0 && spending[editingIdx]) {
+        const origTs = spending[editingIdx].ts;
+        spending[editingIdx] = { amount: amt, category: cat, day: day, payer: payer, splitCount: split, note: note, ts: origTs };
+        exitSpendingEditMode();
+      } else {
+        spending.push({ amount: amt, category: cat, day: day, payer: payer, splitCount: split, note: note, ts: Date.now() });
+      }
       saveSpending();
       amtEl.value = '';
       if (noteEl) noteEl.value = '';
       renderSpending();
     });
+    const cancelBtn = document.getElementById('sp-cancel-edit');
+    if (cancelBtn) {
+      cancelBtn.addEventListener('click', () => {
+        exitSpendingEditMode();
+        document.getElementById('sp-amount').value = '';
+        const ne = document.getElementById('sp-note'); if (ne) ne.value = '';
+        renderSpending();
+      });
+    }
     renderSpending();
   }
 

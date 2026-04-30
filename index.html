@@ -713,27 +713,60 @@
     gap: 6px;
   }
   .sp-row-1 { grid-template-columns: 2fr 1.2fr 0.8fr; }
-  .sp-row-2 { grid-template-columns: 1.6fr 70px auto auto; align-items: center; }
-  .sp-split-label { font-size: 12px; color: #666; padding: 0 2px; }
-  .spending-form input, .spending-form select, .spending-form button {
+  .sp-row-2 { grid-template-columns: 1fr 80px auto; align-items: center; }
+  .sp-split-label { font-size: 13px; color: #666; padding: 0 4px; white-space: nowrap; }
+  .spending-form input, .spending-form select {
     padding: 8px 10px;
     font-size: 14px;
     border: 1.5px solid #f3d2c1;
-    border-radius: 4px;
+    border-radius: 6px;
     font-family: inherit;
     background: #fef6e4;
     color: #001858;
   }
+  .spending-form input:focus, .spending-form select:focus {
+    outline: none;
+    border-color: #4a8050;
+    background: #fff;
+  }
   .spending-form #sp-split { text-align: center; padding: 8px 4px; }
   .spending-form .sp-note { width: 100%; }
-  .spending-form button {
-    background: #4a8050;
-    color: white;
-    border-color: #4a8050;
-    font-weight: bold;
+  .spending-form .sp-submit {
+    width: 100%;
+    margin-top: 4px;
+    padding: 12px 16px;
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    color: #fff;
+    background: linear-gradient(135deg, #4a8050 0%, #5fa067 100%);
+    border: none;
+    border-radius: 10px;
+    box-shadow: 0 2px 6px rgba(74, 128, 80, 0.25);
     cursor: pointer;
+    font-family: inherit;
+    transition: transform 0.1s ease, box-shadow 0.15s ease, filter 0.15s ease;
   }
-  .spending-form button:hover { background: #3d6c43; }
+  .spending-form .sp-submit:hover { box-shadow: 0 4px 12px rgba(74, 128, 80, 0.4); filter: brightness(1.05); }
+  .spending-form .sp-submit:active { transform: translateY(1px) scale(0.99); box-shadow: 0 1px 3px rgba(74, 128, 80, 0.3); }
+  .spending-form .sp-submit.editing {
+    background: linear-gradient(135deg, #c46e2c 0%, #d6843e 100%);
+    box-shadow: 0 2px 6px rgba(196, 110, 44, 0.3);
+  }
+  .spending-form .sp-submit.editing:hover { box-shadow: 0 4px 12px rgba(196, 110, 44, 0.45); }
+  .spending-form .sp-cancel {
+    width: 100%;
+    margin-top: 4px;
+    padding: 8px 12px;
+    font-size: 13px;
+    color: #888;
+    background: transparent;
+    border: 1px solid #f3d2c1;
+    border-radius: 6px;
+    cursor: pointer;
+    font-family: inherit;
+  }
+  .spending-form .sp-cancel:hover { background: #fef6e4; color: #444; }
   .spending-summary {
     display: grid;
     grid-template-columns: repeat(5, 1fr);
@@ -752,6 +785,7 @@
   .day-total.today { border-color: #4a8050; }
   .day-total .label { color: #666; font-size: 10px; }
   .day-total .value { font-weight: bold; font-size: 12px; margin-top: 2px; }
+  .day-total .value-twd { color: #4a8050; font-size: 10px; margin-top: 1px; font-weight: 600; }
   .spending-totals {
     background: #f3f8f4;
     padding: 8px 12px;
@@ -808,21 +842,42 @@
     font-size: 12px;
     font-style: italic;
   }
-  .spending-list .delete {
+  .spending-list .sp-actions {
     grid-row: 1 / 3;
     align-self: center;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+  .spending-list .edit, .spending-list .delete {
     background: none;
     border: none;
-    color: #d33;
-    font-size: 16px;
     cursor: pointer;
-    padding: 0 6px;
+    padding: 3px 6px;
+    line-height: 1;
+    border-radius: 4px;
+  }
+  .spending-list .edit { color: #4a8050; font-size: 14px; }
+  .spending-list .edit:hover { background: #f3f8f4; }
+  .spending-list .delete { color: #d33; font-size: 16px; }
+  .spending-list .delete:hover { background: #fee8e8; }
+  .spending-list li.sp-editing {
+    background: #fff8d8;
+    border-left: 3px solid #c46e2c;
+    padding-left: 7px;
   }
   body.dark .spending-form input, body.dark .spending-form select { background: #2a3550; border-color: #3d4a6e; color: #d0d8ee; }
+  body.dark .spending-form input:focus, body.dark .spending-form select:focus { background: #2f3a5a; border-color: #5fa067; }
   body.dark .day-total { background: #1e2a4a; color: #d0d8ee; }
+  body.dark .day-total .value-twd { color: #88c894; }
   body.dark .day-total.over { background: #4a2a2a; color: #ff8888; }
   body.dark .spending-totals { background: #1e2a4a; color: #d0d8ee; }
   body.dark .spending-list li { border-bottom-color: #3d4a6e; }
+  body.dark .spending-list li.sp-editing { background: #3a2f1a; border-left-color: #d6843e; }
+  body.dark .spending-list .edit:hover { background: #2a3550; }
+  body.dark .spending-list .delete:hover { background: #4a2a2a; }
+  body.dark .spending-form .sp-cancel { border-color: #3d4a6e; color: #98a4be; }
+  body.dark .spending-form .sp-cancel:hover { background: #2a3550; color: #d0d8ee; }
   body.dark .spending-list .sp-note-tag { color: #88c894; }
   body.dark .spending-list .sp-twd { color: #88c894; }
   body.dark .spending-list .sp-payer { background: #2a3550; border-color: #3d4a6e; color: #88c894; }
@@ -975,14 +1030,7 @@
     <form id="spending-form" autocomplete="off">
       <div class="sp-row sp-row-1">
         <input type="number" id="sp-amount" placeholder="金額 VND" min="1" step="1" inputmode="numeric" required>
-        <select id="sp-category" required>
-          <option value="餐">🍜 餐</option>
-          <option value="交通">🚕 交通</option>
-          <option value="購物">🛍️ 購物</option>
-          <option value="景點">🏛️ 景點</option>
-          <option value="Spa">💆 Spa</option>
-          <option value="其他">📌 其他</option>
-        </select>
+        <input type="text" id="sp-category" list="sp-cat-list" placeholder="類別（自訂）" maxlength="20" required>
         <select id="sp-day" required>
           <option value="2026-05-01">5/1</option>
           <option value="2026-05-02">5/2</option>
@@ -992,16 +1040,28 @@
         </select>
       </div>
       <div class="sp-row sp-row-2">
-        <select id="sp-payer" required aria-label="付款人">
-          <option value="我">👤 我付</option>
-          <option value="同伴">👥 同伴付</option>
-          <option value="共付">💰 共付</option>
-        </select>
+        <input type="text" id="sp-payer" list="sp-payer-list" placeholder="誰付的" maxlength="20" value="我" required aria-label="付款人">
         <input type="number" id="sp-split" min="1" max="20" step="1" value="1" inputmode="numeric" aria-label="分攤人數" title="分攤人數">
         <span class="sp-split-label" aria-hidden="true">人分</span>
-        <button type="submit">+ 加</button>
       </div>
       <input type="text" id="sp-note" class="sp-note" placeholder="備註 (店名 / 品項，選填)" maxlength="60">
+      <button type="submit" class="sp-submit" id="sp-submit">✚ 新增記錄</button>
+      <button type="button" class="sp-cancel" id="sp-cancel-edit" hidden>取消編輯</button>
+      <datalist id="sp-cat-list">
+        <option value="🍜 餐"></option>
+        <option value="🚕 交通"></option>
+        <option value="🛍️ 購物"></option>
+        <option value="🏛️ 景點"></option>
+        <option value="💆 Spa"></option>
+        <option value="☕ 咖啡"></option>
+        <option value="🍺 酒吧"></option>
+        <option value="📌 其他"></option>
+      </datalist>
+      <datalist id="sp-payer-list">
+        <option value="我"></option>
+        <option value="同伴"></option>
+        <option value="共付"></option>
+      </datalist>
     </form>
     <div class="spending-summary" id="spending-summary"></div>
     <div class="spending-totals" id="spending-totals"></div>
