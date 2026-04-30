@@ -487,4 +487,107 @@
   }
   updateCountdowns();
   setInterval(updateCountdowns, 60000);
+
+  // === Per-row notes (📝 textarea, persist in localStorage) ===
+  const NOTES_KEY = 'saigon-trip-notes-v1';
+  let notes = {};
+  try { notes = JSON.parse(localStorage.getItem(NOTES_KEY) || '{}'); } catch (e) {}
+  function saveNotes() {
+    try { localStorage.setItem(NOTES_KEY, JSON.stringify(notes)); } catch (e) {}
+  }
+  document.querySelectorAll('details[data-date] table tr').forEach((tr, idx) => {
+    const tds = tr.children;
+    if (tds.length < 2) return;
+    const wrap = document.createElement('details');
+    wrap.className = 'row-note' + (notes[idx] ? ' has-note' : '');
+    const sum = document.createElement('summary');
+    sum.textContent = '📝';
+    sum.title = '備註';
+    const ta = document.createElement('textarea');
+    ta.placeholder = '寫點什麼…（自動儲存）';
+    ta.value = notes[idx] || '';
+    ta.addEventListener('input', () => {
+      const v = ta.value.trim();
+      if (v) { notes[idx] = ta.value; wrap.classList.add('has-note'); }
+      else { delete notes[idx]; wrap.classList.remove('has-note'); }
+      saveNotes();
+    });
+    wrap.appendChild(sum);
+    wrap.appendChild(ta);
+    tds[1].appendChild(wrap);
+  });
+
+  // === Spending tracker ===
+  const SPEND_KEY = 'saigon-trip-spending-v1';
+  const DAILY_BUDGET = 3000000; // 3M VND/day
+  const TOTAL_BUDGET = DAILY_BUDGET * 5;
+  const DAYS = ['2026-05-01', '2026-05-02', '2026-05-03', '2026-05-04', '2026-05-05'];
+  const DAY_LABELS = { '2026-05-01': '5/1', '2026-05-02': '5/2', '2026-05-03': '5/3', '2026-05-04': '5/4', '2026-05-05': '5/5' };
+  let spending = [];
+  try { spending = JSON.parse(localStorage.getItem(SPEND_KEY) || '[]'); } catch (e) {}
+  function saveSpending() {
+    try { localStorage.setItem(SPEND_KEY, JSON.stringify(spending)); } catch (e) {}
+  }
+  function fmtVnd(n) { return n.toLocaleString('en-US'); }
+  function todayStr() {
+    const n = new Date();
+    return n.getFullYear() + '-' + String(n.getMonth() + 1).padStart(2, '0') + '-' + String(n.getDate()).padStart(2, '0');
+  }
+  function renderSpending() {
+    const summary = document.getElementById('spending-summary');
+    const totals = document.getElementById('spending-totals');
+    const list = document.getElementById('spending-list');
+    if (!summary || !totals || !list) return;
+    const today = todayStr();
+    // per-day totals
+    const dayTot = {};
+    DAYS.forEach((d) => { dayTot[d] = 0; });
+    spending.forEach((e) => { if (dayTot[e.day] != null) dayTot[e.day] += +e.amount; });
+    summary.innerHTML = DAYS.map((d) => {
+      const v = dayTot[d];
+      const cls = (d === today ? ' today' : '') + (v > DAILY_BUDGET ? ' over' : '');
+      return '<div class="day-total' + cls + '"><div class="label">' + DAY_LABELS[d] + '</div><div class="value">' + (v ? fmtVnd(v) : '–') + '</div></div>';
+    }).join('');
+    const total = spending.reduce((s, e) => s + (+e.amount || 0), 0);
+    const remain = TOTAL_BUDGET - total;
+    const remainTwd = rate ? Math.round(remain * rate) : null;
+    const totalTwd = rate ? Math.round(total * rate) : null;
+    totals.innerHTML =
+      '<strong>5 日累計：</strong>' + fmtVnd(total) + ' VND' + (totalTwd != null ? ' (≈ NT$ ' + totalTwd.toLocaleString('en-US') + ')' : '') +
+      '｜<strong>剩餘預算：</strong><span style="color:' + (remain < 0 ? '#d33' : '#4a8050') + '">' + fmtVnd(remain) + ' VND' +
+      (remainTwd != null ? ' (NT$ ' + remainTwd.toLocaleString('en-US') + ')' : '') + '</span>';
+    list.innerHTML = spending.length === 0
+      ? '<li style="justify-content:center;color:#888;">尚無記錄。新增第一筆 ↑</li>'
+      : spending.slice().reverse().map((e, ridx) => {
+          const realIdx = spending.length - 1 - ridx;
+          return '<li><span>' + DAY_LABELS[e.day] + '｜' + escapeHtml(e.category) + '｜' + fmtVnd(+e.amount) + ' VND</span>' +
+                 '<button class="delete" data-idx="' + realIdx + '" aria-label="刪除">✕</button></li>';
+        }).join('');
+    list.querySelectorAll('button.delete').forEach((b) => {
+      b.addEventListener('click', () => {
+        spending.splice(+b.dataset.idx, 1);
+        saveSpending();
+        renderSpending();
+      });
+    });
+  }
+  const spForm = document.getElementById('spending-form');
+  if (spForm) {
+    // Default day to today if in trip range
+    const tdy = todayStr();
+    const dayEl = document.getElementById('sp-day');
+    if (dayEl && DAYS.indexOf(tdy) !== -1) dayEl.value = tdy;
+    spForm.addEventListener('submit', (ev) => {
+      ev.preventDefault();
+      const amt = parseInt(document.getElementById('sp-amount').value, 10);
+      const cat = document.getElementById('sp-category').value;
+      const day = document.getElementById('sp-day').value;
+      if (!amt || amt <= 0) return;
+      spending.push({ amount: amt, category: cat, day: day, ts: Date.now() });
+      saveSpending();
+      document.getElementById('sp-amount').value = '';
+      renderSpending();
+    });
+    renderSpending();
+  }
 })();
