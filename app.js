@@ -223,7 +223,14 @@
       if (c >= 95) return '⛈️';
       return '☁️';
     };
-    const dayNames = ['5/1 四', '5/2 五', '5/3 六', '5/4 日', '5/5 一'];
+    const ZH_WEEKDAYS = ['日', '一', '二', '三', '四', '五', '六'];
+    function weekdayLabel(isoDate) {
+      const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(isoDate));
+      if (!m) return escapeHtml(String(isoDate).slice(5));
+      const y = +m[1], mo = +m[2], d = +m[3];
+      const dow = new Date(y, mo - 1, d).getDay();
+      return mo + '/' + d + ' ' + ZH_WEEKDAYS[dow];
+    }
 
     function render(daily, cached) {
       if (!daily || !daily.time) { box.textContent = '無天氣資料'; return; }
@@ -234,7 +241,7 @@
         const rain = daily.precipitation_probability_max[i] || 0;
         html +=
           '<div class="weather-day">' +
-            '<div class="wd-name">' + (dayNames[i] || escapeHtml(String(daily.time[i]).slice(5))) + '</div>' +
+            '<div class="wd-name">' + weekdayLabel(daily.time[i]) + '</div>' +
             '<div class="wd-emoji">' + emojiFor(daily.weather_code[i]) + '</div>' +
             '<div class="wd-temp">' + tmin + '° / ' + tmax + '°</div>' +
             '<div class="wd-rain">💧' + rain + '%</div>' +
