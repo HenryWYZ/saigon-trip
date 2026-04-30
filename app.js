@@ -172,6 +172,9 @@
     if (btn) btn.addEventListener('click', fetchRate);
     if (fxVnd && fxVnd.value) onVndInput({ target: fxVnd });
     else if (fxTwd && fxTwd.value) onTwdInput({ target: fxTwd });
+    if (typeof renderSpending === 'function' && document.getElementById('spending-list')) {
+      try { renderSpending(); } catch (e) {}
+    }
   }
 
   async function fetchRate() {
@@ -536,8 +539,6 @@
 
   // === Spending tracker ===
   const SPEND_KEY = 'saigon-trip-spending-v1';
-  const DAILY_BUDGET = 3000000; // 3M VND/day
-  const TOTAL_BUDGET = DAILY_BUDGET * 5;
   const DAYS = ['2026-05-01', '2026-05-02', '2026-05-03', '2026-05-04', '2026-05-05'];
   const DAY_LABELS = { '2026-05-01': '5/1', '2026-05-02': '5/2', '2026-05-03': '5/3', '2026-05-04': '5/4', '2026-05-05': '5/5' };
   let spending = [];
@@ -546,6 +547,11 @@
     try { localStorage.setItem(SPEND_KEY, JSON.stringify(spending)); } catch (e) {}
   }
   function fmtVnd(n) { return n.toLocaleString('en-US'); }
+  function vndToTwdLabel(vnd) {
+    if (rate == null || !vnd) return '';
+    const twd = Math.round(vnd * rate);
+    return ' ≈ NT$ ' + twd.toLocaleString('en-US');
+  }
   function todayStr() {
     const n = new Date();
     return n.getFullYear() + '-' + String(n.getMonth() + 1).padStart(2, '0') + '-' + String(n.getDate()).padStart(2, '0');
@@ -556,30 +562,53 @@
     const list = document.getElementById('spending-list');
     if (!summary || !totals || !list) return;
     const today = todayStr();
-    // per-day totals
     const dayTot = {};
     DAYS.forEach((d) => { dayTot[d] = 0; });
     spending.forEach((e) => { if (dayTot[e.day] != null) dayTot[e.day] += +e.amount; });
     summary.innerHTML = DAYS.map((d) => {
       const v = dayTot[d];
-      const cls = (d === today ? ' today' : '') + (v > DAILY_BUDGET ? ' over' : '');
+      const cls = d === today ? ' today' : '';
       return '<div class="day-total' + cls + '"><div class="label">' + DAY_LABELS[d] + '</div><div class="value">' + (v ? fmtVnd(v) : '–') + '</div></div>';
     }).join('');
     const total = spending.reduce((s, e) => s + (+e.amount || 0), 0);
-    const remain = TOTAL_BUDGET - total;
-    const remainTwd = rate ? Math.round(remain * rate) : null;
+    const myShare = spending.reduce((s, e) => {
+      const amt = +e.amount || 0;
+      const split = Math.max(1, +e.splitCount || 1);
+      const payer = e.payer || '我';
+      // 我的份額：自己付 → 全付出後攤回 amt/split；同伴付 → 我欠 amt/split；共付 → amt/split
+      return s + amt / split;
+    }, 0);
     const totalTwd = rate ? Math.round(total * rate) : null;
+    const myShareTwd = rate ? Math.round(myShare * rate) : null;
     totals.innerHTML =
-      '<strong>5 日累計：</strong>' + fmtVnd(total) + ' VND' + (totalTwd != null ? ' (≈ NT$ ' + totalTwd.toLocaleString('en-US') + ')' : '') +
-      '｜<strong>剩餘預算：</strong><span style="color:' + (remain < 0 ? '#d33' : '#4a8050') + '">' + fmtVnd(remain) + ' VND' +
-      (remainTwd != null ? ' (NT$ ' + remainTwd.toLocaleString('en-US') + ')' : '') + '</span>';
+      '<strong>5 日累計：</strong>' + fmtVnd(total) + ' VND' + (totalTwd != null ? ' (NT$ ' + totalTwd.toLocaleString('en-US') + ')' : '') +
+      '｜<strong>我的份額：</strong>' + fmtVnd(Math.round(myShare)) + ' VND' + (myShareTwd != null ? ' (NT$ ' + myShareTwd.toLocaleString('en-US') + ')' : '');
     list.innerHTML = spending.length === 0
-      ? '<li style="justify-content:center;color:#888;">尚無記錄。新增第一筆 ↑</li>'
-      : spending.slice().reverse().map((e, ridx) => {
+      ? '<li style="grid-template-columns:1fr;justify-items:center;color:#888;">尚無記錄。新增第一筆 ↑</li>'
+      : spending.slice().reverse().map((_, ridx) => {
           const realIdx = spending.length - 1 - ridx;
+          const e = spending[realIdx];
+          const amt = +e.amount || 0;
+          const split = Math.max(1, +e.splitCount || 1);
+          const payer = e.payer || '我';
           const noteHtml = e.note ? '<span class="sp-note-tag">＃' + escapeHtml(e.note) + '</span>' : '';
-          return '<li><span>' + DAY_LABELS[e.day] + '｜' + escapeHtml(e.category) + '｜' + fmtVnd(+e.amount) + ' VND' + noteHtml + '</span>' +
-                 '<button class="delete" data-idx="' + realIdx + '" aria-label="刪除">✕</button></li>';
+          const splitInfo = split > 1
+            ? '<span class="sp-split-info">÷ ' + split + ' 人 → ' + fmtVnd(Math.round(amt / split)) + ' VND' + vndToTwdLabel(amt / split) + '／人</span>'
+            : '';
+          return '<li>' +
+            '<div class="sp-line1">' +
+              '<span>' + DAY_LABELS[e.day] + '</span>' +
+              '<span>' + escapeHtml(e.category) + '</span>' +
+              '<span>' + fmtVnd(amt) + ' VND</span>' +
+              '<span class="sp-twd">' + (vndToTwdLabel(amt) || '') + '</span>' +
+            '</div>' +
+            '<div class="sp-line2">' +
+              '<span class="sp-payer">' + escapeHtml(payer) + '付</span>' +
+              splitInfo +
+              noteHtml +
+            '</div>' +
+            '<button class="delete" data-idx="' + realIdx + '" aria-label="刪除">✕</button>' +
+          '</li>';
         }).join('');
     list.querySelectorAll('button.delete').forEach((b) => {
       b.addEventListener('click', () => {
@@ -591,21 +620,26 @@
   }
   const spForm = document.getElementById('spending-form');
   if (spForm) {
-    // Default day to today if in trip range
     const tdy = todayStr();
     const dayEl = document.getElementById('sp-day');
     if (dayEl && DAYS.indexOf(tdy) !== -1) dayEl.value = tdy;
     spForm.addEventListener('submit', (ev) => {
       ev.preventDefault();
-      const amt = parseInt(document.getElementById('sp-amount').value, 10);
+      const amtEl = document.getElementById('sp-amount');
+      const amt = parseInt(amtEl.value, 10);
       const cat = document.getElementById('sp-category').value;
       const day = document.getElementById('sp-day').value;
+      const payer = document.getElementById('sp-payer').value;
+      const splitEl = document.getElementById('sp-split');
+      let split = parseInt(splitEl.value, 10);
+      if (!split || split < 1) split = 1;
+      if (split > 20) split = 20;
       const noteEl = document.getElementById('sp-note');
       const note = noteEl ? noteEl.value.trim().slice(0, 60) : '';
       if (!amt || amt <= 0) return;
-      spending.push({ amount: amt, category: cat, day: day, note: note, ts: Date.now() });
+      spending.push({ amount: amt, category: cat, day: day, payer: payer, splitCount: split, note: note, ts: Date.now() });
       saveSpending();
-      document.getElementById('sp-amount').value = '';
+      amtEl.value = '';
       if (noteEl) noteEl.value = '';
       renderSpending();
     });

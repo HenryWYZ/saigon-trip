@@ -703,11 +703,18 @@
   .spending-tracker { border-left-color: #4a8050; }
   .spending-tracker > summary { color: #4a8050; }
   .spending-form {
-    display: grid;
-    grid-template-columns: 2fr 1fr 1fr auto;
+    display: flex;
+    flex-direction: column;
     gap: 6px;
     margin-bottom: 10px;
   }
+  .sp-row {
+    display: grid;
+    gap: 6px;
+  }
+  .sp-row-1 { grid-template-columns: 2fr 1.2fr 0.8fr; }
+  .sp-row-2 { grid-template-columns: 1.6fr 70px auto auto; align-items: center; }
+  .sp-split-label { font-size: 12px; color: #666; padding: 0 2px; }
   .spending-form input, .spending-form select, .spending-form button {
     padding: 8px 10px;
     font-size: 14px;
@@ -717,7 +724,8 @@
     background: #fef6e4;
     color: #001858;
   }
-  .spending-form .sp-note { grid-column: 1 / -1; }
+  .spending-form #sp-split { text-align: center; padding: 8px 4px; }
+  .spending-form .sp-note { width: 100%; }
   .spending-form button {
     background: #4a8050;
     color: white;
@@ -756,24 +764,53 @@
     list-style: none;
     padding: 0;
     margin-top: 8px;
-    max-height: 240px;
+    max-height: 280px;
     overflow-y: auto;
   }
   .spending-list li {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 6px 10px;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 2px 8px;
+    padding: 8px 10px;
     border-bottom: 1px solid #f3d2c1;
     font-size: 13px;
+    align-items: start;
   }
+  .spending-list .sp-line1 {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px 8px;
+    align-items: baseline;
+  }
+  .spending-list .sp-line2 {
+    grid-column: 1 / 2;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px 10px;
+    font-size: 12px;
+    color: #666;
+  }
+  .spending-list .sp-twd {
+    color: #4a8050;
+    font-weight: 600;
+  }
+  .spending-list .sp-payer {
+    background: #fef6e4;
+    padding: 1px 6px;
+    border-radius: 3px;
+    border: 1px solid #f3d2c1;
+    color: #4a8050;
+    font-weight: 600;
+  }
+  .spending-list .sp-split-info { color: #888; }
   .spending-list .sp-note-tag {
-    margin-left: 8px;
     color: #4a8050;
     font-size: 12px;
     font-style: italic;
   }
   .spending-list .delete {
+    grid-row: 1 / 3;
+    align-self: center;
     background: none;
     border: none;
     color: #d33;
@@ -787,6 +824,11 @@
   body.dark .spending-totals { background: #1e2a4a; color: #d0d8ee; }
   body.dark .spending-list li { border-bottom-color: #3d4a6e; }
   body.dark .spending-list .sp-note-tag { color: #88c894; }
+  body.dark .spending-list .sp-twd { color: #88c894; }
+  body.dark .spending-list .sp-payer { background: #2a3550; border-color: #3d4a6e; color: #88c894; }
+  body.dark .spending-list .sp-line2 { color: #98a4be; }
+  body.dark .spending-list .sp-split-info { color: #6f7f9c; }
+  body.dark .sp-split-label { color: #98a4be; }
   /* === Tier 3: rain alert / dish-quick / font-toggle / large mode === */
   .rain-alert {
     background: #fff3cd;
@@ -931,29 +973,39 @@
   <summary>💰 旅費記帳（點擊展開）</summary>
   <div class="collapsible-content">
     <form id="spending-form" autocomplete="off">
-      <input type="number" id="sp-amount" placeholder="金額 VND" min="0" step="1000" required>
-      <select id="sp-category" required>
-        <option value="餐">🍜 餐</option>
-        <option value="交通">🚕 交通</option>
-        <option value="購物">🛍️ 購物</option>
-        <option value="景點">🏛️ 景點</option>
-        <option value="Spa">💆 Spa</option>
-        <option value="其他">📌 其他</option>
-      </select>
-      <select id="sp-day" required>
-        <option value="2026-05-01">5/1</option>
-        <option value="2026-05-02">5/2</option>
-        <option value="2026-05-03">5/3</option>
-        <option value="2026-05-04">5/4</option>
-        <option value="2026-05-05">5/5</option>
-      </select>
+      <div class="sp-row sp-row-1">
+        <input type="number" id="sp-amount" placeholder="金額 VND" min="1" step="1" inputmode="numeric" required>
+        <select id="sp-category" required>
+          <option value="餐">🍜 餐</option>
+          <option value="交通">🚕 交通</option>
+          <option value="購物">🛍️ 購物</option>
+          <option value="景點">🏛️ 景點</option>
+          <option value="Spa">💆 Spa</option>
+          <option value="其他">📌 其他</option>
+        </select>
+        <select id="sp-day" required>
+          <option value="2026-05-01">5/1</option>
+          <option value="2026-05-02">5/2</option>
+          <option value="2026-05-03">5/3</option>
+          <option value="2026-05-04">5/4</option>
+          <option value="2026-05-05">5/5</option>
+        </select>
+      </div>
+      <div class="sp-row sp-row-2">
+        <select id="sp-payer" required aria-label="付款人">
+          <option value="我">👤 我付</option>
+          <option value="同伴">👥 同伴付</option>
+          <option value="共付">💰 共付</option>
+        </select>
+        <input type="number" id="sp-split" min="1" max="20" step="1" value="1" inputmode="numeric" aria-label="分攤人數" title="分攤人數">
+        <span class="sp-split-label" aria-hidden="true">人分</span>
+        <button type="submit">+ 加</button>
+      </div>
       <input type="text" id="sp-note" class="sp-note" placeholder="備註 (店名 / 品項，選填)" maxlength="60">
-      <button type="submit">+ 加</button>
     </form>
     <div class="spending-summary" id="spending-summary"></div>
     <div class="spending-totals" id="spending-totals"></div>
     <ul class="spending-list" id="spending-list"></ul>
-    <p style="font-size: 11px; color: #888; margin-top: 8px;">預算參考：每日 ~3,000,000 VND × 5 = 15,000,000 VND（約 NT$ 19,200）</p>
   </div>
 </details>
 <details class="collapsible-info backup-info">

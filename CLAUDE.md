@@ -100,3 +100,19 @@ No CI, no preview, no staging. Every push is prod.
 - **Place names → hashtag mapping**: `/tmp/test-ig.mjs` pattern — evaluate `toHashtag()` + `tagFromQuery()` against a representative sample
 - **Travel array alignment**: count `<tr>` per day and compare to `TRAVEL[day-N].length`
 - **No Lighthouse from here** — ask the user to run PageSpeed Insights after deploy
+
+## Testing discipline (mandatory before reporting completion)
+Whenever an interactive UI feature is added or changed (form, button, click handler, computed display, localStorage persistence, etc.), Claude MUST run an automated JSDOM smoke test before telling the user the change is done. Don't ask the user to manually click around to verify — that's Claude's job.
+
+Required coverage for any form change:
+1. Each input/select element exists and is reachable by id
+2. Submit creates an entry with all fields correctly stored in localStorage
+3. Optional fields work both filled and empty
+4. Computed displays (totals, conversions, derived numbers) reflect the entered values
+5. Delete / undo paths work
+6. Invalid input is rejected (negative, empty, out-of-range)
+7. No JS errors / console.error during the flow
+
+jsdom isn't installed in the project. Install once into `/tmp` (`cd /tmp && npm init -y && npm install jsdom`) and `cd /tmp && node test.mjs` from there — the project repo stays clean. Alternative: use `npx --yes jsdom-quokka-plugin` style invocation, but `/tmp` install is simpler and faster.
+
+When reporting back to the user, lead with the test result ("X/X checks passed") not "I added the feature" — the user wants to know it works, not just that code was written.
