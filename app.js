@@ -239,6 +239,23 @@
       }
       if (cached) html += '<div class="wd-cached">離線快取資料</div>';
       box.innerHTML = html;
+      // === Rain alert: prepend warning to days with >60% rain forecast ===
+      document.querySelectorAll('.rain-alert').forEach((el) => el.remove());
+      for (let i = 0; i < daily.time.length; i++) {
+        const rain = daily.precipitation_probability_max[i] || 0;
+        if (rain < 60) continue;
+        const day = document.querySelector('details[data-date="' + daily.time[i] + '"]');
+        if (!day) continue;
+        const alert = document.createElement('div');
+        alert.className = 'rain-alert';
+        alert.innerHTML = '⚠️ 預報雨機率 <strong>' + rain + '%</strong>。建議優先選室內活動或備傘 — <a href="#main">看備用方案</a>。';
+        const summary = day.querySelector(':scope > summary');
+        if (summary && summary.nextSibling) {
+          day.insertBefore(alert, summary.nextSibling);
+        } else {
+          day.appendChild(alert);
+        }
+      }
     }
 
     try {
@@ -589,5 +606,20 @@
       renderSpending();
     });
     renderSpending();
+  }
+
+  // === Large font toggle ===
+  const fontBtn = document.getElementById('font-toggle');
+  if (fontBtn) {
+    let savedFont = null;
+    try { savedFont = localStorage.getItem('font-size'); } catch (e) {}
+    if (savedFont === 'large') document.body.classList.add('large');
+    fontBtn.textContent = document.body.classList.contains('large') ? 'aA' : 'Aa';
+    fontBtn.addEventListener('click', () => {
+      const nowLarge = !document.body.classList.contains('large');
+      document.body.classList.toggle('large', nowLarge);
+      fontBtn.textContent = nowLarge ? 'aA' : 'Aa';
+      try { localStorage.setItem('font-size', nowLarge ? 'large' : 'normal'); } catch (e) {}
+    });
   }
 })();

@@ -779,10 +779,68 @@
   body.dark .day-total.over { background: #4a2a2a; color: #ff8888; }
   body.dark .spending-totals { background: #1e2a4a; color: #d0d8ee; }
   body.dark .spending-list li { border-bottom-color: #3d4a6e; }
+  /* === Tier 3: rain alert / dish-quick / font-toggle / large mode === */
+  .rain-alert {
+    background: #fff3cd;
+    border-left: 4px solid #e8a317;
+    padding: 8px 14px;
+    margin: 0 0 12px 0;
+    font-size: 13px;
+    border-radius: 4px;
+    color: #001858;
+  }
+  .rain-alert a { color: #e8a317; font-weight: bold; text-decoration: underline; }
+  body.dark .rain-alert { background: #4a3d1a; color: #ffd966; border-left-color: #ffd966; }
+  body.dark .rain-alert a { color: #ffd966; }
+  .dish-quick { border-left-color: #4a8050; }
+  .dish-quick > summary { color: #4a8050; }
+  .dish-quick .collapsible-content p { font-weight: bold; color: #4a8050; margin-top: 12px; margin-bottom: 4px; }
+  .dish-quick .collapsible-content ul { padding-left: 20px; }
+  .dish-quick .collapsible-content li strong { color: #001858; }
+  body.dark .dish-quick .collapsible-content li strong { color: #d0d8ee; }
+  .font-toggle {
+    position: fixed;
+    top: 12px;
+    right: 56px;
+    z-index: 200;
+    background: rgba(0,24,88,0.85);
+    color: white;
+    border: none;
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    font-size: 15px;
+    font-weight: bold;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    -webkit-backdrop-filter: blur(4px);
+    backdrop-filter: blur(4px);
+    font-family: inherit;
+  }
+  .font-toggle:active { transform: scale(0.92); }
+  @media print { .font-toggle { display: none; } }
+  body.dark .font-toggle { background: rgba(232,237,255,0.15); color: #ffc850; }
+  body.large { font-size: 18px; }
+  body.large header h1 { font-size: 22px; }
+  body.large summary { font-size: 20px; }
+  body.large .progress-text { font-size: 14px; }
+  body.large td { font-size: 16px; }
+  body.large td:first-child { font-size: 15px; width: 130px; }
+  body.large .travel-badge { font-size: 12px; }
+  body.large .ig-link svg { width: 14px; height: 14px; }
+  body.large .map-btn { font-size: 14px; padding: 9px 16px; }
+  body.large .day-jump a { font-size: 16px; }
+  body.large .dual-clock { font-size: 14px; }
+  body.large .countdown { font-size: 13px; }
+  body.large .row-note > summary { font-size: 17px; }
+  body.large .fx-presets button { font-size: 14px; min-height: 40px; }
+  body.large .info-box li, body.large .info-box p { font-size: 15px; }
+  body.large .collapsible-info li, body.large .collapsible-info p { font-size: 15px; }
 </style>
 </head>
 <body>
 <a href="#main" class="skip-link">跳至主要內容</a>
+<button class="font-toggle" id="font-toggle" type="button" aria-label="切換大字模式">Aa</button>
 <button class="theme-toggle" id="theme-toggle" type="button" aria-label="切換深色模式">🌙</button>
 <main class="container" id="main">
 <header>
@@ -999,6 +1057,67 @@
     <div class="note">💡 括弧內為粗略中文諧音。南方口音 d / v / gi 常念 /y/，r 念 /z/。聽不懂時點菜單/比手畫腳通常都能通。建議出發前下載 Google Translate 越南文離線包。</div>
   </div>
 </details>
+<details class="collapsible-info dish-quick">
+  <summary>🍜 點餐速查（越文菜名）</summary>
+  <div class="collapsible-content">
+    <p style="font-size:11px;color:#888;font-weight:normal;">每項：中文｜越文｜羅馬發音｜備註</p>
+    <p>🍜 河粉 / 麵類</p>
+    <ul>
+      <li>牛肉河粉｜<strong>Phở Bò</strong>｜fuh boh｜清湯經典</li>
+      <li>雞肉河粉｜<strong>Phở Gà</strong>｜fuh gah｜清淡</li>
+      <li>順化牛肉米線｜<strong>Bún Bò Huế</strong>｜boon boh hueh｜辣油湯，重口味</li>
+      <li>河內烤肉米線｜<strong>Bún Chả</strong>｜boon char｜烤肉沾酸甜醬</li>
+      <li>南越米粉｜<strong>Hủ Tiếu</strong>｜hoo tee-oo｜清湯豬骨</li>
+      <li>蟹肉粉絲｜<strong>Miến Cua</strong>｜mee-en koo-ah</li>
+    </ul>
+    <p>🥖 法包 Bánh Mì</p>
+    <ul>
+      <li>綜合法包｜<strong>Bánh Mì Thịt</strong>｜bahn mee teet</li>
+      <li>肝醬法包｜<strong>Bánh Mì Pâté</strong>｜bahn mee pa-tay</li>
+      <li>蛋法包｜<strong>Bánh Mì Trứng</strong>｜bahn mee chuhng</li>
+      <li>素法包｜<strong>Bánh Mì Chay</strong>｜bahn mee chai</li>
+    </ul>
+    <p>🍚 飯類</p>
+    <ul>
+      <li>碎米排骨飯｜<strong>Cơm Tấm</strong>｜kuhm tum｜南越招牌</li>
+      <li>雞飯｜<strong>Cơm Gà</strong>｜kuhm gah</li>
+      <li>砂鍋飯｜<strong>Cơm Niêu</strong>｜kuhm nyew｜砂鍋焦底</li>
+      <li>海鮮炒飯｜<strong>Cơm Chiên Hải Sản</strong>｜kuhm chee-en hai sahn</li>
+    </ul>
+    <p>🍲 湯品 / 火鍋</p>
+    <ul>
+      <li>蟹肉羹｜<strong>Súp Cua</strong>｜soop koo-ah</li>
+      <li>酸湯｜<strong>Canh Chua</strong>｜kahn choo-ah｜酸甜開胃</li>
+      <li>魚火鍋｜<strong>Lẩu Cá</strong>｜lao kah</li>
+      <li>海鮮火鍋｜<strong>Lẩu Hải Sản</strong>｜lao hai sahn</li>
+    </ul>
+    <p>🥤 飲料</p>
+    <ul>
+      <li>冰煉乳咖啡｜<strong>Cà Phê Sữa Đá</strong>｜ka feh sua dah</li>
+      <li>白咖啡（少奶）｜<strong>Bạc Xỉu</strong>｜bahk see-oo</li>
+      <li>蛋咖啡｜<strong>Cà Phê Trứng</strong>｜ka feh chuhng</li>
+      <li>蜜桃茶｜<strong>Trà Đào</strong>｜chah dao</li>
+      <li>果汁奶昔｜<strong>Sinh Tố</strong>｜sin toh</li>
+    </ul>
+    <p>🍮 甜點</p>
+    <ul>
+      <li>越式甜湯｜<strong>Chè</strong>｜cheh</li>
+      <li>布丁｜<strong>Bánh Flan</strong>｜bahn flan</li>
+      <li>優格｜<strong>Sữa Chua</strong>｜sua choo-ah</li>
+      <li>冰淇淋｜<strong>Kem</strong>｜kem</li>
+    </ul>
+    <p>📌 點餐關鍵詞</p>
+    <ul>
+      <li>不辣｜<strong>Không cay</strong>｜kohng kai</li>
+      <li>少辣｜<strong>Ít cay</strong>｜eet kai</li>
+      <li>一份／兩份｜<strong>Một phần / Hai phần</strong>｜moht fuhn / hai fuhn</li>
+      <li>外帶／內用｜<strong>Mang đi / Ăn tại đây</strong>｜mahng dee / an tai day</li>
+      <li>結帳｜<strong>Tính tiền</strong>｜teen tee-en</li>
+      <li>不要香菜｜<strong>Không rau mùi</strong>｜kohng zao moo-ee</li>
+    </ul>
+    <div class="note">💡 點菜時直接指菜單上的越文最快。發音不重要，當地店家對外國客很有耐心。Phở 在南方常念「fuh」（短音）；Bún 念「boon」。</div>
+  </div>
+</details>
 <details open id="day-1" data-date="2026-05-01">
 <summary>📍 Day 1｜5/1（四）高雄 → 胡志明・老西貢巡禮</summary>
 <div class="map-btns">
@@ -1139,6 +1258,16 @@
   <tr><td>15:30–</td><td><input type="checkbox" class="checkbox">✈️ CI9026 飛回高雄小港</td></tr>
 </table>
 </details>
+<div class="info-box">
+  <h2>💊 24h 連鎖藥局</h2>
+  <p>越南三大連鎖藥局，多數有英文 / 中文標示，能買到常見止瀉、止痛、感冒、防曬、蚊蟲咬藥。Pharmacity 部分分店 24h 營業。</p>
+  <ul>
+    <li><strong>Pharmacity</strong>（最大連鎖）｜<a class="place" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=Pharmacity+Quan+1+Ho+Chi+Minh">Q1 分店搜尋</a>｜<a class="place" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=Pharmacity+Quan+3+Ho+Chi+Minh">Q3 分店搜尋</a></li>
+    <li><strong>Long Châu</strong>（FPT 旗下）｜<a class="place" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=Long+Chau+Quan+1+Ho+Chi+Minh">Q1 分店搜尋</a>｜<a class="place" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=Long+Chau+Quan+3+Ho+Chi+Minh">Q3 分店搜尋</a></li>
+    <li><strong>An Khang</strong>｜<a class="place" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=An+Khang+Pharmacy+Quan+1+Ho+Chi+Minh">Q1 分店搜尋</a></li>
+  </ul>
+  <p style="font-size:11px;color:#888;margin-top:6px;">越文求助：<code>thuốc</code> 藥｜<code>nhà thuốc</code> 藥局｜<code>đau bụng</code> 肚子痛｜<code>tiêu chảy</code> 拉肚子｜<code>đau đầu</code> 頭痛｜<code>cảm cúm</code> 感冒｜<code>dị ứng</code> 過敏。Smecta（止瀉粉包）、Panadol（止痛）、Strepsils（喉糖）都是國際品牌可直接點。</p>
+</div>
 <details class="collapsible-info">
   <summary>🚨 緊急聯絡（點擊展開）</summary>
   <div class="collapsible-content">
