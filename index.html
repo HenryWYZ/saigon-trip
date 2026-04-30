@@ -8,7 +8,7 @@
 <meta name="description" content="2026/5/1–5/5 胡志明市五日行程手冊，含景點、餐廳、交通時間、即時匯率、越南天氣與應對句。">
 <meta name="author" content="HenryWYZ">
 <meta name="referrer" content="strict-origin-when-cross-origin">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self' https://api.open-meteo.com https://open.er-api.com; manifest-src 'self'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self' https://api.open-meteo.com https://open.er-api.com https://api.github.com; manifest-src 'self'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'">
 <meta http-equiv="Permissions-Policy" content="geolocation=(), microphone=(), camera=(), payment=()">
 <meta property="og:type" content="website">
 <meta property="og:title" content="🇻🇳 胡志明五日行程">
@@ -874,6 +874,166 @@
   body.dark .spending-totals { background: #1e2a4a; color: #d0d8ee; }
   body.dark .spending-list li { border-bottom-color: #3d4a6e; }
   body.dark .spending-list li.sp-editing { background: #3a2f1a; border-left-color: #d6843e; }
+  /* === Members config === */
+  .sp-members-config, .sp-sync-config {
+    margin-bottom: 12px;
+    border-left: 3px solid #4a8050;
+    padding: 4px 0 4px 10px;
+    background: #fef6e4;
+    border-radius: 4px;
+  }
+  .sp-sync-config { border-left-color: #2563eb; }
+  .sp-members-config > summary, .sp-sync-config > summary {
+    cursor: pointer;
+    padding: 6px 4px;
+    font-weight: 600;
+    font-size: 13px;
+    color: #4a8050;
+  }
+  .sp-sync-config > summary { color: #2563eb; }
+  .sp-members-list {
+    list-style: none;
+    padding: 0;
+    margin: 8px 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .sp-members-list li {
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+    padding: 3px 4px 3px 10px;
+    background: #fff;
+    border: 1.5px solid #f3d2c1;
+    border-radius: 16px;
+    font-size: 13px;
+  }
+  .sp-members-list .sp-member-name { font-weight: 600; color: #001858; }
+  .sp-members-list .sp-member-name.self::after { content: ' ⭐'; font-size: 10px; }
+  .sp-members-list button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 2px 5px;
+    font-size: 12px;
+    line-height: 1;
+    border-radius: 50%;
+  }
+  .sp-members-list .rename { color: #4a8050; }
+  .sp-members-list .remove { color: #d33; }
+  .sp-members-list .rename:hover { background: #f3f8f4; }
+  .sp-members-list .remove:hover { background: #fee8e8; }
+  .sp-add-member-form {
+    display: flex;
+    gap: 6px;
+    margin-top: 8px;
+    margin-bottom: 4px;
+  }
+  .sp-add-member-form input {
+    flex: 1;
+    padding: 6px 10px;
+    font-size: 13px;
+    border: 1.5px solid #f3d2c1;
+    border-radius: 6px;
+    background: #fff;
+    color: #001858;
+    font-family: inherit;
+  }
+  .sp-add-member-form button {
+    padding: 6px 14px;
+    font-size: 13px;
+    font-weight: 600;
+    background: #4a8050;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-family: inherit;
+  }
+  /* === Sync config === */
+  .sp-sync-help { font-size: 12px; color: #666; margin: 6px 0; line-height: 1.5; }
+  .sp-sync-help a { color: #2563eb; }
+  .sp-sync-fineprint { font-size: 11px; color: #888; margin-top: 8px; }
+  .sp-sync-form { display: flex; gap: 6px; margin: 6px 0; flex-wrap: wrap; }
+  .sp-sync-form input {
+    flex: 1; min-width: 180px;
+    padding: 6px 10px;
+    font-size: 13px;
+    border: 1.5px solid #f3d2c1;
+    border-radius: 6px;
+    background: #fff;
+    color: #001858;
+    font-family: monospace;
+  }
+  .sp-sync-form button {
+    padding: 6px 14px;
+    font-size: 13px;
+    font-weight: 600;
+    background: #2563eb;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-family: inherit;
+  }
+  .sp-sync-form button#sp-sync-disable { background: #888; }
+  .sp-sync-status { font-size: 12px; margin: 6px 0; min-height: 1em; font-weight: 500; }
+  .sp-sync-status.ok { color: #4a8050; }
+  .sp-sync-status.warn { color: #c46e2c; }
+  .sp-sync-status.err { color: #d33; }
+  /* === Multi-pay === */
+  #sp-multi-pay {
+    background: #fff8d8;
+    border: 1.5px solid #c46e2c;
+    border-radius: 8px;
+    padding: 10px 12px;
+    margin-top: 4px;
+  }
+  .sp-mp-list { display: flex; flex-direction: column; gap: 6px; }
+  .sp-mp-row {
+    display: grid;
+    grid-template-columns: 80px 1fr auto;
+    align-items: center;
+    gap: 8px;
+  }
+  .sp-mp-name { font-weight: 600; color: #001858; font-size: 13px; }
+  .sp-mp-row input {
+    padding: 6px 10px;
+    font-size: 14px;
+    border: 1.5px solid #f3d2c1;
+    border-radius: 6px;
+    background: #fff;
+    color: #001858;
+    font-family: inherit;
+    width: 100%;
+  }
+  .sp-mp-vnd { font-size: 11px; color: #888; }
+  .sp-mp-status {
+    margin-top: 8px;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 6px 10px;
+    border-radius: 4px;
+  }
+  .sp-mp-status.ok { background: #d4f4dd; color: #2d6a3a; }
+  .sp-mp-status.warning { background: #fee; color: #c33; }
+  .sp-mp-status.error-shake { animation: spShake 0.5s; }
+  @keyframes spShake { 0%,100% { transform: translateX(0); } 25% { transform: translateX(-4px); } 75% { transform: translateX(4px); } }
+  /* dark mode for new sections */
+  body.dark .sp-members-config, body.dark .sp-sync-config { background: #1e2a4a; }
+  body.dark .sp-members-config { border-left-color: #5fa067; }
+  body.dark .sp-members-config > summary { color: #88c894; }
+  body.dark .sp-sync-config > summary { color: #6f9eff; }
+  body.dark .sp-members-list li { background: #2a3550; border-color: #3d4a6e; color: #d0d8ee; }
+  body.dark .sp-members-list .sp-member-name { color: #d0d8ee; }
+  body.dark .sp-add-member-form input, body.dark .sp-sync-form input { background: #2a3550; border-color: #3d4a6e; color: #d0d8ee; }
+  body.dark .sp-sync-help, body.dark .sp-sync-fineprint { color: #98a4be; }
+  body.dark #sp-multi-pay { background: #3a2f1a; border-color: #d6843e; }
+  body.dark .sp-mp-row input { background: #2a3550; border-color: #3d4a6e; color: #d0d8ee; }
+  body.dark .sp-mp-name { color: #d0d8ee; }
+  body.dark .sp-mp-status.ok { background: #2a3a30; color: #88c894; }
+  body.dark .sp-mp-status.warning { background: #3a2a2a; color: #ff8888; }
   body.dark .spending-list .edit:hover { background: #2a3550; }
   body.dark .spending-list .delete:hover { background: #4a2a2a; }
   body.dark .spending-form .sp-cancel { border-color: #3d4a6e; color: #98a4be; }
@@ -1027,6 +1187,27 @@
 <details class="collapsible-info spending-tracker">
   <summary>💰 旅費記帳（點擊展開）</summary>
   <div class="collapsible-content">
+    <details class="sp-members-config" id="sp-members-config">
+      <summary id="sp-members-summary">👥 旅伴設定（共 1 人）</summary>
+      <ul class="sp-members-list" id="sp-members-list"></ul>
+      <form class="sp-add-member-form" id="sp-add-member-form" autocomplete="off">
+        <input type="text" id="sp-new-member-name" placeholder="新增旅伴名字" maxlength="15" required>
+        <button type="submit">+ 加入</button>
+      </form>
+    </details>
+    <details class="sp-sync-config" id="sp-sync-config">
+      <summary id="sp-sync-summary">☁️ 跨裝置同步（未設定）</summary>
+      <div class="sp-sync-body">
+        <p class="sp-sync-help">啟用後記帳資料即時同步到所有裝置。需要 GitHub Personal Access Token（gist 權限）— <a href="https://github.com/settings/tokens/new?scopes=gist&description=saigon-trip-sync" target="_blank" rel="noopener">點此建立 token</a>，建好後複製貼上。</p>
+        <div class="sp-sync-form">
+          <input type="password" id="sp-sync-pat" placeholder="ghp_xxxxxxxxxxxx" maxlength="120" autocomplete="off">
+          <button type="button" id="sp-sync-enable">啟用</button>
+          <button type="button" id="sp-sync-disable" hidden>停用</button>
+        </div>
+        <p class="sp-sync-status" id="sp-sync-status"></p>
+        <p class="sp-sync-help sp-sync-fineprint">PAT 只存在這台裝置 localStorage，不上傳任何伺服器（除 api.github.com）。Token 範圍只有 gist，無法存取你的程式碼。多裝置同步：每台裝置都要貼同一個 PAT。</p>
+      </div>
+    </details>
     <form id="spending-form" autocomplete="off">
       <div class="sp-row sp-row-1">
         <input type="number" id="sp-amount" placeholder="金額 VND" min="1" step="1" inputmode="numeric" required>
@@ -1040,9 +1221,13 @@
         </select>
       </div>
       <div class="sp-row sp-row-2">
-        <input type="text" id="sp-payer" list="sp-payer-list" placeholder="誰付的" maxlength="20" value="我" required aria-label="付款人">
+        <select id="sp-payer" required aria-label="付款人"></select>
         <input type="number" id="sp-split" min="1" max="20" step="1" value="1" inputmode="numeric" aria-label="分攤人數" title="分攤人數">
         <span class="sp-split-label" aria-hidden="true">人分</span>
+      </div>
+      <div id="sp-multi-pay" hidden>
+        <div class="sp-mp-list" id="sp-mp-list"></div>
+        <div class="sp-mp-status" id="sp-mp-status">請先輸入總金額</div>
       </div>
       <input type="text" id="sp-note" class="sp-note" placeholder="備註 (店名 / 品項，選填)" maxlength="60">
       <button type="submit" class="sp-submit" id="sp-submit">✚ 新增記錄</button>
@@ -1056,11 +1241,6 @@
         <option value="☕ 咖啡"></option>
         <option value="🍺 酒吧"></option>
         <option value="📌 其他"></option>
-      </datalist>
-      <datalist id="sp-payer-list">
-        <option value="我"></option>
-        <option value="同伴"></option>
-        <option value="共付"></option>
       </datalist>
     </form>
     <div class="spending-summary" id="spending-summary"></div>

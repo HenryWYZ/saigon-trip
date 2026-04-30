@@ -545,15 +545,69 @@
   });
 
   // === Spending tracker ===
-  const SPEND_KEY = 'saigon-trip-spending-v1';
+  const SPEND_KEY   = 'saigon-trip-spending-v1';
+  const MEMBERS_KEY = 'saigon-trip-members-v1';
+  const SYNC_PAT_KEY  = 'saigon-trip-sync-pat';
+  const SYNC_GIST_KEY = 'saigon-trip-sync-gist';
+  const SYNC_TS_KEY   = 'saigon-trip-cloud-saved-at';
   const DAYS = ['2026-05-01', '2026-05-02', '2026-05-03', '2026-05-04', '2026-05-05'];
   const DAY_LABELS = { '2026-05-01': '5/1', '2026-05-02': '5/2', '2026-05-03': '5/3', '2026-05-04': '5/4', '2026-05-05': '5/5' };
   let spending = [];
+  let members = [];
   let editingIdx = -1;
   try { spending = JSON.parse(localStorage.getItem(SPEND_KEY) || '[]'); } catch (e) {}
+  try { members  = JSON.parse(localStorage.getItem(MEMBERS_KEY) || '[]'); } catch (e) {}
+  let _membersWereSeeded = false;
+  if (!Array.isArray(members) || members.length === 0) {
+    members = [{ id: 'm-self', name: '我', isSelf: true }];
+    _membersWereSeeded = true;
+  }
+  if (!members.some((m) => m.isSelf)) { members[0].isSelf = true; _membersWereSeeded = true; }
+  if (_membersWereSeeded) {
+    try { localStorage.setItem(MEMBERS_KEY, JSON.stringify(members)); } catch (e) {}
+  }
   function saveSpending() {
     try { localStorage.setItem(SPEND_KEY, JSON.stringify(spending)); } catch (e) {}
   }
+  function saveMembers() {
+    try { localStorage.setItem(MEMBERS_KEY, JSON.stringify(members)); } catch (e) {}
+  }
+  function genMemberId() { return 'm-' + Math.random().toString(36).slice(2, 10); }
+  function getMember(id) { return members.find((m) => m.id === id) || null; }
+  function getSelfMember() { return members.find((m) => m.isSelf) || members[0]; }
+  function payerLabel(payer) {
+    if (!payer) return '我';
+    if (payer === '__multi__') return '🎯 多人付';
+    const m = getMember(payer);
+    if (m) return m.name;
+    return payer; // legacy free-text (pre-members)
+  }
+  function resolvePayerToMemberId(payer) {
+    if (!payer) return getSelfMember().id;
+    if (typeof payer !== 'string') return getSelfMember().id;
+    if (payer === '__multi__') return '__multi__';
+    if (members.find((m) => m.id === payer)) return payer;
+    const byName = members.find((m) => m.name === payer);
+    return byName ? byName.id : getSelfMember().id;
+  }
+  // Migrate legacy entries: payer free-text → member id (auto-create members)
+  (function migrateLegacy() {
+    let changed = false;
+    spending.forEach((e) => {
+      if (!e.payer) { e.payer = getSelfMember().id; changed = true; return; }
+      if (e.payer === '__multi__' || e.payer.startsWith('m-') && getMember(e.payer)) return;
+      // legacy free-text
+      let m = members.find((x) => x.name === e.payer);
+      if (!m) {
+        m = { id: genMemberId(), name: String(e.payer).slice(0, 15) };
+        members.push(m);
+        changed = true;
+      }
+      e.payer = m.id;
+      changed = true;
+    });
+    if (changed) { saveMembers(); saveSpending(); }
+  })();
   function fmtVnd(n) { return n.toLocaleString('en-US'); }
   function vndToTwdLabel(vnd) {
     if (rate == null || !vnd) return '';
@@ -566,15 +620,114 @@
   }
   function refreshSpendingDatalists() {
     const cats = new Set(['🍜 餐', '🚕 交通', '🛍️ 購物', '🏛️ 景點', '💆 Spa', '☕ 咖啡', '🍺 酒吧', '📌 其他']);
-    const payers = new Set(['我', '同伴', '共付']);
-    spending.forEach((e) => {
-      if (e.category) cats.add(e.category);
-      if (e.payer) payers.add(e.payer);
-    });
+    spending.forEach((e) => { if (e.category) cats.add(e.category); });
     const cl = document.getElementById('sp-cat-list');
-    const pl = document.getElementById('sp-payer-list');
     if (cl) cl.innerHTML = Array.from(cats).map((c) => '<option value="' + escapeHtml(c) + '"></option>').join('');
-    if (pl) pl.innerHTML = Array.from(payers).map((p) => '<option value="' + escapeHtml(p) + '"></option>').join('');
+  }
+  function renderMembersUI() {
+    const list = document.getElementById('sp-members-list');
+    const sum = document.getElementById('sp-members-summary');
+    if (sum) sum.textContent = '👥 旅伴設定（共 ' + members.length + ' 人）';
+    if (list) {
+      list.innerHTML = members.map((m) =>
+        '<li>' +
+          '<span class="sp-member-name' + (m.isSelf ? ' self' : '') + '">' + escapeHtml(m.name) + '</span>' +
+          '<button type="button" class="rename" data-id="' + escapeHtml(m.id) + '" aria-label="改名" title="改名">✏️</button>' +
+          (members.length > 1 && !m.isSelf ? '<button type="button" class="remove" data-id="' + escapeHtml(m.id) + '" aria-label="刪除" title="刪除">✕</button>' : '') +
+        '</li>'
+      ).join('');
+      list.querySelectorAll('button.remove').forEach((b) => {
+        b.addEventListener('click', () => {
+          if (members.length <= 1) return;
+          const id = b.dataset.id;
+          // Re-assign any spending entries whose payer is this member to self
+          spending.forEach((e) => { if (e.payer === id) e.payer = getSelfMember().id; });
+          // Remove from any paid maps
+          spending.forEach((e) => { if (e.paid && e.paid[id]) delete e.paid[id]; });
+          members = members.filter((m) => m.id !== id);
+          saveMembers(); saveSpending();
+          refreshAllUI();
+          schedulePush();
+        });
+      });
+      list.querySelectorAll('button.rename').forEach((b) => {
+        b.addEventListener('click', () => {
+          const m = getMember(b.dataset.id);
+          if (!m) return;
+          const newName = (typeof window.prompt === 'function') ? window.prompt('改名為：', m.name) : null;
+          if (newName != null && String(newName).trim()) {
+            m.name = String(newName).trim().slice(0, 15);
+            saveMembers();
+            refreshAllUI();
+            schedulePush();
+          }
+        });
+      });
+    }
+  }
+  function renderPayerSelect() {
+    const sel = document.getElementById('sp-payer');
+    if (!sel) return;
+    const prev = sel.value;
+    sel.innerHTML = members.map((m) =>
+      '<option value="' + escapeHtml(m.id) + '">👤 ' + escapeHtml(m.name) + (m.isSelf ? '' : '') + '</option>'
+    ).join('') + (members.length >= 2 ? '<option value="__multi__">🎯 多人付（自訂）</option>' : '');
+    if (prev && Array.from(sel.options).some((o) => o.value === prev)) sel.value = prev;
+    else sel.value = getSelfMember().id;
+  }
+  function renderMultiPayInputs() {
+    const list = document.getElementById('sp-mp-list');
+    if (!list) return;
+    list.innerHTML = members.map((m) =>
+      '<label class="sp-mp-row">' +
+        '<span class="sp-mp-name">' + escapeHtml(m.name) + '</span>' +
+        '<input type="number" min="0" step="1" inputmode="numeric" data-mp-id="' + escapeHtml(m.id) + '" placeholder="0">' +
+        '<span class="sp-mp-vnd">VND</span>' +
+      '</label>'
+    ).join('');
+    list.querySelectorAll('input[data-mp-id]').forEach((inp) => {
+      inp.addEventListener('input', updateMultiPayStatus);
+    });
+    updateMultiPayStatus();
+  }
+  function updateMultiPayStatus() {
+    const inputs = document.querySelectorAll('#sp-mp-list input[data-mp-id]');
+    const sum = Array.from(inputs).reduce((s, i) => s + (parseInt(i.value, 10) || 0), 0);
+    const total = parseInt((document.getElementById('sp-amount') || {}).value, 10) || 0;
+    const status = document.getElementById('sp-mp-status');
+    if (!status) return;
+    if (total === 0) {
+      status.textContent = '請先填上方總金額';
+      status.className = 'sp-mp-status warning';
+      return;
+    }
+    if (sum === total) {
+      status.textContent = '✓ 已平衡：' + sum.toLocaleString('en-US') + ' / ' + total.toLocaleString('en-US') + ' VND';
+      status.className = 'sp-mp-status ok';
+    } else {
+      const diff = total - sum;
+      status.textContent = (diff > 0 ? '尚差 ' : '超出 ') + Math.abs(diff).toLocaleString('en-US') +
+        ' VND（總和 ' + sum.toLocaleString('en-US') + ' / ' + total.toLocaleString('en-US') + '）';
+      status.className = 'sp-mp-status warning';
+    }
+  }
+  function updateMultiPayVisibility() {
+    const sel = document.getElementById('sp-payer');
+    const wrap = document.getElementById('sp-multi-pay');
+    const split = document.getElementById('sp-split');
+    const label = document.querySelector('.sp-split-label');
+    if (!sel || !wrap) return;
+    const multi = sel.value === '__multi__';
+    wrap.hidden = !multi;
+    if (split) split.style.display = multi ? 'none' : '';
+    if (label) label.style.display = multi ? 'none' : '';
+    if (multi) renderMultiPayInputs();
+  }
+  function refreshAllUI() {
+    renderMembersUI();
+    renderPayerSelect();
+    updateMultiPayVisibility();
+    renderSpending();
   }
   function renderSpending() {
     const summary = document.getElementById('spending-summary');
@@ -614,8 +767,18 @@
           const e = spending[realIdx];
           const amt = +e.amount || 0;
           const split = Math.max(1, +e.splitCount || 1);
-          const payer = e.payer || '我';
           const noteHtml = e.note ? '<span class="sp-note-tag">＃' + escapeHtml(e.note) + '</span>' : '';
+          let payerHtml;
+          if (e.payer === '__multi__' && e.paid) {
+            const pieces = Object.keys(e.paid).map((id) => {
+              const m = getMember(id);
+              const name = m ? m.name : id;
+              return escapeHtml(name) + ' ' + fmtVnd(e.paid[id]);
+            });
+            payerHtml = '<span class="sp-payer">🎯 ' + pieces.join(' + ') + '</span>';
+          } else {
+            payerHtml = '<span class="sp-payer">' + escapeHtml(payerLabel(e.payer)) + '付</span>';
+          }
           const splitInfo = split > 1
             ? '<span class="sp-split-info">÷ ' + split + ' 人 → ' + fmtVnd(Math.round(amt / split)) + ' VND' + vndToTwdLabel(amt / split) + '／人</span>'
             : '';
@@ -628,7 +791,7 @@
               '<span class="sp-twd">' + (vndToTwdLabel(amt) || '') + '</span>' +
             '</div>' +
             '<div class="sp-line2">' +
-              '<span class="sp-payer">' + escapeHtml(payer) + '付</span>' +
+              payerHtml +
               splitInfo +
               noteHtml +
             '</div>' +
@@ -641,12 +804,12 @@
     list.querySelectorAll('button.delete').forEach((b) => {
       b.addEventListener('click', () => {
         const idx = +b.dataset.idx;
-        // If deleting the row currently being edited, exit edit mode
         if (idx === editingIdx) exitSpendingEditMode();
         else if (editingIdx >= 0 && idx < editingIdx) editingIdx -= 1;
         spending.splice(idx, 1);
         saveSpending();
         renderSpending();
+        schedulePush();
       });
     });
     list.querySelectorAll('button.edit').forEach((b) => {
@@ -661,9 +824,21 @@
     setVal('sp-amount',   e.amount);
     setVal('sp-category', e.category || '');
     setVal('sp-day',      e.day);
-    setVal('sp-payer',    e.payer || '我');
     setVal('sp-split',    e.splitCount || 1);
     setVal('sp-note',     e.note || '');
+    const payerSel = document.getElementById('sp-payer');
+    if (e.payer === '__multi__' && e.paid) {
+      if (payerSel) payerSel.value = '__multi__';
+      updateMultiPayVisibility();
+      Object.keys(e.paid).forEach((memberId) => {
+        const inp = document.querySelector('#sp-mp-list input[data-mp-id="' + memberId + '"]');
+        if (inp) inp.value = e.paid[memberId];
+      });
+      updateMultiPayStatus();
+    } else {
+      if (payerSel) payerSel.value = resolvePayerToMemberId(e.payer);
+      updateMultiPayVisibility();
+    }
     const submitBtn = document.getElementById('sp-submit');
     if (submitBtn) {
       submitBtn.textContent = '💾 儲存修改';
@@ -696,7 +871,7 @@
       const amt = parseInt(amtEl.value, 10);
       const cat = document.getElementById('sp-category').value.trim().slice(0, 20);
       const day = document.getElementById('sp-day').value;
-      const payer = (document.getElementById('sp-payer').value.trim() || '我').slice(0, 20);
+      const payer = document.getElementById('sp-payer').value;
       const splitEl = document.getElementById('sp-split');
       let split = parseInt(splitEl.value, 10);
       if (!split || split < 1) split = 1;
@@ -705,17 +880,41 @@
       const note = noteEl ? noteEl.value.trim().slice(0, 60) : '';
       if (!amt || amt <= 0) return;
       if (!cat) return;
+
+      let paid = null;
+      if (payer === '__multi__') {
+        paid = {};
+        let sum = 0;
+        document.querySelectorAll('#sp-mp-list input[data-mp-id]').forEach((inp) => {
+          const v = parseInt(inp.value, 10) || 0;
+          if (v > 0) { paid[inp.dataset.mpId] = v; sum += v; }
+        });
+        if (sum !== amt) {
+          const status = document.getElementById('sp-mp-status');
+          if (status) {
+            updateMultiPayStatus();
+            status.classList.add('error-shake');
+            setTimeout(() => status.classList.remove('error-shake'), 600);
+          }
+          return;
+        }
+      }
+
       if (editingIdx >= 0 && spending[editingIdx]) {
         const origTs = spending[editingIdx].ts;
-        spending[editingIdx] = { amount: amt, category: cat, day: day, payer: payer, splitCount: split, note: note, ts: origTs };
+        spending[editingIdx] = { amount: amt, category: cat, day: day, payer: payer, paid: paid, splitCount: split, note: note, ts: origTs };
         exitSpendingEditMode();
       } else {
-        spending.push({ amount: amt, category: cat, day: day, payer: payer, splitCount: split, note: note, ts: Date.now() });
+        spending.push({ amount: amt, category: cat, day: day, payer: payer, paid: paid, splitCount: split, note: note, ts: Date.now() });
       }
       saveSpending();
       amtEl.value = '';
       if (noteEl) noteEl.value = '';
+      // Reset payer to self for next entry, hide multi-pay panel
+      const ps = document.getElementById('sp-payer');
+      if (ps) { ps.value = getSelfMember().id; updateMultiPayVisibility(); }
       renderSpending();
+      schedulePush();
     });
     const cancelBtn = document.getElementById('sp-cancel-edit');
     if (cancelBtn) {
@@ -723,11 +922,226 @@
         exitSpendingEditMode();
         document.getElementById('sp-amount').value = '';
         const ne = document.getElementById('sp-note'); if (ne) ne.value = '';
+        const ps = document.getElementById('sp-payer');
+        if (ps) { ps.value = getSelfMember().id; updateMultiPayVisibility(); }
         renderSpending();
       });
     }
+    // Re-validate multi-pay status when amount changes
+    const amtChange = document.getElementById('sp-amount');
+    if (amtChange) amtChange.addEventListener('input', () => {
+      const ps = document.getElementById('sp-payer');
+      if (ps && ps.value === '__multi__') updateMultiPayStatus();
+    });
+    // Payer change → toggle multi-pay panel
+    const payerChange = document.getElementById('sp-payer');
+    if (payerChange) payerChange.addEventListener('change', updateMultiPayVisibility);
+
+    // === Members CRUD form ===
+    const addForm = document.getElementById('sp-add-member-form');
+    if (addForm) addForm.addEventListener('submit', (ev) => {
+      ev.preventDefault();
+      const inp = document.getElementById('sp-new-member-name');
+      const nm = (inp.value || '').trim().slice(0, 15);
+      if (!nm) return;
+      if (members.some((m) => m.name === nm)) { inp.value = ''; return; }
+      members.push({ id: genMemberId(), name: nm });
+      saveMembers();
+      inp.value = '';
+      refreshAllUI();
+      schedulePush();
+    });
+
+    refreshAllUI();
     renderSpending();
+    setupCloudSync();
   }
+
+  // === Cloud sync (GitHub Gist) ===
+  var syncPat = '';
+  var syncGistId = '';
+  var lastCloudSavedAt = 0;
+  var syncPushTimer = null;
+  var syncPollTimer = null;
+  var isPushing = false, isPulling = false;
+  try {
+    syncPat = localStorage.getItem(SYNC_PAT_KEY) || '';
+    syncGistId = localStorage.getItem(SYNC_GIST_KEY) || '';
+    lastCloudSavedAt = parseInt(localStorage.getItem(SYNC_TS_KEY) || '0', 10) || 0;
+  } catch (e) {}
+
+  function setSyncStatus(text, cls) {
+    const el = document.getElementById('sp-sync-status');
+    if (el) {
+      el.textContent = text || '';
+      el.className = 'sp-sync-status' + (cls ? ' ' + cls : '');
+    }
+    const sum = document.getElementById('sp-sync-summary');
+    if (sum) sum.textContent = '☁️ 跨裝置同步' + (syncPat && syncGistId ? '（已啟用）' : '（未設定）');
+  }
+  function timeNow() {
+    return new Date().toLocaleTimeString('zh-TW', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+  }
+  async function cloudCreateGist() {
+    const body = JSON.stringify({
+      description: 'Saigon Trip — Spending Sync',
+      public: false,
+      files: { 'data.json': { content: JSON.stringify({ members: members, spending: spending, savedAt: Date.now() }) } },
+    });
+    const r = await fetch('https://api.github.com/gists', {
+      method: 'POST',
+      headers: { 'Authorization': 'token ' + syncPat, 'Accept': 'application/vnd.github+json', 'Content-Type': 'application/json' },
+      body: body,
+    });
+    if (!r.ok) throw new Error('建立 gist 失敗 (' + r.status + ')');
+    const data = await r.json();
+    syncGistId = data.id;
+    try { localStorage.setItem(SYNC_GIST_KEY, syncGistId); } catch (e) {}
+    return syncGistId;
+  }
+  async function cloudPull() {
+    if (!syncPat || !syncGistId) return null;
+    if (isPulling) return null;
+    isPulling = true;
+    try {
+      const r = await fetch('https://api.github.com/gists/' + syncGistId, {
+        headers: { 'Authorization': 'token ' + syncPat, 'Accept': 'application/vnd.github+json' },
+      });
+      if (!r.ok) throw new Error('Pull ' + r.status);
+      const gist = await r.json();
+      const file = gist.files && gist.files['data.json'];
+      if (!file || !file.content) return null;
+      return JSON.parse(file.content);
+    } finally { isPulling = false; }
+  }
+  async function cloudPush() {
+    if (!syncPat || !syncGistId) return;
+    if (isPushing) return;
+    isPushing = true;
+    try {
+      const data = { members: members, spending: spending, savedAt: Date.now() };
+      const body = JSON.stringify({ files: { 'data.json': { content: JSON.stringify(data) } } });
+      const r = await fetch('https://api.github.com/gists/' + syncGistId, {
+        method: 'PATCH',
+        headers: { 'Authorization': 'token ' + syncPat, 'Accept': 'application/vnd.github+json', 'Content-Type': 'application/json' },
+        body: body,
+      });
+      if (!r.ok) throw new Error('Push ' + r.status);
+      lastCloudSavedAt = data.savedAt;
+      try { localStorage.setItem(SYNC_TS_KEY, String(lastCloudSavedAt)); } catch (e) {}
+      setSyncStatus('✅ 已同步 ' + timeNow(), 'ok');
+    } catch (e) {
+      setSyncStatus('❌ 同步失敗：' + e.message, 'err');
+    } finally { isPushing = false; }
+  }
+  function schedulePush() {
+    if (!syncPat || !syncGistId) return;
+    setSyncStatus('⏳ 等待同步...', 'warn');
+    clearTimeout(syncPushTimer);
+    syncPushTimer = setTimeout(cloudPush, 2000);
+  }
+  function applyCloudData(cloud) {
+    if (!cloud) return false;
+    if (Array.isArray(cloud.members) && cloud.members.length > 0) members = cloud.members;
+    if (Array.isArray(cloud.spending)) spending = cloud.spending;
+    saveMembers(); saveSpending();
+    if (cloud.savedAt) {
+      lastCloudSavedAt = cloud.savedAt;
+      try { localStorage.setItem(SYNC_TS_KEY, String(cloud.savedAt)); } catch (e) {}
+    }
+    refreshAllUI();
+    return true;
+  }
+  function startSyncPoll() {
+    clearInterval(syncPollTimer);
+    syncPollTimer = setInterval(async () => {
+      if (!syncPat || !syncGistId) return;
+      try {
+        const cloud = await cloudPull();
+        if (cloud && cloud.savedAt && cloud.savedAt > lastCloudSavedAt) {
+          applyCloudData(cloud);
+          setSyncStatus('✅ 收到他裝置更新 ' + timeNow(), 'ok');
+        }
+      } catch (e) { /* silent on poll */ }
+    }, 30000);
+  }
+  function setupCloudSync() {
+    const enableBtn = document.getElementById('sp-sync-enable');
+    const disableBtn = document.getElementById('sp-sync-disable');
+    const patInput = document.getElementById('sp-sync-pat');
+    if (enableBtn) {
+      enableBtn.addEventListener('click', async () => {
+        const pat = (patInput && patInput.value || '').trim();
+        if (!pat) { setSyncStatus('請貼上 PAT', 'warn'); return; }
+        syncPat = pat;
+        try { localStorage.setItem(SYNC_PAT_KEY, syncPat); } catch (e) {}
+        setSyncStatus('⏳ 連線 GitHub...', 'warn');
+        try {
+          if (!syncGistId) {
+            // Try to find existing gist named saigon-trip data first
+            const r = await fetch('https://api.github.com/gists', {
+              headers: { 'Authorization': 'token ' + syncPat, 'Accept': 'application/vnd.github+json' },
+            });
+            if (!r.ok) throw new Error('GitHub auth ' + r.status);
+            const gists = await r.json();
+            const found = gists.find((g) => g.description === 'Saigon Trip — Spending Sync' && g.files && g.files['data.json']);
+            if (found) {
+              syncGistId = found.id;
+              try { localStorage.setItem(SYNC_GIST_KEY, syncGistId); } catch (e) {}
+            } else {
+              await cloudCreateGist();
+            }
+          }
+          // Pull first; if cloud has newer data, apply it
+          const cloud = await cloudPull();
+          if (cloud && cloud.savedAt && cloud.savedAt > lastCloudSavedAt) {
+            applyCloudData(cloud);
+            setSyncStatus('✅ 已從雲端載入並同步 ' + timeNow(), 'ok');
+          } else {
+            await cloudPush();
+            setSyncStatus('✅ 已啟用 — 本地資料已上傳 ' + timeNow(), 'ok');
+          }
+          if (patInput) patInput.value = '';
+          if (disableBtn) disableBtn.hidden = false;
+          startSyncPoll();
+        } catch (e) {
+          setSyncStatus('❌ 啟用失敗：' + e.message + '（請確認 PAT 有 gist 權限）', 'err');
+          syncPat = '';
+          syncGistId = '';
+          try { localStorage.removeItem(SYNC_PAT_KEY); localStorage.removeItem(SYNC_GIST_KEY); } catch (err) {}
+        }
+      });
+    }
+    if (disableBtn) {
+      disableBtn.addEventListener('click', () => {
+        syncPat = ''; syncGistId = ''; lastCloudSavedAt = 0;
+        try {
+          localStorage.removeItem(SYNC_PAT_KEY);
+          localStorage.removeItem(SYNC_GIST_KEY);
+          localStorage.removeItem(SYNC_TS_KEY);
+        } catch (e) {}
+        clearInterval(syncPollTimer);
+        clearTimeout(syncPushTimer);
+        disableBtn.hidden = true;
+        setSyncStatus('已停用同步（本地資料保留）', 'warn');
+      });
+    }
+    setSyncStatus('');
+    if (syncPat && syncGistId) {
+      if (disableBtn) disableBtn.hidden = false;
+      // Pull on load if newer
+      cloudPull().then((cloud) => {
+        if (cloud && cloud.savedAt && cloud.savedAt > lastCloudSavedAt) {
+          applyCloudData(cloud);
+          setSyncStatus('✅ 已同步（從雲端拉取） ' + timeNow(), 'ok');
+        } else {
+          setSyncStatus('✅ 已連線 ' + timeNow(), 'ok');
+        }
+        startSyncPoll();
+      }).catch((e) => { setSyncStatus('⚠️ 載入失敗：' + e.message, 'warn'); });
+    }
+  }
+  // No-op stub if not enabled (so render handlers can call schedulePush safely)
 
   // === Large font toggle ===
   const fontBtn = document.getElementById('font-toggle');
