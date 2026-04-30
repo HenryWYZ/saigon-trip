@@ -590,6 +590,80 @@
     details.intro > summary { display: none; }
     details.intro > p { display: block !important; background: transparent; padding: 0 0 0 8px; border: none; font-style: italic; font-size: 10pt; color: black; }
   }
+  /* === Tier 1 additions (2026-04-30) === */
+  .tel { color: inherit; text-decoration: underline dotted; cursor: pointer; }
+  .tel::before { content: "📞 "; font-size: 0.85em; opacity: 0.7; }
+  .fx-presets {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 6px;
+    margin-top: 8px;
+  }
+  .fx-presets button {
+    background: #fef6e4;
+    border: 2px solid #f3d2c1;
+    color: #001858;
+    padding: 8px 0;
+    font-size: 13px;
+    font-weight: bold;
+    border-radius: 6px;
+    cursor: pointer;
+    font-family: inherit;
+    min-height: 36px;
+  }
+  .fx-presets button:hover { background: #f3d2c1; }
+  .fx-presets button:active { transform: scale(0.95); }
+  .dual-clock {
+    margin-top: 8px;
+    font-size: 13px;
+    letter-spacing: 1px;
+    opacity: 0.9;
+    font-variant-numeric: tabular-nums;
+  }
+  .today-fab {
+    position: fixed;
+    bottom: 18px;
+    right: 18px;
+    z-index: 150;
+    background: #f582ae;
+    color: white;
+    border: none;
+    padding: 12px 18px;
+    font-size: 14px;
+    font-weight: bold;
+    border-radius: 24px;
+    box-shadow: 0 4px 12px rgba(245,130,174,0.4);
+    cursor: pointer;
+    font-family: inherit;
+  }
+  .today-fab:active { transform: scale(0.95); }
+  .today-fab[hidden] { display: none; }
+  @media print { .today-fab { display: none; } }
+  .countdown {
+    display: inline-block;
+    margin-left: 6px;
+    padding: 2px 8px;
+    background: #e8a317;
+    color: white;
+    font-size: 12px;
+    font-weight: bold;
+    border-radius: 10px;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+  .countdown.due { background: #d33; animation: pulse-cd 2s infinite; }
+  @keyframes pulse-cd {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.65; }
+  }
+  body.dark .fx-presets button {
+    background: #2a3550;
+    border-color: #3d4a6e;
+    color: #d0d8ee;
+  }
+  body.dark .fx-presets button:hover { background: #3d4a6e; }
+  body.dark .countdown { background: #c4951b; }
+  body.dark .countdown.due { background: #e54545; }
 </style>
 </head>
 <body>
@@ -599,6 +673,7 @@
 <header>
   <h1>🇻🇳 胡志明五日行程</h1>
   <p>2026/5/1（四）– 5/5（一）｜CI9027 出發・CI9026 回程</p>
+  <div class="dual-clock" id="dual-clock" aria-live="off">🇻🇳 --:-- ｜ 🇹🇼 --:--</div>
   <p class="slogan">人生不會總是光明　但有時候會在胡志明</p>
 </header>
 <div class="fx-box" id="fx-box">
@@ -612,6 +687,12 @@
       <label for="fx-twd">TWD 台幣</label>
       <input type="text" id="fx-twd" inputmode="decimal" placeholder="130">
     </div>
+  </div>
+  <div class="fx-presets" id="fx-presets" aria-label="VND 快捷金額">
+    <button type="button" data-vnd="50000">50k</button>
+    <button type="button" data-vnd="100000">100k</button>
+    <button type="button" data-vnd="500000">500k</button>
+    <button type="button" data-vnd="1000000">1M</button>
   </div>
   <div class="fx-rate" id="fx-rate" aria-live="polite">匯率載入中…</div>
 </div>
@@ -920,35 +1001,35 @@
   <div class="collapsible-content">
     <p>🆘 越南當地緊急電話</p>
     <ul>
-      <li>警察：<code>113</code>｜火警：<code>114</code>｜救護車：<code>115</code></li>
-      <li>交通事故：<code>+84-28-3920-1747</code>（胡志明市交警）</li>
+      <li>警察：<a class="tel" href="tel:113">113</a>｜火警：<a class="tel" href="tel:114">114</a>｜救護車：<a class="tel" href="tel:115">115</a></li>
+      <li>交通事故：<a class="tel" href="tel:+842839201747">+84-28-3920-1747</a>（胡志明市交警）</li>
     </ul>
     <p>🇹🇼 駐胡志明市台北經濟文化辦事處（TECO HCMC）</p>
     <ul>
       <li>地址：336 Nguyễn Tri Phương, Phường 4, Quận 10, TP. Hồ Chí Minh</li>
-      <li>辦公電話：<code>+84-28-3834-9160</code></li>
-      <li>急難救助專線（僅限車禍、重病、遭搶等生命安全事件）：<code>+84-903-927-019</code></li>
+      <li>辦公電話：<a class="tel" href="tel:+842838349160">+84-28-3834-9160</a></li>
+      <li>急難救助專線（僅限車禍、重病、遭搶等生命安全事件）：<a class="tel" href="tel:+84903927019">+84-903-927-019</a></li>
       <li>傳真：<code>+84-28-3834-9166</code></li>
       <li>網站：roc-taiwan.org/vnsgn</li>
       <li>辦公時間：週一至週五 09:00–12:00 / 14:00–17:00（越南時間，台灣 –1h）</li>
     </ul>
     <p>📞 台灣外交部（Taiwan MOFA）</p>
     <ul>
-      <li>旅外急難救助全球免付費：<code>+800-0885-0885</code>（境外直撥，諧音「您幫幫我、您幫幫我」）</li>
-      <li>台灣境內免付費：<code>0800-085-095</code>（「您幫我、您救我」）</li>
-      <li>海外付費專線：<code>+886-2-2348-2999</code>（24h）</li>
+      <li>旅外急難救助全球免付費：<a class="tel" href="tel:+80008850885">+800-0885-0885</a>（境外直撥，諧音「您幫幫我、您幫幫我」）</li>
+      <li>台灣境內免付費：<a class="tel" href="tel:0800085095">0800-085-095</a>（「您幫我、您救我」）</li>
+      <li>海外付費專線：<a class="tel" href="tel:+886223482999">+886-2-2348-2999</a>（24h）</li>
     </ul>
     <p>✈️ 華航 China Airlines（CI9027 / CI9026）</p>
     <ul>
-      <li>胡志明市辦公室：<code>+84-28-3910-6333</code></li>
-      <li>台灣 24h 客服：<code>+886-412-9000</code>（手機前加 02）</li>
+      <li>胡志明市辦公室：<a class="tel" href="tel:+842839106333">+84-28-3910-6333</a></li>
+      <li>台灣 24h 客服：<a class="tel" href="tel:+8864129000">+886-412-9000</a>（手機前加 02）</li>
       <li>新山一機場 CI 櫃檯：T2 國際航廈</li>
     </ul>
     <p>🏥 醫療（外籍友好醫院）</p>
     <ul>
-      <li>FV Hospital 法越醫院（D7，24h 英語服務）：<code>+84-28-5411-3333</code></li>
-      <li>Columbia Asia Saigon（Bình Thạnh）：<code>+84-28-3803-0678</code></li>
-      <li>Family Medical Practice（D1）：<code>+84-28-3822-7848</code></li>
+      <li>FV Hospital 法越醫院（D7，24h 英語服務）：<a class="tel" href="tel:+842854113333">+84-28-5411-3333</a></li>
+      <li>Columbia Asia Saigon（Bình Thạnh）：<a class="tel" href="tel:+842838030678">+84-28-3803-0678</a></li>
+      <li>Family Medical Practice（D1）：<a class="tel" href="tel:+842838227848">+84-28-3822-7848</a></li>
     </ul>
     <p>💳 證件 / 財物</p>
     <ul>
@@ -962,6 +1043,7 @@
   🇻🇳 胡志明五日行程 ｜ 2026/5/1–5/5 ｜ Chúc chuyến đi vui vẻ!
 </footer>
 </main>
+<button class="today-fab" id="today-fab" type="button" hidden>📅 今天</button>
 <script defer src="app.js"></script>
 </body>
 </html>+

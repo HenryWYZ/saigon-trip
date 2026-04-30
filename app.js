@@ -408,4 +408,83 @@
       timeTd.appendChild(badge);
     });
   });
+
+  // === Dual clock (Saigon UTC+7 / Taiwan UTC+8) ===
+  const dualClock = document.getElementById('dual-clock');
+  if (dualClock) {
+    function updateDualClock() {
+      const now = new Date();
+      try {
+        const sgn = now.toLocaleTimeString('zh-TW', { timeZone: 'Asia/Bangkok', hour: '2-digit', minute: '2-digit', hour12: false });
+        const twn = now.toLocaleTimeString('zh-TW', { timeZone: 'Asia/Taipei', hour: '2-digit', minute: '2-digit', hour12: false });
+        dualClock.textContent = '🇻🇳 ' + sgn + ' ｜ 🇹🇼 ' + twn;
+      } catch (e) {}
+    }
+    updateDualClock();
+    setInterval(updateDualClock, 30000);
+  }
+
+  // === FX preset buttons (50k / 100k / 500k / 1M VND) ===
+  document.querySelectorAll('.fx-presets button[data-vnd]').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      if (!fxVnd) return;
+      fxVnd.value = parseInt(btn.dataset.vnd, 10).toLocaleString('en-US');
+      fxVnd.dispatchEvent(new Event('input', { bubbles: true }));
+      fxVnd.focus();
+    });
+  });
+
+  // === Today FAB — jump to today's <details> ===
+  const todayFab = document.getElementById('today-fab');
+  if (todayFab) {
+    function jumpToToday() {
+      const now = new Date();
+      const localDate = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0') + '-' + String(now.getDate()).padStart(2, '0');
+      const day = document.querySelector('details[data-date="' + localDate + '"]');
+      if (!day) {
+        todayFab.textContent = '📅 行程未開始';
+        todayFab.disabled = true;
+        return;
+      }
+      day.open = true;
+      const target = day.querySelector('tr.now') || day;
+      target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+    todayFab.addEventListener('click', jumpToToday);
+    // Show only if today is within trip dates (5/1-5/5)
+    const now = new Date();
+    const localDate = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0') + '-' + String(now.getDate()).padStart(2, '0');
+    if (document.querySelector('details[data-date="' + localDate + '"]')) {
+      todayFab.hidden = false;
+    }
+  }
+
+  // === Reservation countdown — "⏱️ Xh Ym" badge for bookings within 24h ===
+  function updateCountdowns() {
+    document.querySelectorAll('.countdown').forEach((el) => el.remove());
+    const now = Date.now();
+    document.querySelectorAll('details[data-date] table tr').forEach((tr) => {
+      const tds = tr.children;
+      if (tds.length < 2) return;
+      const txt = tds[1].textContent;
+      if (!/已訂位|必訂位|建議訂位/.test(txt)) return;
+      const dateStr = tr.closest('details[data-date]').getAttribute('data-date');
+      const timeTxt = tds[0].firstChild && tds[0].firstChild.nodeType === 3 ? tds[0].firstChild.textContent : tds[0].textContent;
+      const tm = timeTxt.match(/^(\d{1,2}):(\d{2})/);
+      if (!tm) return;
+      // Build booking timestamp in Asia/Bangkok (UTC+7) — schedule is local Saigon time
+      const bookingUTC = Date.UTC(+dateStr.slice(0, 4), +dateStr.slice(5, 7) - 1, +dateStr.slice(8, 10), +tm[1] - 7, +tm[2]);
+      const diff = bookingUTC - now;
+      if (diff <= 0 || diff > 86400000) return;
+      const hours = Math.floor(diff / 3600000);
+      const mins = Math.floor((diff % 3600000) / 60000);
+      const badge = document.createElement('span');
+      badge.className = 'countdown' + (hours < 2 ? ' due' : '');
+      badge.textContent = '⏱️ ' + (hours > 0 ? hours + 'h ' : '') + mins + 'm';
+      badge.title = '距離' + dateStr + ' ' + timeTxt + ' 還有 ' + hours + 'h ' + mins + 'm';
+      tds[1].appendChild(badge);
+    });
+  }
+  updateCountdowns();
+  setInterval(updateCountdowns, 60000);
 })();
