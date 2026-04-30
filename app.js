@@ -577,7 +577,8 @@
       ? '<li style="justify-content:center;color:#888;">尚無記錄。新增第一筆 ↑</li>'
       : spending.slice().reverse().map((e, ridx) => {
           const realIdx = spending.length - 1 - ridx;
-          return '<li><span>' + DAY_LABELS[e.day] + '｜' + escapeHtml(e.category) + '｜' + fmtVnd(+e.amount) + ' VND</span>' +
+          const noteHtml = e.note ? '<span class="sp-note-tag">＃' + escapeHtml(e.note) + '</span>' : '';
+          return '<li><span>' + DAY_LABELS[e.day] + '｜' + escapeHtml(e.category) + '｜' + fmtVnd(+e.amount) + ' VND' + noteHtml + '</span>' +
                  '<button class="delete" data-idx="' + realIdx + '" aria-label="刪除">✕</button></li>';
         }).join('');
     list.querySelectorAll('button.delete').forEach((b) => {
@@ -599,10 +600,13 @@
       const amt = parseInt(document.getElementById('sp-amount').value, 10);
       const cat = document.getElementById('sp-category').value;
       const day = document.getElementById('sp-day').value;
+      const noteEl = document.getElementById('sp-note');
+      const note = noteEl ? noteEl.value.trim().slice(0, 60) : '';
       if (!amt || amt <= 0) return;
-      spending.push({ amount: amt, category: cat, day: day, ts: Date.now() });
+      spending.push({ amount: amt, category: cat, day: day, note: note, ts: Date.now() });
       saveSpending();
       document.getElementById('sp-amount').value = '';
+      if (noteEl) noteEl.value = '';
       renderSpending();
     });
     renderSpending();
