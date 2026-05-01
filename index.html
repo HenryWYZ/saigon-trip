@@ -995,6 +995,64 @@
     font-size: 13px;
   }
   .spending-totals strong { color: #4a8050; }
+  .spending-settle {
+    margin-top: 8px;
+    background: #fff7ec;
+    border: 1px solid #f3d2a8;
+    border-radius: 6px;
+    padding: 10px 12px;
+    font-size: 13px;
+  }
+  .spending-settle .sp-settle-header {
+    font-weight: bold;
+    color: #c46e2c;
+    margin-bottom: 6px;
+    font-size: 13px;
+  }
+  .spending-settle .sp-settle-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .spending-settle .sp-settle-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+    padding: 5px 8px;
+    border-radius: 4px;
+    background: white;
+  }
+  .spending-settle .sp-settle-name { font-weight: 600; color: #333; }
+  .spending-settle .sp-settle-amount { font-weight: 600; }
+  .spending-settle .sp-settle-debt .sp-settle-name::before { content: '↗ '; color: #c14d4d; }
+  .spending-settle .sp-settle-debt .sp-settle-amount { color: #c14d4d; }
+  .spending-settle .sp-settle-credit .sp-settle-name::before { content: '↙ '; color: #4a8050; }
+  .spending-settle .sp-settle-credit .sp-settle-amount { color: #4a8050; }
+  .spending-settle .sp-settle-zero .sp-settle-amount { color: #888; font-weight: 500; }
+  .spending-settle .sp-settle-warn {
+    margin-top: 6px;
+    font-size: 11px;
+    color: #888;
+    font-style: italic;
+  }
+  body.dark .spending-settle { background: #2a2515; border-color: #6a4a2a; }
+  body.dark .spending-settle .sp-settle-header { color: #d6843e; }
+  body.dark .spending-settle .sp-settle-row { background: #1e2a4a; }
+  body.dark .spending-settle .sp-settle-name { color: #d0d8ee; }
+  body.dark .spending-settle .sp-settle-debt .sp-settle-amount { color: #ff8f8f; }
+  body.dark .spending-settle .sp-settle-credit .sp-settle-amount { color: #88c894; }
+  body.dark .spending-settle .sp-settle-warn { color: #98a4be; }
+  .sp-split-status {
+    font-size: 11px;
+    color: #4a6080;
+    margin-top: 4px;
+    min-height: 14px;
+  }
+  body.dark .sp-split-status { color: #98a4be; }
   .spending-list {
     list-style: none;
     padding: 0;
@@ -1619,19 +1677,11 @@
         <div class="sp-mp-status" id="sp-mp-status">請至少輸入一個人付的金額</div>
       </div>
 
-      <!-- Split count chips -->
+      <!-- Split participants (toggleable member chips; count is implicit) -->
       <div class="sp-field" id="sp-split-section">
-        <label class="sp-label">✂️ 幾個人分攤</label>
-        <div class="sp-chip-group sp-chip-split" id="sp-split-chips" role="radiogroup">
-          <button type="button" class="sp-chip" data-split="1">1 人</button>
-          <button type="button" class="sp-chip" data-split="2">2 人</button>
-          <button type="button" class="sp-chip" data-split="3">3 人</button>
-          <button type="button" class="sp-chip" data-split="4">4 人</button>
-          <button type="button" class="sp-chip" data-split="5">5 人</button>
-          <button type="button" class="sp-chip" data-split="6">6 人</button>
-          <button type="button" class="sp-chip" data-split="8">8 人</button>
-          <button type="button" class="sp-chip" data-split="10">10 人</button>
-        </div>
+        <label class="sp-label">✂️ 誰要分攤（可多選）</label>
+        <div class="sp-chip-group sp-chip-split" id="sp-split-chips" role="group" aria-label="分攤對象"></div>
+        <div class="sp-split-status" id="sp-split-status" aria-live="polite"></div>
         <input type="number" id="sp-split" min="1" max="20" step="1" value="1" hidden>
       </div>
 
@@ -1646,6 +1696,7 @@
     </form>
     <div class="spending-summary" id="spending-summary"></div>
     <div class="spending-totals" id="spending-totals"></div>
+    <div class="spending-settle" id="spending-settle" hidden></div>
     <ul class="spending-list" id="spending-list"></ul>
   </div>
 </details>

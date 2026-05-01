@@ -634,21 +634,35 @@
     const byName = members.find((m) => m.name === payer);
     return byName ? byName.id : getSelfMember().id;
   }
-  // Migrate legacy entries: payer free-text → member id (auto-create members)
+  // Migrate legacy entries: payer free-text → member id (auto-create members);
+  // also derive `participants` from `splitCount` so settlement can be computed.
   (function migrateLegacy() {
     let changed = false;
     spending.forEach((e) => {
-      if (!e.payer) { e.payer = getSelfMember().id; changed = true; return; }
-      if (e.payer === '__multi__' || e.payer.startsWith('m-') && getMember(e.payer)) return;
-      // legacy free-text
-      let m = members.find((x) => x.name === e.payer);
-      if (!m) {
-        m = { id: genMemberId(), name: String(e.payer).slice(0, 15) };
-        members.push(m);
+      if (!e.payer) { e.payer = getSelfMember().id; changed = true; }
+      else if (e.payer !== '__multi__' && !(e.payer.startsWith('m-') && getMember(e.payer))) {
+        // legacy free-text payer name
+        let m = members.find((x) => x.name === e.payer);
+        if (!m) {
+          m = { id: genMemberId(), name: String(e.payer).slice(0, 15) };
+          members.push(m);
+        }
+        e.payer = m.id;
         changed = true;
       }
-      e.payer = m.id;
-      changed = true;
+      // Derive participants from splitCount if missing.
+      // Only feasible when splitCount fits within current members (else settlement
+      // skips the entry — too ambiguous to retroactively guess who else was there).
+      if (!Array.isArray(e.participants) || e.participants.length === 0) {
+        const split = Math.max(1, +e.splitCount || 1);
+        const selfId = getSelfMember().id;
+        const others = members.filter((m) => !m.isSelf).map((m) => m.id);
+        if (split <= 1 + others.length) {
+          e.participants = [selfId].concat(others.slice(0, split - 1));
+          e.splitCount = e.participants.length;
+          changed = true;
+        }
+      }
     });
     if (changed) { saveMembers(); saveSpending(); }
   })();
@@ -799,6 +813,7 @@
   function refreshAllUI() {
     renderMembersUI();
     renderPayerSelect();
+    renderSplitChips();
     updateMultiPayVisibility();
     renderSpending();
   }
@@ -817,9 +832,15 @@
     } else {
       payerHtml = '<span class="sp-payer-chip">👤 ' + escapeHtml(payerLabel(e.payer)) + '付</span>';
     }
-    const splitInfo = split > 1
-      ? '<span class="sp-split-mini">÷' + split + '人＝' + fmtVnd(Math.round(amt / split)) + '／人</span>'
-      : '';
+    let splitInfo = '';
+    if (split > 1) {
+      const share = Math.round(amt / split);
+      const names = (Array.isArray(e.participants) && e.participants.length)
+        ? e.participants.map((id) => { const m = getMember(id); return m ? m.name : ''; }).filter(Boolean)
+        : null;
+      const who = names && names.length ? '（' + escapeHtml(names.join('、')) + '）' : '';
+      splitInfo = '<span class="sp-split-mini">÷' + split + '人' + who + '＝' + fmtVnd(share) + '／人</span>';
+    }
     const noteHtml = e.note ? '<span class="sp-note-mini">＃' + escapeHtml(e.note) + '</span>' : '';
     const editingCls = realIdx === editingIdx ? ' sp-card-editing' : '';
     const twdLine = (typeof rate === 'number' && rate && amt)
@@ -844,6 +865,121 @@
       '</div>' +
     '</div>';
   }
+  // Compute pairwise net settlement.
+  // Returns: { netOwes: { creditorId: { debtorId: vndAmount } }, skipped: number }
+  // skipped = entries where participants couldn't be derived (legacy + ambiguous).
+  function computeSettlement() {
+    const pair = {}; // pair[A][B] = how much B owes A in raw debts
+    let skipped = 0;
+    function addOwe(creditor, debtor, amount) {
+      if (creditor === debtor || !(amount > 0)) return;
+      if (!pair[creditor]) pair[creditor] = {};
+      pair[creditor][debtor] = (pair[creditor][debtor] || 0) + amount;
+    }
+    spending.forEach((e) => {
+      const amt = +e.amount || 0;
+      if (amt <= 0) return;
+      const participants = (Array.isArray(e.participants) && e.participants.length)
+        ? e.participants.filter((id) => getMember(id))
+        : null;
+      if (!participants || participants.length === 0) { skipped++; return; }
+      const share = amt / participants.length;
+      let payments;
+      if (e.payer === '__multi__' && e.paid) {
+        payments = {};
+        Object.keys(e.paid).forEach((id) => {
+          const v = +e.paid[id] || 0;
+          if (v > 0 && getMember(id)) payments[id] = v;
+        });
+      } else {
+        const payerId = (e.payer && getMember(e.payer)) ? e.payer : getSelfMember().id;
+        payments = {};
+        payments[payerId] = amt;
+      }
+      const totalPaid = Object.values(payments).reduce((s, v) => s + v, 0);
+      if (totalPaid <= 0) { skipped++; return; }
+      participants.forEach((pId) => {
+        const paidByThem = payments[pId] || 0;
+        const owedByThem = share - paidByThem;
+        if (owedByThem <= 0) return;
+        // Distribute their debt across payers proportionally to what each paid.
+        Object.keys(payments).forEach((payerId) => {
+          if (payerId === pId) return;
+          const portion = (payments[payerId] / totalPaid) * owedByThem;
+          addOwe(payerId, pId, portion);
+        });
+      });
+    });
+    // Net out reciprocal debts: if A owes B 100 and B owes A 30, net is A→B 70.
+    const netOwes = {};
+    const seen = new Set();
+    Object.keys(pair).forEach((a) => {
+      Object.keys(pair[a]).forEach((b) => {
+        const key = [a, b].sort().join('|');
+        if (seen.has(key)) return;
+        seen.add(key);
+        const ab = (pair[a] && pair[a][b]) || 0;
+        const ba = (pair[b] && pair[b][a]) || 0;
+        const net = ab - ba;
+        if (net > 0.5) {
+          if (!netOwes[a]) netOwes[a] = {};
+          netOwes[a][b] = Math.round(net);
+        } else if (net < -0.5) {
+          if (!netOwes[b]) netOwes[b] = {};
+          netOwes[b][a] = Math.round(-net);
+        }
+      });
+    });
+    return { netOwes: netOwes, skipped: skipped };
+  }
+  function renderSettlement() {
+    const box = document.getElementById('spending-settle');
+    if (!box) return;
+    if (members.length <= 1 || spending.length === 0) {
+      box.innerHTML = '';
+      box.hidden = true;
+      return;
+    }
+    const result = computeSettlement();
+    const selfId = getSelfMember().id;
+    const lines = [];
+    members.forEach((m) => {
+      if (m.isSelf) return;
+      const theyOweMe = (result.netOwes[selfId] && result.netOwes[selfId][m.id]) || 0;
+      const iOweThem  = (result.netOwes[m.id] && result.netOwes[m.id][selfId]) || 0;
+      const net = theyOweMe - iOweThem;
+      if (net > 0) {
+        const twd = (typeof rate === 'number' && rate)
+          ? ' <span class="sp-settle-twd">≈ NT$ ' + Math.round(net * rate).toLocaleString('en-US') + '</span>' : '';
+        lines.push('<li class="sp-settle-row sp-settle-credit">' +
+          '<span class="sp-settle-name">' + escapeHtml(m.name) + ' 還你</span>' +
+          '<span class="sp-settle-amount">' + fmtVnd(net) + ' VND' + twd + '</span>' +
+        '</li>');
+      } else if (net < 0) {
+        const owe = -net;
+        const twd = (typeof rate === 'number' && rate)
+          ? ' <span class="sp-settle-twd">≈ NT$ ' + Math.round(owe * rate).toLocaleString('en-US') + '</span>' : '';
+        lines.push('<li class="sp-settle-row sp-settle-debt">' +
+          '<span class="sp-settle-name">你給 ' + escapeHtml(m.name) + '</span>' +
+          '<span class="sp-settle-amount">' + fmtVnd(owe) + ' VND' + twd + '</span>' +
+        '</li>');
+      } else {
+        lines.push('<li class="sp-settle-row sp-settle-zero">' +
+          '<span class="sp-settle-name">' + escapeHtml(m.name) + '</span>' +
+          '<span class="sp-settle-amount">已結清</span>' +
+        '</li>');
+      }
+    });
+    if (lines.length === 0) { box.innerHTML = ''; box.hidden = true; return; }
+    let html = '<div class="sp-settle-header">💸 結算（你 ↔ 各旅伴的淨額）</div>' +
+      '<ul class="sp-settle-list">' + lines.join('') + '</ul>';
+    if (result.skipped > 0) {
+      html += '<div class="sp-settle-warn">' + result.skipped + ' 筆舊記錄缺少分攤對象資訊，已從結算中略過 — 可編輯後重設「誰要分攤」。</div>';
+    }
+    box.innerHTML = html;
+    box.hidden = false;
+  }
+
   function renderSpending() {
     const summary = document.getElementById('spending-summary');
     const totals = document.getElementById('spending-totals');
@@ -875,6 +1011,7 @@
     totals.innerHTML =
       '<strong>5 日累計：</strong>' + fmtVnd(total) + ' VND' + (totalTwd != null ? ' (NT$ ' + totalTwd.toLocaleString('en-US') + ')' : '') +
       '｜<strong>我的份額：</strong>' + fmtVnd(Math.round(myShare)) + ' VND' + (myShareTwd != null ? ' (NT$ ' + myShareTwd.toLocaleString('en-US') + ')' : '');
+    renderSettlement();
     if (spending.length === 0) {
       list.innerHTML = '<li class="sp-empty">尚無記錄 · 新增第一筆 ↑</li>';
     } else {
@@ -955,6 +1092,15 @@
       activateChipByValue('sp-payer-chips', 'data-payer', memberId);
       updateMultiPayVisibility();
     }
+    // Apply participants → split chips. Fall back to splitCount-derived ids when missing.
+    let pIds = Array.isArray(e.participants) ? e.participants.slice() : [];
+    if (!pIds.length) {
+      const split = Math.max(1, +e.splitCount || 1);
+      const selfId = getSelfMember().id;
+      const others = members.filter((m) => !m.isSelf).map((m) => m.id);
+      pIds = [selfId].concat(others.slice(0, Math.max(0, split - 1)));
+    }
+    setSplitChipsFromIds(pIds);
     syncChipsFromValues();
     updateAmountTwdPreview();
     const submitBtn = document.getElementById('sp-submit');
@@ -1035,23 +1181,75 @@
       if (!matched && customBtn) customBtn.classList.add('active');
     });
   }
-  function setupSplitChips() {
+  function renderSplitChips() {
     const wrap = document.getElementById('sp-split-chips');
     const input = document.getElementById('sp-split');
     if (!wrap || !input) return;
+    // Default: every member is selected (most common case for a group trip).
+    // Edit mode and form reset paths call setSplitChipsFromIds() to override after this.
+    wrap.innerHTML = members.map((m) =>
+      '<button type="button" class="sp-chip sp-split-chip active"' +
+      ' data-mid="' + escapeHtml(m.id) + '"' + (m.isSelf ? ' data-self="1"' : '') + '>' +
+        (m.isSelf ? '🙋 ' : '👤 ') + escapeHtml(m.name) +
+      '</button>'
+    ).join('');
     wrap.querySelectorAll('button').forEach((btn) => {
       btn.addEventListener('click', () => {
-        input.value = btn.dataset.split;
-        wrap.querySelectorAll('button').forEach((b) => b.classList.remove('active'));
-        btn.classList.add('active');
+        // Self chip cannot be deactivated — your share always counts
+        if (btn.dataset.self === '1') {
+          btn.classList.add('active');
+          updateSplitCountFromChips();
+          return;
+        }
+        btn.classList.toggle('active');
+        updateSplitCountFromChips();
       });
     });
+    updateSplitCountFromChips();
+  }
+  function getActiveSplitMemberIds() {
+    const wrap = document.getElementById('sp-split-chips');
+    const selfId = getSelfMember().id;
+    if (!wrap) return [selfId];
+    const ids = Array.from(wrap.querySelectorAll('button.active')).map((b) => b.dataset.mid);
+    if (!ids.includes(selfId)) ids.unshift(selfId);
+    return ids;
+  }
+  function updateSplitCountFromChips() {
+    const ids = getActiveSplitMemberIds();
+    const inp = document.getElementById('sp-split');
+    if (inp) inp.value = String(ids.length);
+    const status = document.getElementById('sp-split-status');
+    if (status) {
+      const amtEl = document.getElementById('sp-amount');
+      const amt = amtEl ? parseInt(amtEl.value, 10) || 0 : 0;
+      if (ids.length <= 1) {
+        status.textContent = '只有你 — 不分攤';
+      } else if (amt > 0) {
+        const share = Math.round(amt / ids.length);
+        const twd = (typeof rate === 'number' && rate) ? ' ≈ NT$ ' + Math.round(share * rate).toLocaleString('en-US') : '';
+        status.textContent = '每人 ' + fmtVnd(share) + ' VND' + twd + '（' + ids.length + ' 人均分）';
+      } else {
+        status.textContent = ids.length + ' 人均分';
+      }
+    }
+  }
+  function setSplitChipsFromIds(ids) {
+    const wrap = document.getElementById('sp-split-chips');
+    if (!wrap) return;
+    const set = new Set(ids || []);
+    const selfId = getSelfMember().id;
+    set.add(selfId); // self always included
+    wrap.querySelectorAll('button').forEach((b) => {
+      if (set.has(b.dataset.mid)) b.classList.add('active');
+      else b.classList.remove('active');
+    });
+    updateSplitCountFromChips();
   }
   function syncChipsFromValues() {
     const daySel = document.getElementById('sp-day');
     const catInput = document.getElementById('sp-category');
     const customBtn = document.getElementById('sp-cat-custom-toggle');
-    const splitInput = document.getElementById('sp-split');
     if (daySel) activateChipByValue('sp-day-chips', 'data-day', daySel.value);
     if (catInput) {
       const matched = activateChipByValue('sp-cat-chips', 'data-cat', catInput.value);
@@ -1062,7 +1260,7 @@
         catInput.hidden = true;
       }
     }
-    if (splitInput) activateChipByValue('sp-split-chips', 'data-split', splitInput.value);
+    updateSplitCountFromChips();
   }
   function updateAmountTwdPreview() {
     const amt = parseInt((document.getElementById('sp-amount') || {}).value, 10) || 0;
@@ -1085,7 +1283,8 @@
   if (spForm) {
     setupDayChips();
     setupCategoryChips();
-    setupSplitChips();
+    renderSplitChips();
+    setSplitChipsFromIds(members.map((m) => m.id));
     const tdy = todayStr();
     const dayEl = document.getElementById('sp-day');
     if (dayEl && DAYS.indexOf(tdy) !== -1) dayEl.value = tdy;
@@ -1098,10 +1297,8 @@
       const cat = document.getElementById('sp-category').value.trim().slice(0, 20);
       const day = document.getElementById('sp-day').value;
       const payer = document.getElementById('sp-payer').value;
-      const splitEl = document.getElementById('sp-split');
-      let split = parseInt(splitEl.value, 10);
-      if (!split || split < 1) split = 1;
-      if (split > 20) split = 20;
+      const participants = getActiveSplitMemberIds();
+      const split = participants.length;
       const noteEl = document.getElementById('sp-note');
       const note = noteEl ? noteEl.value.trim().slice(0, 60) : '';
       if (!amt || amt <= 0) return;
@@ -1130,10 +1327,10 @@
 
       if (editingIdx >= 0 && spending[editingIdx]) {
         const origTs = spending[editingIdx].ts;
-        spending[editingIdx] = { amount: amtFinal, category: cat, day: day, payer: payer, paid: paid, splitCount: split, note: note, ts: origTs };
+        spending[editingIdx] = { amount: amtFinal, category: cat, day: day, payer: payer, paid: paid, splitCount: split, participants: participants, note: note, ts: origTs };
         exitSpendingEditMode();
       } else {
-        spending.push({ amount: amtFinal, category: cat, day: day, payer: payer, paid: paid, splitCount: split, note: note, ts: Date.now() });
+        spending.push({ amount: amtFinal, category: cat, day: day, payer: payer, paid: paid, splitCount: split, participants: participants, note: note, ts: Date.now() });
       }
       saveSpending();
       amtEl.value = '';
@@ -1145,6 +1342,8 @@
         activateChipByValue('sp-payer-chips', 'data-payer', getSelfMember().id);
         updateMultiPayVisibility();
       }
+      // Reset split chips to "all members" so a new entry defaults to whole group
+      setSplitChipsFromIds(members.map((m) => m.id));
       updateAmountTwdPreview();
       renderSpending();
       schedulePush();
@@ -1161,6 +1360,7 @@
           activateChipByValue('sp-payer-chips', 'data-payer', getSelfMember().id);
           updateMultiPayVisibility();
         }
+        setSplitChipsFromIds(members.map((m) => m.id));
         updateAmountTwdPreview();
         renderSpending();
       });
@@ -1169,6 +1369,7 @@
     const amtChange = document.getElementById('sp-amount');
     if (amtChange) amtChange.addEventListener('input', () => {
       updateAmountTwdPreview();
+      updateSplitCountFromChips();
       const ps = document.getElementById('sp-payer');
       if (ps && ps.value === '__multi__') updateMultiPayStatus();
     });
