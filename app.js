@@ -413,7 +413,7 @@
       { walk: 1, note: '同條街' },
       { walk: 4 },
       { walk: 8, note: 'Q1 中央 600m' },
-      { drive: 8, note: 'Q1→Phú Nhuận' },
+      { drive: 12, note: 'Q1→Phú Nhuận・過 Cầu Kiệu 橋' },
       { drive: 5, note: 'Phú Nhuận→Tân Định' },
       { walk: 7, note: 'Tân Định 內' },
       { walk: 8, drive: 3 },
