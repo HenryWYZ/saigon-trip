@@ -359,7 +359,26 @@
     font-weight: bold;
     color: #001858;
     margin-bottom: 6px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
   }
+  .weather-refresh {
+    background: transparent;
+    border: 1px solid #8bd3dd;
+    color: #001858;
+    border-radius: 12px;
+    width: 26px;
+    height: 22px;
+    font-size: 13px;
+    line-height: 1;
+    cursor: pointer;
+    padding: 0;
+  }
+  .weather-refresh:active { transform: scale(0.92); }
+  body.dark .weather-refresh { border-color: #8bd3dd; color: #e8edff; background: rgba(139,211,221,0.1); }
+  @media print { .weather-refresh { display: none; } }
   .weather-days {
     display: grid;
     grid-template-columns: repeat(5, 1fr);
@@ -1462,7 +1481,10 @@
   <a href="#day-5" data-day="5">Day 5<small>5/5 二</small></a>
 </nav>
 <div class="weather-box" id="weather-box">
-  <div class="weather-header">☁️ 5/1–5/5 胡志明天氣</div>
+  <div class="weather-header">
+    <span>☁️ 5/1–5/5 胡志明天氣</span>
+    <button type="button" class="weather-refresh" id="weather-refresh" aria-label="重新整理天氣預報">↻</button>
+  </div>
   <div class="weather-days" id="weather-days" aria-live="polite">載入中…</div>
 </div>
 <div class="progress-wrap" id="progress-wrap">

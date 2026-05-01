@@ -210,19 +210,23 @@
   if (fxTwd) fxTwd.addEventListener('input', onTwdInput);
   if (fxRate) fetchRate();
 
-  async function loadWeather() {
+  async function loadWeather(opts) {
     const box = document.getElementById('weather-days');
     if (!box) return;
-    const WEATHER_KEY = 'weather-sgn-v1';
-    const url = 'https://api.open-meteo.com/v1/forecast?latitude=10.7769&longitude=106.7009&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max&timezone=Asia%2FBangkok&start_date=2026-05-01&end_date=2026-05-05';
+    const force = !!(opts && opts.force);
+    const WEATHER_KEY = 'weather-sgn-v2';
+    const url = 'https://api.open-meteo.com/v1/forecast?latitude=10.7769&longitude=106.7009&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max,precipitation_sum&timezone=Asia%2FBangkok&start_date=2026-05-01&end_date=2026-05-05&models=best_match';
     const emojiFor = (c) => {
       if (c === 0) return '☀️';
-      if (c <= 3) return '⛅';
-      if (c <= 48) return '🌫️';
-      if (c <= 57) return '🌦️';
-      if (c <= 67) return '🌧️';
-      if (c <= 77) return '❄️';
-      if (c <= 82) return '🌧️';
+      if (c === 1) return '🌤️';
+      if (c === 2) return '⛅';
+      if (c === 3) return '☁️';
+      if (c === 45 || c === 48) return '🌫️';
+      if (c >= 51 && c <= 57) return '🌦️';
+      if (c >= 61 && c <= 67) return '🌧️';
+      if (c >= 71 && c <= 77) return '❄️';
+      if (c >= 80 && c <= 82) return '🌧️';
+      if (c >= 85 && c <= 86) return '🌨️';
       if (c >= 95) return '⛈️';
       return '☁️';
     };
@@ -235,33 +239,53 @@
       return mo + '/' + d + ' ' + ZH_WEEKDAYS[dow];
     }
 
-    function render(daily, cached) {
+    function fmtMm(v) {
+      if (v == null || isNaN(v)) return '';
+      const n = Number(v);
+      if (n <= 0) return '';
+      if (n < 1) return n.toFixed(1) + 'mm';
+      return Math.round(n) + 'mm';
+    }
+    function fmtUpdated(ts) {
+      const d = new Date(ts);
+      const hh = String(d.getHours()).padStart(2, '0');
+      const mm = String(d.getMinutes()).padStart(2, '0');
+      return (d.getMonth() + 1) + '/' + d.getDate() + ' ' + hh + ':' + mm;
+    }
+    function render(daily, cached, ts) {
       if (!daily || !daily.time) { box.textContent = '無天氣資料'; return; }
       let html = '';
       for (let i = 0; i < daily.time.length; i++) {
         const tmax = Math.round(daily.temperature_2m_max[i]);
         const tmin = Math.round(daily.temperature_2m_min[i]);
-        const rain = daily.precipitation_probability_max[i] || 0;
+        const rainP = daily.precipitation_probability_max ? (daily.precipitation_probability_max[i] || 0) : 0;
+        const rainMm = daily.precipitation_sum ? daily.precipitation_sum[i] : null;
+        const mmStr = fmtMm(rainMm);
         html +=
           '<div class="weather-day">' +
             '<div class="wd-name">' + weekdayLabel(daily.time[i]) + '</div>' +
             '<div class="wd-emoji">' + emojiFor(daily.weather_code[i]) + '</div>' +
             '<div class="wd-temp">' + tmin + '° / ' + tmax + '°</div>' +
-            '<div class="wd-rain">💧' + rain + '%</div>' +
+            '<div class="wd-rain">💧' + rainP + '%' + (mmStr ? ' · ' + mmStr : '') + '</div>' +
           '</div>';
       }
-      if (cached) html += '<div class="wd-cached">離線快取資料</div>';
+      const stampStr = ts ? '更新 ' + fmtUpdated(ts) : '';
+      const cachedStr = cached ? '離線快取資料' : '';
+      const meta = [stampStr, cachedStr].filter(Boolean).join(' · ');
+      if (meta) html += '<div class="wd-cached">' + meta + '</div>';
       box.innerHTML = html;
-      // === Rain alert: prepend warning to days with >60% rain forecast ===
+      // === Rain alert: prepend warning to days with >60% probability OR >5mm forecast rain ===
       document.querySelectorAll('.rain-alert').forEach((el) => el.remove());
       for (let i = 0; i < daily.time.length; i++) {
-        const rain = daily.precipitation_probability_max[i] || 0;
-        if (rain < 60) continue;
+        const rainP = daily.precipitation_probability_max ? (daily.precipitation_probability_max[i] || 0) : 0;
+        const rainMm = daily.precipitation_sum ? Number(daily.precipitation_sum[i] || 0) : 0;
+        if (rainP < 60 && rainMm < 5) continue;
         const day = document.querySelector('details[data-date="' + daily.time[i] + '"]');
         if (!day) continue;
         const alert = document.createElement('div');
         alert.className = 'rain-alert';
-        alert.innerHTML = '⚠️ 預報雨機率 <strong>' + rain + '%</strong>。建議優先選室內活動或備傘 — <a href="#main">看備用方案</a>。';
+        const mmTxt = rainMm >= 1 ? '，預估雨量 <strong>' + Math.round(rainMm) + 'mm</strong>' : '';
+        alert.innerHTML = '⚠️ 預報雨機率 <strong>' + rainP + '%</strong>' + mmTxt + '。建議優先選室內活動或備傘 — <a href="#main">看備用方案</a>。';
         const summary = day.querySelector(':scope > summary');
         if (summary && summary.nextSibling) {
           day.insertBefore(alert, summary.nextSibling);
@@ -271,24 +295,41 @@
       }
     }
 
+    if (!force) {
+      try {
+        const cached = JSON.parse(localStorage.getItem(WEATHER_KEY) || 'null');
+        if (cached && cached.daily) render(cached.daily, false, cached.ts || 0);
+      } catch (err) {}
+    }
+
     try {
       const r = await fetch(url, { cache: 'no-store' });
       const data = await r.json();
       if (data && data.daily) {
-        try { localStorage.setItem(WEATHER_KEY, JSON.stringify({ daily: data.daily, ts: Date.now() })); } catch (e) {}
-        render(data.daily, false);
+        const ts = Date.now();
+        try { localStorage.setItem(WEATHER_KEY, JSON.stringify({ daily: data.daily, ts: ts })); } catch (e) {}
+        render(data.daily, false, ts);
         return;
       }
       throw new Error('no data');
     } catch (e) {
       try {
         const cached = JSON.parse(localStorage.getItem(WEATHER_KEY) || 'null');
-        if (cached && cached.daily) { render(cached.daily, true); return; }
+        if (cached && cached.daily) { render(cached.daily, true, cached.ts || 0); return; }
       } catch (err) {}
-      box.textContent = '天氣暫時無法載入';
+      if (!box.innerHTML || box.textContent === '載入中…') box.textContent = '天氣暫時無法載入';
     }
   }
   loadWeather();
+  const weatherRefreshBtn = document.getElementById('weather-refresh');
+  if (weatherRefreshBtn) {
+    weatherRefreshBtn.addEventListener('click', () => {
+      try { localStorage.removeItem('weather-sgn-v2'); } catch (e) {}
+      const box = document.getElementById('weather-days');
+      if (box) box.textContent = '載入中…';
+      loadWeather({ force: true });
+    });
+  }
 
   // === IG recommendation icons ===
   // 若你有特定的 IG 貼文 / Reel URL，在此 map 填入 '地點名稱': 'IG_URL' 即可覆蓋
