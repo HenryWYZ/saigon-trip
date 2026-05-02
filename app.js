@@ -833,7 +833,14 @@
       payerHtml = '<span class="sp-payer-chip">👤 ' + escapeHtml(payerLabel(e.payer)) + '付</span>';
     }
     let splitInfo = '';
-    if (split > 1) {
+    if (e.shares && typeof e.shares === 'object' && Object.keys(e.shares).length > 0) {
+      const pieces = Object.keys(e.shares).map((id) => {
+        const m = getMember(id);
+        const name = m ? m.name : id;
+        return escapeHtml(name) + ' ' + fmtVnd(e.shares[id]);
+      });
+      splitInfo = '<span class="sp-split-mini">➗ ' + pieces.join(' / ') + '</span>';
+    } else if (split > 1) {
       const share = Math.round(amt / split);
       const names = (Array.isArray(e.participants) && e.participants.length)
         ? e.participants.map((id) => { const m = getMember(id); return m ? m.name : ''; }).filter(Boolean)
@@ -879,11 +886,23 @@
     spending.forEach((e) => {
       const amt = +e.amount || 0;
       if (amt <= 0) return;
-      const participants = (Array.isArray(e.participants) && e.participants.length)
-        ? e.participants.filter((id) => getMember(id))
-        : null;
+      // Uneven split: each participant has their own share.
+      // Even split (default): every participant owes amt / participants.length.
+      const hasShares = e.shares && typeof e.shares === 'object' && Object.keys(e.shares).length > 0;
+      let participants, sharesMap;
+      if (hasShares) {
+        sharesMap = {};
+        Object.keys(e.shares).forEach((id) => {
+          const v = +e.shares[id] || 0;
+          if (v > 0 && getMember(id)) sharesMap[id] = v;
+        });
+        participants = Object.keys(sharesMap);
+      } else {
+        participants = (Array.isArray(e.participants) && e.participants.length)
+          ? e.participants.filter((id) => getMember(id))
+          : null;
+      }
       if (!participants || participants.length === 0) { skipped++; return; }
-      const share = amt / participants.length;
       let payments;
       if (e.payer === '__multi__' && e.paid) {
         payments = {};
@@ -899,8 +918,9 @@
       const totalPaid = Object.values(payments).reduce((s, v) => s + v, 0);
       if (totalPaid <= 0) { skipped++; return; }
       participants.forEach((pId) => {
+        const owedShare = hasShares ? sharesMap[pId] : (amt / participants.length);
         const paidByThem = payments[pId] || 0;
-        const owedByThem = share - paidByThem;
+        const owedByThem = owedShare - paidByThem;
         if (owedByThem <= 0) return;
         // Distribute their debt across payers proportionally to what each paid.
         Object.keys(payments).forEach((payerId) => {
@@ -1101,6 +1121,13 @@
       pIds = [selfId].concat(others.slice(0, Math.max(0, split - 1)));
     }
     setSplitChipsFromIds(pIds);
+    // Restore split mode + shares values when this entry was uneven.
+    if (e.shares && Object.keys(e.shares).length > 0) {
+      setSplitMode('uneven');
+      setSharesFromMap(e.shares);
+    } else {
+      setSplitMode('equal');
+    }
     syncChipsFromValues();
     updateAmountTwdPreview();
     const submitBtn = document.getElementById('sp-submit');
@@ -1246,6 +1273,102 @@
     });
     updateSplitCountFromChips();
   }
+  // === Uneven split (各自分攤) ===
+  function getSplitMode() {
+    const btn = document.querySelector('.sp-split-mode-btn.active');
+    return (btn && btn.dataset.mode) || 'equal';
+  }
+  function setSplitMode(mode) {
+    const btns = document.querySelectorAll('.sp-split-mode-btn');
+    btns.forEach((b) => {
+      const on = b.dataset.mode === mode;
+      b.classList.toggle('active', on);
+      b.setAttribute('aria-selected', on ? 'true' : 'false');
+    });
+    const chips  = document.getElementById('sp-split-chips');
+    const status = document.getElementById('sp-split-status');
+    const panel  = document.getElementById('sp-uneven-panel');
+    const amtEl  = document.getElementById('sp-amount');
+    if (mode === 'uneven') {
+      if (chips) chips.style.display = 'none';
+      if (status) status.style.display = 'none';
+      if (panel) panel.hidden = false;
+      if (amtEl) {
+        amtEl.readOnly = true;
+        amtEl.classList.add('sp-amount-locked');
+        amtEl.placeholder = '自動加總（下方填各人）';
+      }
+      renderSharesInputs();
+    } else {
+      if (chips) chips.style.display = '';
+      if (status) status.style.display = '';
+      if (panel) panel.hidden = true;
+      if (amtEl) {
+        // Multi-pay still locks amount; only unlock if neither uneven nor multi-pay is on.
+        const payerSel = document.getElementById('sp-payer');
+        if (!payerSel || payerSel.value !== '__multi__') {
+          amtEl.readOnly = false;
+          amtEl.classList.remove('sp-amount-locked');
+          amtEl.placeholder = '0';
+        }
+      }
+      updateSplitCountFromChips();
+    }
+  }
+  function renderSharesInputs() {
+    const list = document.getElementById('sp-shares-list');
+    if (!list) return;
+    list.innerHTML = members.map((m) =>
+      '<label class="sp-mp-row">' +
+        '<span class="sp-mp-name">' + (m.isSelf ? '🙋 ' : '👤 ') + escapeHtml(m.name) + '</span>' +
+        '<input type="number" min="0" step="1" inputmode="numeric" data-share-id="' + escapeHtml(m.id) + '" placeholder="0">' +
+        '<span class="sp-mp-vnd">VND</span>' +
+      '</label>'
+    ).join('');
+    list.querySelectorAll('input[data-share-id]').forEach((inp) => {
+      inp.addEventListener('input', updateSharesStatus);
+    });
+    updateSharesStatus();
+  }
+  function getSharesMap() {
+    const out = {};
+    document.querySelectorAll('#sp-shares-list input[data-share-id]').forEach((inp) => {
+      const v = parseInt(inp.value, 10) || 0;
+      if (v > 0) out[inp.dataset.shareId] = v;
+    });
+    return out;
+  }
+  function updateSharesStatus() {
+    const status = document.getElementById('sp-shares-status');
+    const amtEl = document.getElementById('sp-amount');
+    const shares = getSharesMap();
+    const sum = Object.values(shares).reduce((s, v) => s + v, 0);
+    if (amtEl) amtEl.value = sum > 0 ? String(sum) : '';
+    if (typeof updateAmountTwdPreview === 'function') updateAmountTwdPreview();
+    if (!status) return;
+    if (sum > 0) {
+      const twd = (typeof rate === 'number' && rate) ? ' ≈ NT$ ' + Math.round(sum * rate).toLocaleString('en-US') : '';
+      status.textContent = '✓ 自動加總：' + sum.toLocaleString('en-US') + ' VND' + twd;
+      status.className = 'sp-mp-status ok';
+    } else {
+      status.textContent = '請至少輸入一個人應分攤金額';
+      status.className = 'sp-mp-status warning';
+    }
+  }
+  function setSharesFromMap(shares) {
+    const list = document.getElementById('sp-shares-list');
+    if (!list) return;
+    list.querySelectorAll('input[data-share-id]').forEach((inp) => {
+      const v = shares && shares[inp.dataset.shareId];
+      inp.value = v ? String(v) : '';
+    });
+    updateSharesStatus();
+  }
+  function setupSplitModeToggle() {
+    document.querySelectorAll('.sp-split-mode-btn').forEach((btn) => {
+      btn.addEventListener('click', () => setSplitMode(btn.dataset.mode));
+    });
+  }
   function syncChipsFromValues() {
     const daySel = document.getElementById('sp-day');
     const catInput = document.getElementById('sp-category');
@@ -1285,6 +1408,7 @@
     setupCategoryChips();
     renderSplitChips();
     setSplitChipsFromIds(members.map((m) => m.id));
+    setupSplitModeToggle();
     const tdy = todayStr();
     const dayEl = document.getElementById('sp-day');
     if (dayEl && DAYS.indexOf(tdy) !== -1) dayEl.value = tdy;
@@ -1297,11 +1421,25 @@
       const cat = document.getElementById('sp-category').value.trim().slice(0, 20);
       const day = document.getElementById('sp-day').value;
       const payer = document.getElementById('sp-payer').value;
-      const participants = getActiveSplitMemberIds();
+      const splitMode = getSplitMode();
+      let participants, shares = null;
+      if (splitMode === 'uneven') {
+        shares = getSharesMap();
+        participants = Object.keys(shares);
+        if (participants.length === 0) {
+          const status = document.getElementById('sp-shares-status');
+          if (status) {
+            status.classList.add('error-shake');
+            setTimeout(() => status.classList.remove('error-shake'), 600);
+          }
+          return;
+        }
+      } else {
+        participants = getActiveSplitMemberIds();
+      }
       const split = participants.length;
       const noteEl = document.getElementById('sp-note');
       const note = noteEl ? noteEl.value.trim().slice(0, 60) : '';
-      if (!amt || amt <= 0) return;
       if (!cat) return;
 
       let paid = null;
@@ -1323,14 +1461,20 @@
           return;
         }
         amtFinal = sum;
+      } else if (splitMode === 'uneven') {
+        amtFinal = Object.values(shares).reduce((s, v) => s + v, 0);
       }
+      if (!amtFinal || amtFinal <= 0) return;
 
+      const entry = { amount: amtFinal, category: cat, day: day, payer: payer, paid: paid, splitCount: split, participants: participants, note: note };
+      if (shares) entry.shares = shares;
       if (editingIdx >= 0 && spending[editingIdx]) {
-        const origTs = spending[editingIdx].ts;
-        spending[editingIdx] = { amount: amtFinal, category: cat, day: day, payer: payer, paid: paid, splitCount: split, participants: participants, note: note, ts: origTs };
+        entry.ts = spending[editingIdx].ts;
+        spending[editingIdx] = entry;
         exitSpendingEditMode();
       } else {
-        spending.push({ amount: amtFinal, category: cat, day: day, payer: payer, paid: paid, splitCount: split, participants: participants, note: note, ts: Date.now() });
+        entry.ts = Date.now();
+        spending.push(entry);
       }
       saveSpending();
       amtEl.value = '';
@@ -1342,8 +1486,10 @@
         activateChipByValue('sp-payer-chips', 'data-payer', getSelfMember().id);
         updateMultiPayVisibility();
       }
-      // Reset split chips to "all members" so a new entry defaults to whole group
+      // Reset split chips to "all members" so a new entry defaults to whole group; back to 平均 mode.
+      setSplitMode('equal');
       setSplitChipsFromIds(members.map((m) => m.id));
+      setSharesFromMap({});
       updateAmountTwdPreview();
       renderSpending();
       schedulePush();
@@ -1360,7 +1506,9 @@
           activateChipByValue('sp-payer-chips', 'data-payer', getSelfMember().id);
           updateMultiPayVisibility();
         }
+        setSplitMode('equal');
         setSplitChipsFromIds(members.map((m) => m.id));
+        setSharesFromMap({});
         updateAmountTwdPreview();
         renderSpending();
       });

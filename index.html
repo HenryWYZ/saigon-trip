@@ -1053,6 +1053,34 @@
     min-height: 14px;
   }
   body.dark .sp-split-status { color: #98a4be; }
+  .sp-split-mode {
+    display: inline-flex;
+    gap: 0;
+    margin: 4px 0 8px;
+    border: 1px solid #d4dae8;
+    border-radius: 18px;
+    padding: 2px;
+    background: #f3f5f9;
+  }
+  .sp-split-mode-btn {
+    border: none;
+    background: transparent;
+    padding: 5px 12px;
+    font-size: 12px;
+    border-radius: 14px;
+    cursor: pointer;
+    color: #4a6080;
+    font-family: inherit;
+  }
+  .sp-split-mode-btn.active {
+    background: white;
+    color: #001858;
+    font-weight: 600;
+    box-shadow: 0 1px 3px rgba(0,24,88,0.12);
+  }
+  body.dark .sp-split-mode { background: #2a3550; border-color: #3d4a6e; }
+  body.dark .sp-split-mode-btn { color: #98a4be; }
+  body.dark .sp-split-mode-btn.active { background: #1e2a4a; color: #f0e0b0; box-shadow: 0 1px 3px rgba(0,0,0,0.3); }
   .spending-list {
     list-style: none;
     padding: 0;
@@ -1677,10 +1705,18 @@
         <div class="sp-mp-status" id="sp-mp-status">請至少輸入一個人付的金額</div>
       </div>
 
-      <!-- Split participants (toggleable member chips; count is implicit) -->
+      <!-- Split participants (toggleable: 平均 vs 各自) -->
       <div class="sp-field" id="sp-split-section">
         <label class="sp-label">✂️ 誰要分攤（可多選）</label>
+        <div class="sp-split-mode" role="tablist" aria-label="分攤方式">
+          <button type="button" class="sp-split-mode-btn active" id="sp-split-mode-equal" data-mode="equal" role="tab" aria-selected="true">🟰 平均分攤</button>
+          <button type="button" class="sp-split-mode-btn" id="sp-split-mode-uneven" data-mode="uneven" role="tab" aria-selected="false">➗ 各自分攤</button>
+        </div>
         <div class="sp-chip-group sp-chip-split" id="sp-split-chips" role="group" aria-label="分攤對象"></div>
+        <div id="sp-uneven-panel" hidden>
+          <div class="sp-mp-list" id="sp-shares-list"></div>
+          <div class="sp-mp-status" id="sp-shares-status">請至少輸入一個人應分攤金額</div>
+        </div>
         <div class="sp-split-status" id="sp-split-status" aria-live="polite"></div>
         <input type="number" id="sp-split" min="1" max="20" step="1" value="1" hidden>
       </div>
