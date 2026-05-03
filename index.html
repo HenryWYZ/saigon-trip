@@ -259,6 +259,13 @@
   }
   .collapsible-info[open] > summary::before { transform: rotate(90deg); }
   .collapsible-info > summary:hover { background: #fff5f5; }
+  /* Reference info-box variant — pink theme matching the original .info-box */
+  .collapsible-info.ref-info { border-left-color: #f582ae; }
+  .collapsible-info.ref-info > summary { color: #f582ae; }
+  .collapsible-info.ref-info > summary:hover { background: #fff5f8; }
+  body.dark .collapsible-info.ref-info { border-left-color: #f582ae; }
+  body.dark .collapsible-info.ref-info > summary { color: #f582ae; }
+  body.dark .collapsible-info.ref-info > summary:hover { background: #2a3550; }
   .collapsible-content {
     padding: 0 18px 18px;
     font-size: 14px;
@@ -1065,6 +1072,116 @@
   body.dark .spending-settle .sp-settle-debt .sp-settle-amount { color: #ff8f8f; }
   body.dark .spending-settle .sp-settle-credit .sp-settle-amount { color: #88c894; }
   body.dark .spending-settle .sp-settle-warn { color: #98a4be; }
+  /* === Spending report (category breakdown + top entries) === */
+  .spending-report {
+    margin-top: 8px;
+    background: #fbfafe;
+    border: 1px solid #e0d8e8;
+    border-radius: 6px;
+    overflow: hidden;
+  }
+  .spending-report > summary {
+    padding: 9px 12px;
+    cursor: pointer;
+    user-select: none;
+    list-style: none;
+    font-size: 13px;
+    font-weight: bold;
+    color: #5a4a8a;
+  }
+  .spending-report > summary::-webkit-details-marker { display: none; }
+  .spending-report > summary::before {
+    content: "▶";
+    display: inline-block;
+    margin-right: 8px;
+    font-size: 10px;
+    transition: transform 0.2s;
+  }
+  .spending-report[open] > summary::before { transform: rotate(90deg); }
+  .spending-report > summary:hover { background: #f4f0fb; }
+  .sp-report-body { padding: 0 12px 12px; font-size: 13px; }
+  .sp-report-section { margin-bottom: 10px; }
+  .sp-report-section:last-child { margin-bottom: 0; }
+  .sp-report-subhead {
+    font-size: 11px;
+    color: #888;
+    margin-bottom: 5px;
+    font-weight: 600;
+  }
+  .sp-cat-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 4px;
+    font-size: 12px;
+  }
+  .sp-cat-name { width: 78px; flex-shrink: 0; }
+  .sp-cat-bar {
+    flex: 1;
+    height: 12px;
+    background: #efe7f0;
+    border-radius: 3px;
+    overflow: hidden;
+  }
+  .sp-cat-bar > div {
+    height: 100%;
+    background: linear-gradient(90deg, #f582ae, #c46e8a);
+    border-radius: 3px;
+  }
+  .sp-cat-amt {
+    width: 110px;
+    text-align: right;
+    flex-shrink: 0;
+    font-variant-numeric: tabular-nums;
+    color: #555;
+  }
+  .sp-cat-pct {
+    width: 38px;
+    text-align: right;
+    flex-shrink: 0;
+    color: #888;
+    font-size: 11px;
+  }
+  .sp-top-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 4px 0;
+    border-bottom: 1px dashed #eadcf0;
+    font-size: 12px;
+  }
+  .sp-top-row:last-child { border-bottom: none; }
+  .sp-top-rank {
+    flex-shrink: 0;
+    width: 18px;
+    color: #c46e8a;
+    font-weight: bold;
+  }
+  .sp-top-name { flex: 1; color: #333; min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+  .sp-top-amt {
+    flex-shrink: 0;
+    font-weight: bold;
+    color: #c46e8a;
+    font-variant-numeric: tabular-nums;
+  }
+  .sp-report-stat {
+    display: flex;
+    justify-content: space-between;
+    padding: 2px 0;
+    font-size: 12px;
+    color: #555;
+  }
+  .sp-report-stat strong { color: #5a4a8a; font-variant-numeric: tabular-nums; }
+  body.dark .spending-report { background: #2a2540; border-color: #4a3d6a; }
+  body.dark .spending-report > summary { color: #c4b5e0; }
+  body.dark .spending-report > summary:hover { background: #3a3055; }
+  body.dark .sp-cat-bar { background: #3d3550; }
+  body.dark .sp-cat-amt { color: #b8a8d0; }
+  body.dark .sp-top-row { border-bottom-color: #4a3d6a; }
+  body.dark .sp-top-name { color: #d8d0e8; }
+  body.dark .sp-report-stat { color: #b8a8d0; }
+  body.dark .sp-report-stat strong { color: #c4b5e0; }
+  body.dark .sp-report-subhead { color: #a895c8; }
   .sp-split-status {
     font-size: 11px;
     color: #4a6080;
@@ -1596,41 +1713,49 @@
   <div class="progress-bg"><div class="progress-bar-fill" id="progress-bar"></div></div>
   <div class="progress-text" id="progress-text" aria-live="polite" aria-atomic="true">已完成 0 / 0</div>
 </div>
-<div class="info-box">
-  <h2>🏨 住宿</h2>
-  <ul>
-    <li>5/1：<a class="place" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=Signature+by+M+Village+24+Le+Thanh+Ton">Signature by M Village Lê Thánh Tôn</a></li>
-    <li>5/2–5/4：<a class="place" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=Liberty+Central+Saigon+Riverside+17+Ton+Duc+Thang">Liberty Central Saigon Riverside Hotel</a></li>
-  </ul>
-</div>
-<div class="info-box">
-  <h2>💱 換錢</h2>
-  <p><a class="place" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=Ha+Tam+Jewelry+2+Nguyen+An+Ninh">Ha Tam Jewelry 河潭金行</a>｜2 Đ. Nguyễn An Ninh, 第1郡（濱城市場北側出口對面）｜帶 USD 100 新鈔匯率最佳</p>
-</div>
-<div class="info-box">
-  <h2>📞 必訂位（出發前完成）</h2>
-  <ul>
-    <li>AN CUA SAIGON（Day 1 晚餐 18:00）</li>
-    <li>✅ Chài Village（Day 2 18:30 已訂）</li>
-    <li>✅ Forest Spa（Day 2 14:00 已訂）</li>
-    <li>🍴 Nhà Tú（Day 3 晚餐 18:00，Michelin Bib Gourmand）</li>
-    <li>✅ 鴉片工廠 The Refinery（Day 4 18:30 已訂）</li>
-    <li>🍲 Cục Gạch Quán（Day 5 午餐 11:00，需訂位 — 取消原 Pizza 4P's 訂位）</li>
-  </ul>
-</div>
-<div class="info-box">
-  <h2>💰 預算 / 匯率參考</h2>
-  <p><strong>匯率（2026/4 參考，實際以當日為準）：</strong>1 USD ≈ 25,000 VND｜1 TWD ≈ 780 VND｜100,000 VND ≈ 128 TWD</p>
-  <ul>
-    <li>早餐（當地小吃）：50,000–120,000 VND / 人</li>
-    <li>午餐（小館/粉店）：150,000–300,000 VND / 人</li>
-    <li>晚餐（海鮮/高級）：400,000–1,500,000 VND / 人</li>
-    <li>Grab 市區短程：30,000–80,000 VND｜機場來回：250,000–350,000 VND</li>
-    <li>Spa 按摩 2 小時：500,000–1,200,000 VND / 人</li>
-    <li>夜市小吃一輪：150,000–300,000 VND / 人</li>
-    <li>小費慣例：Spa/高級餐廳 50,000–100,000 VND；一般餐廳已含服務費</li>
-  </ul>
-</div>
+<details class="collapsible-info ref-info">
+  <summary>🏨 住宿</summary>
+  <div class="collapsible-content">
+    <ul>
+      <li>5/1：<a class="place" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=Signature+by+M+Village+24+Le+Thanh+Ton">Signature by M Village Lê Thánh Tôn</a></li>
+      <li>5/2–5/4：<a class="place" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=Liberty+Central+Saigon+Riverside+17+Ton+Duc+Thang">Liberty Central Saigon Riverside Hotel</a></li>
+    </ul>
+  </div>
+</details>
+<details class="collapsible-info ref-info">
+  <summary>💱 換錢</summary>
+  <div class="collapsible-content">
+    <p><a class="place" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=Ha+Tam+Jewelry+2+Nguyen+An+Ninh">Ha Tam Jewelry 河潭金行</a>｜2 Đ. Nguyễn An Ninh, 第1郡（濱城市場北側出口對面）｜帶 USD 100 新鈔匯率最佳</p>
+  </div>
+</details>
+<details class="collapsible-info ref-info">
+  <summary>📞 必訂位（出發前完成）</summary>
+  <div class="collapsible-content">
+    <ul>
+      <li>AN CUA SAIGON（Day 1 晚餐 18:00）</li>
+      <li>✅ Chài Village（Day 2 18:30 已訂）</li>
+      <li>✅ Forest Spa（Day 2 14:00 已訂）</li>
+      <li>🍴 Nhà Tú（Day 3 晚餐 18:00，Michelin Bib Gourmand）</li>
+      <li>✅ 鴉片工廠 The Refinery（Day 4 18:30 已訂）</li>
+      <li>🍲 Cục Gạch Quán（Day 5 午餐 11:00，需訂位 — 取消原 Pizza 4P's 訂位）</li>
+    </ul>
+  </div>
+</details>
+<details class="collapsible-info ref-info">
+  <summary>💰 預算 / 匯率參考</summary>
+  <div class="collapsible-content">
+    <p><strong>匯率（2026/4 參考，實際以當日為準）：</strong>1 USD ≈ 25,000 VND｜1 TWD ≈ 780 VND｜100,000 VND ≈ 128 TWD</p>
+    <ul>
+      <li>早餐（當地小吃）：50,000–120,000 VND / 人</li>
+      <li>午餐（小館/粉店）：150,000–300,000 VND / 人</li>
+      <li>晚餐（海鮮/高級）：400,000–1,500,000 VND / 人</li>
+      <li>Grab 市區短程：30,000–80,000 VND｜機場來回：250,000–350,000 VND</li>
+      <li>Spa 按摩 2 小時：500,000–1,200,000 VND / 人</li>
+      <li>夜市小吃一輪：150,000–300,000 VND / 人</li>
+      <li>小費慣例：Spa/高級餐廳 50,000–100,000 VND；一般餐廳已含服務費</li>
+    </ul>
+  </div>
+</details>
 <details class="collapsible-info spending-tracker" id="spending-section">
   <summary>💰 旅費記帳（點擊展開）</summary>
   <div class="collapsible-content">
@@ -1752,6 +1877,10 @@
     <div class="spending-summary" id="spending-summary"></div>
     <div class="spending-totals" id="spending-totals"></div>
     <div class="spending-settle" id="spending-settle" hidden></div>
+    <details class="spending-report" id="spending-report" hidden>
+      <summary>📊 報表 / 統計</summary>
+      <div class="sp-report-body" id="sp-report-body"></div>
+    </details>
     <ul class="spending-list" id="spending-list"></ul>
   </div>
 </details>
@@ -2062,16 +2191,18 @@
   <tr><td>15:30–</td><td><input type="checkbox" class="checkbox">✈️ CI9026 飛回高雄小港</td></tr>
 </table>
 </details>
-<div class="info-box">
-  <h2>💊 24h 連鎖藥局</h2>
-  <p>越南三大連鎖藥局，多數有英文 / 中文標示，能買到常見止瀉、止痛、感冒、防曬、蚊蟲咬藥。Pharmacity 部分分店 24h 營業。</p>
-  <ul>
-    <li><strong>Pharmacity</strong>（最大連鎖）｜<a class="place" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=Pharmacity+Quan+1+Ho+Chi+Minh">第1郡分店搜尋</a>｜<a class="place" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=Pharmacity+Quan+3+Ho+Chi+Minh">第3郡分店搜尋</a></li>
-    <li><strong>Long Châu</strong>（FPT 旗下）｜<a class="place" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=Long+Chau+Quan+1+Ho+Chi+Minh">第1郡分店搜尋</a>｜<a class="place" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=Long+Chau+Quan+3+Ho+Chi+Minh">第3郡分店搜尋</a></li>
-    <li><strong>An Khang</strong>｜<a class="place" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=An+Khang+Pharmacy+Quan+1+Ho+Chi+Minh">第1郡分店搜尋</a></li>
-  </ul>
-  <p style="font-size:11px;color:#888;margin-top:6px;">越文求助：<code>thuốc</code> 藥｜<code>nhà thuốc</code> 藥局｜<code>đau bụng</code> 肚子痛｜<code>tiêu chảy</code> 拉肚子｜<code>đau đầu</code> 頭痛｜<code>cảm cúm</code> 感冒｜<code>dị ứng</code> 過敏。Smecta（止瀉粉包）、Panadol（止痛）、Strepsils（喉糖）都是國際品牌可直接點。</p>
-</div>
+<details class="collapsible-info ref-info">
+  <summary>💊 24h 連鎖藥局</summary>
+  <div class="collapsible-content">
+    <p>越南三大連鎖藥局，多數有英文 / 中文標示，能買到常見止瀉、止痛、感冒、防曬、蚊蟲咬藥。Pharmacity 部分分店 24h 營業。</p>
+    <ul>
+      <li><strong>Pharmacity</strong>（最大連鎖）｜<a class="place" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=Pharmacity+Quan+1+Ho+Chi+Minh">第1郡分店搜尋</a>｜<a class="place" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=Pharmacity+Quan+3+Ho+Chi+Minh">第3郡分店搜尋</a></li>
+      <li><strong>Long Châu</strong>（FPT 旗下）｜<a class="place" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=Long+Chau+Quan+1+Ho+Chi+Minh">第1郡分店搜尋</a>｜<a class="place" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=Long+Chau+Quan+3+Ho+Chi+Minh">第3郡分店搜尋</a></li>
+      <li><strong>An Khang</strong>｜<a class="place" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=An+Khang+Pharmacy+Quan+1+Ho+Chi+Minh">第1郡分店搜尋</a></li>
+    </ul>
+    <p style="font-size:11px;color:#888;margin-top:6px;">越文求助：<code>thuốc</code> 藥｜<code>nhà thuốc</code> 藥局｜<code>đau bụng</code> 肚子痛｜<code>tiêu chảy</code> 拉肚子｜<code>đau đầu</code> 頭痛｜<code>cảm cúm</code> 感冒｜<code>dị ứng</code> 過敏。Smecta（止瀉粉包）、Panadol（止痛）、Strepsils（喉糖）都是國際品牌可直接點。</p>
+  </div>
+</details>
 <details class="collapsible-info">
   <summary>🚨 緊急聯絡（點擊展開）</summary>
   <div class="collapsible-content">

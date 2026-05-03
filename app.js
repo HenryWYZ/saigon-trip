@@ -1059,6 +1059,75 @@
     box.hidden = false;
   }
 
+  function renderSpendingReport() {
+    const box = document.getElementById('spending-report');
+    const body = document.getElementById('sp-report-body');
+    if (!box || !body) return;
+    const live = spending.filter(isLive);
+    if (live.length === 0) {
+      box.hidden = true;
+      body.innerHTML = '';
+      return;
+    }
+    box.hidden = false;
+    const total = live.reduce((s, e) => s + (+e.amount || 0), 0);
+    const fmtTwd = (vnd) => (typeof rate === 'number' && rate)
+      ? ' <span style="color:#888;font-weight:normal;">≈ NT$ ' + Math.round(vnd * rate).toLocaleString('en-US') + '</span>' : '';
+
+    // 1) Category breakdown (sorted desc by amount)
+    const catTot = new Map();
+    live.forEach((e) => {
+      const k = e.category || '📌 其他';
+      catTot.set(k, (catTot.get(k) || 0) + (+e.amount || 0));
+    });
+    const catRows = Array.from(catTot.entries())
+      .sort((a, b) => b[1] - a[1])
+      .map(([cat, amt]) => {
+        const pct = total > 0 ? Math.round((amt / total) * 100) : 0;
+        return '<div class="sp-cat-row">' +
+          '<span class="sp-cat-name">' + escapeHtml(cat) + '</span>' +
+          '<span class="sp-cat-bar"><div style="width:' + pct + '%"></div></span>' +
+          '<span class="sp-cat-amt">' + fmtVnd(Math.round(amt)) + '</span>' +
+          '<span class="sp-cat-pct">' + pct + '%</span>' +
+        '</div>';
+      });
+
+    // 2) Top 3 most expensive entries
+    const top = live.slice().sort((a, b) => (+b.amount || 0) - (+a.amount || 0)).slice(0, 3);
+    const topRows = top.map((e, i) => {
+      const dayLabel = DAY_LABELS[e.day] || e.day;
+      const head = dayLabel + ' · ' + (e.category || '');
+      const note = e.note ? ' · ' + e.note : '';
+      return '<div class="sp-top-row">' +
+        '<span class="sp-top-rank">#' + (i + 1) + '</span>' +
+        '<span class="sp-top-name">' + escapeHtml(head + note) + '</span>' +
+        '<span class="sp-top-amt">' + fmtVnd(+e.amount || 0) + ' VND' + fmtTwd(+e.amount || 0) + '</span>' +
+      '</div>';
+    });
+
+    // 3) Quick stats: avg per entry, avg per day with spending
+    const days = new Set(live.map((e) => e.day));
+    const avgPerEntry = Math.round(total / live.length);
+    const avgPerDay   = Math.round(total / Math.max(1, days.size));
+
+    body.innerHTML =
+      '<div class="sp-report-section">' +
+        '<div class="sp-report-subhead">🏷️ 類別佔比（' + catRows.length + ' 類）</div>' +
+        catRows.join('') +
+      '</div>' +
+      '<div class="sp-report-section">' +
+        '<div class="sp-report-subhead">💸 單筆 Top 3</div>' +
+        (topRows.length ? topRows.join('') : '<div style="color:#888;font-size:12px;">無資料</div>') +
+      '</div>' +
+      '<div class="sp-report-section">' +
+        '<div class="sp-report-subhead">📈 快速統計</div>' +
+        '<div class="sp-report-stat"><span>總筆數</span><strong>' + live.length + ' 筆</strong></div>' +
+        '<div class="sp-report-stat"><span>有支出的天數</span><strong>' + days.size + ' / 5 天</strong></div>' +
+        '<div class="sp-report-stat"><span>單筆平均</span><strong>' + fmtVnd(avgPerEntry) + ' VND' + fmtTwd(avgPerEntry) + '</strong></div>' +
+        '<div class="sp-report-stat"><span>每日平均</span><strong>' + fmtVnd(avgPerDay) + ' VND' + fmtTwd(avgPerDay) + '</strong></div>' +
+      '</div>';
+  }
+
   function renderSpending() {
     const summary = document.getElementById('spending-summary');
     const totals = document.getElementById('spending-totals');
@@ -1091,6 +1160,7 @@
       '<strong>5 日累計：</strong>' + fmtVnd(total) + ' VND' + (totalTwd != null ? ' (NT$ ' + totalTwd.toLocaleString('en-US') + ')' : '') +
       '｜<strong>我的份額：</strong>' + fmtVnd(Math.round(myShare)) + ' VND' + (myShareTwd != null ? ' (NT$ ' + myShareTwd.toLocaleString('en-US') + ')' : '');
     renderSettlement();
+    renderSpendingReport();
     const liveCount = spending.reduce((n, e) => isLive(e) ? n + 1 : n, 0);
     if (liveCount === 0) {
       list.innerHTML = '<li class="sp-empty">尚無記錄 · 新增第一筆 ↑</li>';
