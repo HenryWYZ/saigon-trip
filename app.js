@@ -595,6 +595,19 @@
   const SYNC_PAT_KEY  = 'saigon-trip-sync-pat';
   const SYNC_GIST_KEY = 'saigon-trip-sync-gist';
   const SYNC_TS_KEY   = 'saigon-trip-cloud-saved-at';
+  const SYNC_DIRTY_KEY = 'saigon-trip-spending-dirty';
+  // Sync state — must be initialized BEFORE setupCloudSync() runs (form init)
+  var syncPat = '';
+  var syncGistId = '';
+  var lastCloudSavedAt = 0;
+  var syncPushTimer = null;
+  var syncPollTimer = null;
+  var isPushing = false, isPulling = false;
+  try {
+    syncPat = localStorage.getItem(SYNC_PAT_KEY) || '';
+    syncGistId = localStorage.getItem(SYNC_GIST_KEY) || '';
+    lastCloudSavedAt = parseInt(localStorage.getItem(SYNC_TS_KEY) || '0', 10) || 0;
+  } catch (e) {}
   const DAYS = ['2026-05-01', '2026-05-02', '2026-05-03', '2026-05-04', '2026-05-05'];
   const DAY_LABELS = { '2026-05-01': '5/1', '2026-05-02': '5/2', '2026-05-03': '5/3', '2026-05-04': '5/4', '2026-05-05': '5/5' };
   let spending = [];
@@ -613,10 +626,28 @@
   }
   function saveSpending() {
     try { localStorage.setItem(SPEND_KEY, JSON.stringify(spending)); } catch (e) {}
+    markDirty();
   }
   function saveMembers() {
     try { localStorage.setItem(MEMBERS_KEY, JSON.stringify(members)); } catch (e) {}
+    markDirty();
   }
+  function markDirty() {
+    try { localStorage.setItem(SYNC_DIRTY_KEY, '1'); } catch (e) {}
+  }
+  function clearDirty() {
+    try { localStorage.removeItem(SYNC_DIRTY_KEY); } catch (e) {}
+  }
+  function isDirty() {
+    try { return localStorage.getItem(SYNC_DIRTY_KEY) === '1'; } catch (e) { return false; }
+  }
+  function stampMtime(entry) {
+    entry.mtime = Date.now();
+    return entry;
+  }
+  // Tombstoned entries (e.deleted) are kept in the array so the soft-delete
+  // can sync across devices, but they're hidden from all UI / settlement.
+  function isLive(e) { return e && !e.deleted; }
   function genMemberId() { return 'm-' + Math.random().toString(36).slice(2, 10); }
   function getMember(id) { return members.find((m) => m.id === id) || null; }
   function getSelfMember() { return members.find((m) => m.isSelf) || members[0]; }
@@ -664,8 +695,17 @@
           changed = true;
         }
       }
+      // Ensure every entry has an mtime so the cloud-merge logic can compare fairly.
+      // Pre-mtime entries get mtime = ts (their creation time) — neither newer nor older
+      // than they really are.
+      if (e.mtime == null) { e.mtime = e.ts || Date.now(); changed = true; }
     });
-    if (changed) { saveMembers(); saveSpending(); }
+    if (changed) {
+      // Use the underlying setItem directly to avoid markDirty() flagging
+      // a fake "local change" right after a clean app load.
+      try { localStorage.setItem(MEMBERS_KEY, JSON.stringify(members)); } catch (e) {}
+      try { localStorage.setItem(SPEND_KEY, JSON.stringify(spending)); } catch (e) {}
+    }
   })();
   function fmtVnd(n) { return n.toLocaleString('en-US'); }
   function vndToTwdLabel(vnd) {
@@ -679,7 +719,7 @@
   }
   function refreshSpendingDatalists() {
     const cats = new Set(['🍜 餐', '🚕 交通', '🛍️ 購物', '🏛️ 景點', '💆 Spa', '☕ 咖啡', '🍺 酒吧', '📌 其他']);
-    spending.forEach((e) => { if (e.category) cats.add(e.category); });
+    spending.forEach((e) => { if (isLive(e) && e.category) cats.add(e.category); });
     const cl = document.getElementById('sp-cat-list');
     if (cl) cl.innerHTML = Array.from(cats).map((c) => '<option value="' + escapeHtml(c) + '"></option>').join('');
   }
@@ -885,6 +925,7 @@
       pair[creditor][debtor] = (pair[creditor][debtor] || 0) + amount;
     }
     spending.forEach((e) => {
+      if (!isLive(e)) return;
       const amt = +e.amount || 0;
       if (amt <= 0) return;
       // Uneven split: each participant has their own share.
@@ -1010,7 +1051,7 @@
     const today = todayStr();
     const dayTot = {};
     DAYS.forEach((d) => { dayTot[d] = 0; });
-    spending.forEach((e) => { if (dayTot[e.day] != null) dayTot[e.day] += +e.amount; });
+    spending.forEach((e) => { if (isLive(e) && dayTot[e.day] != null) dayTot[e.day] += +e.amount; });
     summary.innerHTML = DAYS.map((d) => {
       const v = dayTot[d];
       const cls = d === today ? ' today' : '';
@@ -1019,11 +1060,11 @@
         : '';
       return '<div class="day-total' + cls + '"><div class="label">' + DAY_LABELS[d] + '</div><div class="value">' + (v ? fmtVnd(v) : '–') + '</div>' + twdLine + '</div>';
     }).join('');
-    const total = spending.reduce((s, e) => s + (+e.amount || 0), 0);
+    const total = spending.reduce((s, e) => isLive(e) ? s + (+e.amount || 0) : s, 0);
     const myShare = spending.reduce((s, e) => {
+      if (!isLive(e)) return s;
       const amt = +e.amount || 0;
       const split = Math.max(1, +e.splitCount || 1);
-      const payer = e.payer || '我';
       // 我的份額：自己付 → 全付出後攤回 amt/split；同伴付 → 我欠 amt/split；共付 → amt/split
       return s + amt / split;
     }, 0);
@@ -1033,14 +1074,15 @@
       '<strong>5 日累計：</strong>' + fmtVnd(total) + ' VND' + (totalTwd != null ? ' (NT$ ' + totalTwd.toLocaleString('en-US') + ')' : '') +
       '｜<strong>我的份額：</strong>' + fmtVnd(Math.round(myShare)) + ' VND' + (myShareTwd != null ? ' (NT$ ' + myShareTwd.toLocaleString('en-US') + ')' : '');
     renderSettlement();
-    if (spending.length === 0) {
+    const liveCount = spending.reduce((n, e) => isLive(e) ? n + 1 : n, 0);
+    if (liveCount === 0) {
       list.innerHTML = '<li class="sp-empty">尚無記錄 · 新增第一筆 ↑</li>';
     } else {
       const ZH_WD = ['日', '一', '二', '三', '四', '五', '六'];
       const byDay = {};
       DAYS.forEach((d) => { byDay[d] = []; });
-      spending.forEach((_, idx) => {
-        const e = spending[idx];
+      spending.forEach((e, idx) => {
+        if (!isLive(e)) return;
         if (byDay[e.day]) byDay[e.day].push(idx);
       });
       Object.keys(byDay).forEach((d) => {
@@ -1070,8 +1112,12 @@
       b.addEventListener('click', () => {
         const idx = +b.dataset.idx;
         if (idx === editingIdx) exitSpendingEditMode();
-        else if (editingIdx >= 0 && idx < editingIdx) editingIdx -= 1;
-        spending.splice(idx, 1);
+        // Tombstone (soft-delete) instead of splice — keeps indices stable across devices
+        // so cloud-sync merge can propagate the delete reliably.
+        if (spending[idx]) {
+          spending[idx].deleted = true;
+          stampMtime(spending[idx]);
+        }
         saveSpending();
         renderSpending();
         schedulePush();
@@ -1471,10 +1517,12 @@
       if (shares) entry.shares = shares;
       if (editingIdx >= 0 && spending[editingIdx]) {
         entry.ts = spending[editingIdx].ts;
+        stampMtime(entry);
         spending[editingIdx] = entry;
         exitSpendingEditMode();
       } else {
         entry.ts = Date.now();
+        stampMtime(entry);
         spending.push(entry);
       }
       saveSpending();
@@ -1547,17 +1595,7 @@
   }
 
   // === Cloud sync (GitHub Gist) ===
-  var syncPat = '';
-  var syncGistId = '';
-  var lastCloudSavedAt = 0;
-  var syncPushTimer = null;
-  var syncPollTimer = null;
-  var isPushing = false, isPulling = false;
-  try {
-    syncPat = localStorage.getItem(SYNC_PAT_KEY) || '';
-    syncGistId = localStorage.getItem(SYNC_GIST_KEY) || '';
-    lastCloudSavedAt = parseInt(localStorage.getItem(SYNC_TS_KEY) || '0', 10) || 0;
-  } catch (e) {}
+  // (state declared at top of IIFE near SPEND_KEY consts)
 
   function setSyncStatus(text, cls) {
     const el = document.getElementById('sp-sync-status');
@@ -1624,9 +1662,10 @@
       if (!r.ok) throw new Error('Push ' + r.status);
       lastCloudSavedAt = data.savedAt;
       try { localStorage.setItem(SYNC_TS_KEY, String(lastCloudSavedAt)); } catch (e) {}
+      clearDirty();
       setSyncStatus('✅ 已同步 ' + timeNow(), 'ok');
     } catch (e) {
-      setSyncStatus('❌ 同步失敗：' + e.message, 'err');
+      setSyncStatus('❌ 同步失敗：' + e.message + '（資料保留在本機，重連後會自動補推）', 'err');
     } finally { isPushing = false; }
   }
   function schedulePush() {
@@ -1635,11 +1674,67 @@
     clearTimeout(syncPushTimer);
     syncPushTimer = setTimeout(cloudPush, 2000);
   }
+  // === Merge helpers (sync conflict resolution) ===
+  // Strategy: ts is the stable per-entry id. mtime tracks the last edit per entry.
+  // For each ts seen on either side:
+  //   - both sides have it: take the one with later mtime (last-write-wins per entry)
+  //   - only cloud has it: take it (someone else added it; we missed it)
+  //   - only local has it AND mtime > prevSavedAt: KEEP it (unpushed local change)
+  //   - only local has it AND mtime <= prevSavedAt: it was deleted on another device → DROP
+  // This protects offline / unpushed entries from being wiped when a partner pushes.
+  function mergeEntries(localArr, cloudArr, prevSavedAt) {
+    const byTs = new Map();
+    (localArr || []).forEach((e) => { if (e && e.ts != null) byTs.set(e.ts, { local: e }); });
+    (cloudArr || []).forEach((e) => {
+      if (!e || e.ts == null) return;
+      const slot = byTs.get(e.ts) || {};
+      slot.cloud = e;
+      byTs.set(e.ts, slot);
+    });
+    const out = [];
+    byTs.forEach((slot) => {
+      if (slot.local && slot.cloud) {
+        const lm = slot.local.mtime || slot.local.ts || 0;
+        const cm = slot.cloud.mtime || slot.cloud.ts || 0;
+        out.push(cm >= lm ? slot.cloud : slot.local);
+      } else if (slot.cloud) {
+        out.push(slot.cloud);
+      } else if (slot.local) {
+        const lm = slot.local.mtime || slot.local.ts || 0;
+        if (lm > (prevSavedAt || 0)) out.push(slot.local);
+        // else: cloud agrees this entry no longer exists → drop
+      }
+    });
+    return out;
+  }
+  function mergeMembers(localArr, cloudArr) {
+    // Members rarely change — merge by id, keep self flag from local (the user's
+    // own perspective shouldn't flip when partner's view of "self" is different).
+    const byId = new Map();
+    (cloudArr || []).forEach((m) => { if (m && m.id) byId.set(m.id, Object.assign({}, m)); });
+    (localArr || []).forEach((m) => {
+      if (!m || !m.id) return;
+      const existing = byId.get(m.id);
+      if (!existing) byId.set(m.id, m);
+      else if (m.isSelf) existing.isSelf = true;
+    });
+    return Array.from(byId.values());
+  }
   function applyCloudData(cloud) {
     if (!cloud) return false;
-    if (Array.isArray(cloud.members) && cloud.members.length > 0) members = cloud.members;
-    if (Array.isArray(cloud.spending)) spending = cloud.spending;
-    saveMembers(); saveSpending();
+    const prevSavedAt = lastCloudSavedAt || 0;
+    if (Array.isArray(cloud.spending)) {
+      spending = mergeEntries(spending, cloud.spending, prevSavedAt);
+    }
+    if (Array.isArray(cloud.members) && cloud.members.length > 0) {
+      members = mergeMembers(members, cloud.members);
+      if (!members.some((m) => m.isSelf)) members[0].isSelf = true;
+    }
+    // Persist merge result without flagging dirty (the merge itself isn't a
+    // user-driven local change; the dirty flag should reflect changes the
+    // cloud doesn't yet know about).
+    try { localStorage.setItem(MEMBERS_KEY, JSON.stringify(members)); } catch (e) {}
+    try { localStorage.setItem(SPEND_KEY, JSON.stringify(spending)); } catch (e) {}
     if (cloud.savedAt) {
       lastCloudSavedAt = cloud.savedAt;
       try { localStorage.setItem(SYNC_TS_KEY, String(cloud.savedAt)); } catch (e) {}
@@ -1856,20 +1951,32 @@
       showImportBanner(parsed);
       return;
     }
-    // 2. Existing PAT in localStorage → auto-pull + start poll
+    // 2. Existing PAT in localStorage → pull-merge-push:
+    //    Pull first (so partner's recent changes are visible to the merge), MERGE
+    //    via applyCloudData (preserves our unpushed local entries because their
+    //    mtime > prevSavedAt), then if dirty push the merged result back so the
+    //    cloud is up to date.
     updateSyncConfigVisibility();
     if (syncPat && syncGistId) {
       if (disableBtn) disableBtn.hidden = false;
       if (shareBtn) shareBtn.hidden = false;
-      cloudPull().then((cloud) => {
-        if (cloud && cloud.savedAt && cloud.savedAt > lastCloudSavedAt) {
-          applyCloudData(cloud);
-          setSyncStatus('✅ 已同步（從雲端拉取） ' + timeNow(), 'ok');
-        } else {
-          setSyncStatus('✅ 已連線 ' + timeNow(), 'ok');
+      (async () => {
+        const wasDirty = isDirty();
+        try {
+          const cloud = await cloudPull();
+          if (cloud) applyCloudData(cloud);
+          if (wasDirty) {
+            setSyncStatus('⏳ 補推離線記錄...', 'warn');
+            await cloudPush();
+          } else {
+            setSyncStatus('✅ 已同步 ' + timeNow(), 'ok');
+          }
+          startSyncPoll();
+        } catch (e) {
+          setSyncStatus('⚠️ 載入失敗：' + e.message + '（本地資料保留）', 'warn');
+          startSyncPoll();
         }
-        startSyncPoll();
-      }).catch((e) => { setSyncStatus('⚠️ 載入失敗：' + e.message, 'warn'); });
+      })();
     }
   }
   // No-op stub if not enabled (so render handlers can call schedulePush safely)
