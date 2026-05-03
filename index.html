@@ -658,6 +658,25 @@
   .today-fab:active { transform: scale(0.95); }
   .today-fab[hidden] { display: none; }
   @media print { .today-fab { display: none; } }
+  .spend-fab {
+    position: fixed;
+    bottom: 70px;
+    right: 18px;
+    z-index: 150;
+    background: #4a8050;
+    color: white;
+    border: none;
+    padding: 12px 18px;
+    font-size: 14px;
+    font-weight: bold;
+    border-radius: 24px;
+    box-shadow: 0 4px 12px rgba(74,128,80,0.4);
+    cursor: pointer;
+    font-family: inherit;
+  }
+  .spend-fab:active { transform: scale(0.95); }
+  body.dark .spend-fab { background: #5fa067; box-shadow: 0 4px 12px rgba(95,160,103,0.5); }
+  @media print { .spend-fab { display: none; } }
   .countdown {
     display: inline-block;
     margin-left: 6px;
@@ -1612,7 +1631,7 @@
     <li>小費慣例：Spa/高級餐廳 50,000–100,000 VND；一般餐廳已含服務費</li>
   </ul>
 </div>
-<details class="collapsible-info spending-tracker">
+<details class="collapsible-info spending-tracker" id="spending-section">
   <summary>💰 旅費記帳（點擊展開）</summary>
   <div class="collapsible-content">
     <details class="sp-members-config" id="sp-members-config">
@@ -2100,6 +2119,7 @@
   🇻🇳 胡志明五日行程 ｜ 2026/5/1–5/5 ｜ Chúc chuyến đi vui vẻ!
 </footer>
 </main>
+<button class="spend-fab" id="spend-fab" type="button" aria-label="跳到旅費記帳">💰 記帳</button>
 <button class="today-fab" id="today-fab" type="button" hidden>📅 今天</button>
 <script defer src="app.js"></script>
 </body>

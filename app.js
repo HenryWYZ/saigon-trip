@@ -531,6 +531,23 @@
     }
   }
 
+  // === Spending FAB — open the spending tracker + scroll + focus amount input ===
+  const spendFab = document.getElementById('spend-fab');
+  if (spendFab) {
+    spendFab.addEventListener('click', () => {
+      const section = document.getElementById('spending-section');
+      if (!section) return;
+      section.open = true;
+      section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      // Slight delay so the focus happens after the open animation; mobile keyboards
+      // pop up reliably this way.
+      setTimeout(() => {
+        const amt = document.getElementById('sp-amount');
+        if (amt) try { amt.focus({ preventScroll: true }); } catch (e) { amt.focus(); }
+      }, 350);
+    });
+  }
+
   // === Reservation countdown — "⏱️ Xh Ym" badge for bookings within 24h ===
   function updateCountdowns() {
     document.querySelectorAll('.countdown').forEach((el) => el.remove());
